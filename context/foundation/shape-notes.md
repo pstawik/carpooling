@@ -7,6 +7,8 @@ source: idea-notes.md
 product_type: web-app
 target_scale:
   users: small
+  qps: low
+  data_volume: small
 timeline_budget:
   mvp_weeks: 2            # cel: 10 dni roboczych × ~6 h; dostępne do 15 dni (bufor 5 dni)
   hard_deadline: null
@@ -55,8 +57,7 @@ Model organizacyjny (z notatek):
 **Zasady:**
 - Użytkownik widzi wyłącznie grupy, których jest członkiem (poza adminem aplikacji).
 - Rodzic deklaruje i modyfikuje wyłącznie deklaracje swoich dzieci i własne deklaracje kierowcy.
-- Dostęp do zasobu obcej grupy (przez URL lub API) kończy się odmową.
-- Uprawnienia egzekwowane po stronie backendu, nie tylko w interfejsie.
+- Uprawnienia obowiązują niezależnie od interfejsu: żadna próba odczytu lub zmiany danych obcej grupy ani cudzych deklaracji — także z pominięciem ekranów aplikacji (np. przez ręcznie wpisany adres) — nie powiedzie się.
 - **Usunięcie z grupy:** deklaracje na przyszłe terminy są usuwane; deklaracje z zakończonych terminów zostają w statystykach.
 
 ## Success Criteria
@@ -187,7 +188,14 @@ Cięcia z sesji kształtowania:
 - Reset hasła — bez e-maili nie ma samoobsługowego resetu; reset ręcznie przez administratora.
 - Wskaźnik sprawiedliwości / ocena, kto „powinien” jeździć — statystyki pokazują surowe liczby, ocena należy do grupy.
 
+## Forward: tech-stack
+
+Informacyjnie, poza schematem PRD (dla kroku wyboru stosu):
+- Oryginalne sformułowania z idea-notes.md: „Role i uprawnienia są sprawdzane po stronie backendu”; „Próba dostępu do zasobu obcej grupy przez URL lub API kończy się odmową dostępu”; „Uprawnienia są egzekwowane po stronie backendu, a nie wyłącznie w interfejsie”.
+
 ## Open Questions
 
-- Od kiedy termin jest „zakończony” na potrzeby statystyk (np. po godzinie rozpoczęcia, po końcu dnia)? Notatki tego nie precyzują.
-- Czy deklaracje można zmieniać po rozpoczęciu/zakończeniu terminu? (wpływa na uczciwość statystyk; nie rozstrzygnięte)
+Rozstrzygnięte 2026-11-06 (po wygenerowaniu PRD):
+- Termin jest „zakończony” od godziny rozpoczęcia — od tej chwili wchodzi do statystyk.
+- Od rozpoczęcia terminu deklaracje (dziecko i kierowca) są tylko do odczytu.
+- target_scale.qps: low; target_scale.data_volume: small.
