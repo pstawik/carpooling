@@ -112,7 +112,7 @@ npx supabase stop
 
 The local Studio UI is available at `http://localhost:54323`.
 
-No database tables or migrations are required — this project uses Supabase Auth's built-in `auth.users` table only.
+Authentication uses Supabase Auth's built-in `auth.users` table. Application tables (groups, children, events, declarations) are defined as SQL migrations in `supabase/migrations/`, each with RLS enabled. Apply them to the local stack with `npx supabase db reset`.
 
 ### Using a cloud Supabase project instead
 
@@ -182,7 +182,7 @@ It needs a reachable Supabase instance (local or cloud) with email confirmation 
 
 ## CI
 
-GitHub Actions runs two jobs on every push and PR to `master`:
+GitHub Actions runs two jobs on every push and PR to `main`:
 
 - **ci** — lint, `astro check` and build. Configure `SUPABASE_URL` and `SUPABASE_KEY` as repository secrets for the build step.
 - **smoke** — starts a local Supabase via the Supabase CLI, builds, serves the production preview on the Cloudflare runtime and runs `npm run smoke` against it. No secrets required.
