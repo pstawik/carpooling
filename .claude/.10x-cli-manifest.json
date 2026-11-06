@@ -1,0 +1,64 @@
+{
+  "package": "@przeprogramowani/10x-cli",
+  "version": "1.31.0",
+  "manifestVersion": 3,
+  "lastApplied": "2026-11-05T11:36:19.410Z",
+  "lessonId": "m1l1",
+  "course": "10xdevs4",
+  "tool": "claude-code",
+  "files": {
+    "skills": {
+      "10x-idea-check": {
+        "files": [
+          "SKILL.md",
+          "references/10xdevs-4-certification.md",
+          "references/10xdevs-4-dates.md",
+          "references/assessment-guide.md",
+          "references/examples.md"
+        ],
+        "contentHashes": {
+          "SKILL.md": "e946551c83fbe63667fca479fc2b04b97ef71837897d19f8468765df67cd138e",
+          "references/10xdevs-4-certification.md": "f74dcaa30cb8a82a74be37e1cb076c04c8663e990d0b6c2b9d650a70e33eb152",
+          "references/10xdevs-4-dates.md": "d4eb24be474a149c161cb2e26349ef54220ef5447619bea91ce70116bb3786b4",
+          "references/assessment-guide.md": "2b4f11435261fb65c40f066d109bac818590171de22d908c5e72374f7eb0351a",
+          "references/examples.md": "9646e36fe9106a897534a2ee0323495b40192789ce2198329e52893d13c44450"
+        }
+      },
+      "10x-init": {
+        "files": [
+          "SKILL.md"
+        ],
+        "contentHashes": {
+          "SKILL.md": "e1ed4b217c6a5329017fa8ce04554ead7205527844c78a94b21dabaf90217e47"
+        }
+      }
+    },
+    "prompts": [],
+    "configs": [],
+    "promptHashes": {},
+    "configHashes": {}
+  },
+  "lessons": {
+    "m1l1": {
+      "appliedAt": "2026-11-05T11:36:19.410Z",
+      "skills": {
+        "10x-idea-check": {
+          "files": [
+            "SKILL.md",
+            "references/10xdevs-4-certification.md",
+            "references/10xdevs-4-dates.md",
+            "references/assessment-guide.md",
+            "references/examples.md"
+          ]
+        },
+        "10x-init": {
+          "files": [
+            "SKILL.md"
+          ]
+        }
+      },
+      "prompts": [],
+      "configs": []
+    }
+  }
+}
