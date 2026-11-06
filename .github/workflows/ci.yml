@@ -34,7 +34,9 @@ jobs:
           cache: npm
       - uses: supabase/setup-cli@v1
         with:
-          version: latest
+          # Keep in sync with the `supabase` devDependency in package-lock.json;
+          # `latest` broke on config.toml schema changes ([inbucket] -> [local_smtp]).
+          version: 2.122.0
       - run: npm ci
       - name: Start local Supabase
         run: |
