@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "10x-astro-starter",
+  "name": "carpooling",
   "main": "@astrojs/cloudflare/entrypoints/server",
   "compatibility_date": "2026-05-08",
   "compatibility_flags": ["nodejs_compat"],
@@ -9,6 +9,15 @@
     "directory": "./dist",
     "not_found_handling": "404-page",
   },
+  // Run the Worker next to the Supabase project (AWS eu-west-2, London) instead of the user's nearest PoP.
+  // Update the region if the hosted Supabase project lives elsewhere.
+  "placement": {
+    "mode": "targeted",
+    "region": "aws:eu-west-2",
+  },
+  // Production lives on carpooling.pstawik.workers.dev. Preview URLs would share production secrets, so keep them off.
+  "workers_dev": true,
+  "preview_urls": false,
   "observability": {
     "enabled": true,
   },

@@ -35,9 +35,16 @@ async function request(path, { method = "GET", form } = {}) {
   return { status: response.status, location: response.headers.get("location") ?? "" };
 }
 
-const steps = [
+// SMOKE_READONLY=1 skips every step that creates users or sessions — use it against production,
+// where e-mail confirmation is on and throwaway sign-ups would pollute auth and bounce e-mails.
+const READONLY = process.env.SMOKE_READONLY === "1";
+
+const readonlySteps = [
   ["home renders", () => request("/"), { status: 200 }],
   ["dashboard redirects anonymous user", () => request("/dashboard"), { status: 302, location: "/auth/signin" }],
+];
+
+const writeSteps = [
   [
     "signup creates account",
     () => request("/api/auth/signup", { method: "POST", form: { email, password } }),
@@ -57,6 +64,9 @@ const steps = [
   ["signout clears session", () => request("/api/auth/signout", { method: "POST" }), { status: 302, location: "/" }],
   ["dashboard redirects after signout", () => request("/dashboard"), { status: 302, location: "/auth/signin" }],
 ];
+
+const steps = READONLY ? readonlySteps : [...readonlySteps, ...writeSteps];
+console.log(`Smoke against ${BASE_URL}${READONLY ? " (read-only)" : ""}`);
 
 let failed = 0;
 for (const [name, run, expected] of steps) {
