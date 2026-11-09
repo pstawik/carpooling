@@ -132,10 +132,10 @@ These steps set up the tools and accounts. Provisioning the real resources happe
 
 ## Phase 3 — Production secrets on the Worker  **[human]** ⛔
 
-- [ ] In PowerShell: `! npx wrangler secret put SUPABASE_URL`, then `! npx wrangler secret put SUPABASE_KEY`, pasting each value at the prompt.
+- [x] In PowerShell: `! npx wrangler secret put SUPABASE_URL`, then `! npx wrangler secret put SUPABASE_KEY`, pasting each value at the prompt. *(Done 2026-11-09. Note: `!` runs non-interactively and stores an empty value; run `secret put` in a real terminal. Wrangler created the draft Worker.)*
   - *Edge case: the Worker doesn't exist yet.* Wrangler offers to create a draft Worker first; accept. If that fails, do Phase 4's deploy first and set the secrets right after it. Until they're set, the app renders but shows "Supabase is not configured" on auth (`src/lib/supabase.ts` returns `null`).
   - *Don't* pipe values with `echo … |` in PowerShell, because it can add stray newlines or BOMs.
-- [ ] **[agent]** checks with `npx wrangler secret list`, which shows names only.
+- [x] **[agent]** checks with `npx wrangler secret list`, which shows names only. *(Verified 2026-11-09: SUPABASE_KEY, SUPABASE_URL. Values are confirmed in Phase 6.)*
 
 ## Phase 4 — First manual deploy  **[agent runs, after you approve]** ⛔
 
