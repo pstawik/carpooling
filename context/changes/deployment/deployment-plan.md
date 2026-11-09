@@ -117,7 +117,7 @@ These steps set up the tools and accounts. Provisioning the real resources happe
 ## Phase 1 — Cloudflare account and authentication  **[human]** ⛔
 
 - [x] Log in or sign up at dash.cloudflare.com and note the **Account ID** (Workers & Pages → right sidebar). *(Done: `4c40bd410fdcbbf87e6459aa0a9b2727`.)*
-- [ ] **Edge case: no `workers.dev` subdomain.** *(Not yet confirmed.)* In Workers & Pages → Overview, register one (e.g. `<you>.workers.dev`). Without it, the first `wrangler deploy` prompts interactively, and CI would fail on that prompt.
+- [x] **Edge case: no `workers.dev` subdomain.** *(Done 2026-11-09: `pstawik.workers.dev`; production URL `https://carpooling.pstawik.workers.dev`.)* In Workers & Pages → Overview, register one (e.g. `<you>.workers.dev`). Without it, the first `wrangler deploy` prompts interactively, and CI would fail on that prompt.
 - [x] `! npx wrangler login` opens a browser for OAuth. Then **[agent]** checks with `npx wrangler whoami`, which must show the right account. *(Verified 2026-11-09, see P2.)*
   - *If you're behind a corporate proxy or the browser callback fails:* create the API token from Phase 5 now and set `$env:CLOUDFLARE_API_TOKEN` / `$env:CLOUDFLARE_ACCOUNT_ID` in PowerShell instead of using OAuth.
   - *If you have several accounts:* add `"account_id"` to `wrangler.jsonc` so wrangler doesn't prompt you to choose one.
@@ -125,9 +125,9 @@ These steps set up the tools and accounts. Provisioning the real resources happe
 ## Phase 2 — Hosted Supabase project  **[human]** ⛔
 
 - [x] Create the project in **Central EU (Frankfurt) `eu-central-1`**, which is closest to Poland. Save the DB password in a password manager. *(Project exists; user confirmed 2026-11-09.)*
-- [ ] **Check the existing project's region** under Settings → General. If it isn't `eu-central-1`, update `placement.region` (below) to match. A project's region can't be changed later.
+- [x] **Check the existing project's region** under Settings → General. *(Checked 2026-11-09: the project is in **`eu-west-2` (London)**, not Frankfurt. Region can't be changed; accepted. Extra latency from Poland is small, and the Worker is placed next to the DB anyway.)*
 - [ ] Copy the **Project URL** and the **anon/publishable key** from Settings → API. **Never use the `service_role` key**: it bypasses RLS, and `SUPABASE_KEY` must be the anon key.
-- [ ] **[agent]** Set `placement.region` in `wrangler.jsonc` to `aws:<that region>`.
+- [x] **[agent]** Set `placement.region` in `wrangler.jsonc` to `aws:eu-west-2`. *(Done 2026-11-09.)*
 - [ ] Optionally link the CLI for future migrations: `! npx supabase link --project-ref <ref>`. There are no migrations yet, so there's nothing to push. From here on, `npx supabase db push` to production is **human-only**, runs before the code that needs it, and stays additive (see the risk register).
 
 ## Phase 3 — Production secrets on the Worker  **[human]** ⛔
@@ -142,7 +142,7 @@ These steps set up the tools and accounts. Provisioning the real resources happe
 - [ ] `npm run build`, then `npx wrangler deploy`. Wrangler picks up the config that the Cloudflare Vite plugin redirects to.
 - [ ] Check the deploy output:
   - the bindings list shows **only ASSETS**, with no SESSION KV;
-  - the URL `https://carpooling.<subdomain>.workers.dev` is printed;
+  - the URL `https://carpooling.pstawik.workers.dev` is printed;
   - a version ID is recorded in this file.
 - [ ] `npx wrangler deployments list` shows exactly one deployment.
 - *If the deploy fails with an auth error (code 10000):* check that the token or account matches the `whoami` output.
@@ -151,8 +151,8 @@ These steps set up the tools and accounts. Provisioning the real resources happe
 ## Phase 5 — Wire up Supabase Auth  **[human]** ⛔
 
 - [ ] In Supabase → Authentication → URL Configuration:
-  - **Site URL** = `https://carpooling.<subdomain>.workers.dev`
-  - **Redirect URLs** = `https://carpooling.<subdomain>.workers.dev/**`, plus `http://localhost:4321/**` for dev.
+  - **Site URL** = `https://carpooling.pstawik.workers.dev`
+  - **Redirect URLs** = `https://carpooling.pstawik.workers.dev/**`, plus `http://localhost:4321/**` for dev.
 - [ ] Decide on email confirmation:
   - **Recommended for production:** turn on "Confirm email" and configure custom SMTP (Brevo needs only sender-address verification; Resend or Postmark need a domain you own). Add the SMTP host, port, user and key under Authentication → SMTP Settings, then raise the email rate limit.
   - **Interim, if you don't have SMTP yet:** leave "Confirm email" on and invite only org members, or turn confirmation **off** temporarily and note it in the risk register. Don't invite real parents while default SMTP is active.
@@ -160,7 +160,7 @@ These steps set up the tools and accounts. Provisioning the real resources happe
 
 ## Phase 6 — Verify production  **[agent + human]**
 
-- [ ] **[agent]** In PowerShell: `$env:BASE_URL="https://carpooling.<sub>.workers.dev"; $env:SMOKE_READONLY="1"; npm run smoke`. Both steps must pass.
+- [ ] **[agent]** In PowerShell: `$env:BASE_URL="https://carpooling.pstawik.workers.dev"; $env:SMOKE_READONLY="1"; npm run smoke`. Both steps must pass.
 - [ ] **[human]** Sign up by hand with a real inbox:
   1. Receive the email; this proves SMTP works.
   2. Click the link; you land on `/` (finding 6).

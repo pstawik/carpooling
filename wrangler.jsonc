@@ -9,11 +9,11 @@
     "directory": "./dist",
     "not_found_handling": "404-page",
   },
-  // Run the Worker next to the Supabase project (Frankfurt) instead of the user's nearest PoP.
+  // Run the Worker next to the Supabase project (AWS eu-west-2, London) instead of the user's nearest PoP.
   // Update the region if the hosted Supabase project lives elsewhere.
   "placement": {
     "mode": "targeted",
-    "region": "aws:eu-central-1",
+    "region": "aws:eu-west-2",
   },
   "observability": {
     "enabled": true,
