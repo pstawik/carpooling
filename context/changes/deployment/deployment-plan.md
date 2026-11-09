@@ -81,7 +81,7 @@ These steps set up the tools and accounts. Provisioning the real resources happe
   - Check with `npx supabase projects list`, which marks the linked project with ●.
   - Run `npx supabase migration list` to compare local and remote; both are empty for now.
   - Edge case: `link` fails on IPv6-only direct DB connections, or the corporate network blocks port 5432/6543. Retry from another network. Linking is needed only for migrations, not for the app.
-- [ ] **API keys:** copy them from Project Settings → API Keys.
+- [x] **API keys:** copy them from Project Settings → API Keys.
   - The app's `SUPABASE_KEY` must be the **publishable / `anon`** key: legacy JWT `eyJ…`, or new-style `sb_publishable_…`, both of which work with `@supabase/supabase-js`.
   - **Never** use `service_role` / `sb_secret_…` in `SUPABASE_KEY`: it bypasses RLS (an AGENTS.md hard rule).
   - `SUPABASE_URL` is `https://<ref>.supabase.co`.
@@ -126,7 +126,7 @@ These steps set up the tools and accounts. Provisioning the real resources happe
 
 - [x] Create the project in **Central EU (Frankfurt) `eu-central-1`**, which is closest to Poland. Save the DB password in a password manager. *(Project exists; user confirmed 2026-11-09.)*
 - [x] **Check the existing project's region** under Settings → General. *(Checked 2026-11-09: the project is in **`eu-west-2` (London)**, not Frankfurt. Region can't be changed; accepted. Extra latency from Poland is small, and the Worker is placed next to the DB anyway.)*
-- [ ] Copy the **Project URL** and the **anon/publishable key** from Settings → API. **Never use the `service_role` key**: it bypasses RLS, and `SUPABASE_KEY` must be the anon key.
+- [x] Copy the **Project URL** and the **anon/publishable key** from Settings → API. **Never use the `service_role` key**: it bypasses RLS, and `SUPABASE_KEY` must be the anon key. *(Done; used in Phase 3.)*
 - [x] **[agent]** Set `placement.region` in `wrangler.jsonc` to `aws:eu-west-2`. *(Done 2026-11-09.)*
 - [ ] Optionally link the CLI for future migrations: `! npx supabase link --project-ref <ref>`. There are no migrations yet, so there's nothing to push. From here on, `npx supabase db push` to production is **human-only**, runs before the code that needs it, and stays additive (see the risk register).
 
@@ -178,7 +178,7 @@ These steps set up the tools and accounts. Provisioning the real resources happe
 > **Decision (2026-11-09):** production auto-deploys on every push to `main`, run by **Cloudflare Workers Builds** (Cloudflare's Git integration). **No GitHub Actions deploy job.** The existing `ci` and `smoke` jobs in `.github/workflows/ci.yml` stay unchanged as checks. There is no `CLOUDFLARE_API_TOKEN` in GitHub and no GitHub `production` environment. Source: the Workers Builds docs (configuration, build-image, limits, troubleshoot), read 2026-11-09.
 
 - [x] **GitHub repo exists:** `https://github.com/pstawik/carpooling` (`origin`). *(Verified 2026-11-09.)*
-- [ ] **[human] Connect the repo.** Cloudflare dashboard → Workers & Pages → `carpooling` → Settings → Build → Connect. Install the Cloudflare GitHub App with access to **only this repository**, not all repos. Settings: *(2026-11-09: repo connected and production branch `main`. The first build (a7864d35, PR branch) failed: the build command was `pnpm run build`, and pnpm isn't in the image. The user corrected it to `npm run build`. The non-production branch builds toggle is still to be confirmed.)*
+- [x] **[human] Connect the repo.** Cloudflare dashboard → Workers & Pages → `carpooling` → Settings → Build → Connect. Install the Cloudflare GitHub App with access to **only this repository**, not all repos. Settings: *(2026-11-09: repo connected and production branch `main`. The first build (a7864d35, PR branch) failed: the build command was `pnpm run build`, and pnpm isn't in the image. The user corrected it to `npm run build`. Preview builds were switched off by the user, confirmed because no Workers Builds check ran on PR commit bde2b97.)*
   - **Git branch:** `main`.
   - **Build command:** `npm run build`.
   - **Deploy command:** `npx wrangler deploy` (the default). It uses the wrangler pinned in `package.json`/lockfile, 4.156.0.
@@ -187,23 +187,23 @@ These steps set up the tools and accounts. Provisioning the real resources happe
 - [x] **[human] Node version (edge case).** The build image preinstalls only Node 22 and 24 (default 24.22.1). Our `.nvmrc` says `26.13.0`, and the docs don't confirm Node 26 can be downloaded. *(**Resolved 2026-11-09:** the build log shows `Detected … nodejs@26.13.0, npm@10.9.2` and "Installing nodejs 26.13.0", so `.nvmrc` works and no NODE_VERSION fallback is needed. Watch item: npm skipped the `esbuild` and `workerd` postinstall scripts ("not yet covered by allowScripts"). Usually harmless, because the binaries come from optional deps.)*
   - First build: let it read `.nvmrc`, then check the build log for the Node version that actually ran.
   - If the build fails or falls back to another version: set the build variable `NODE_VERSION=24.22.1` in Settings → Build → Variables. The app runs on workerd, not Node, so the Node version only affects the build. Then run a local `npm run build` on Node 24 once to confirm.
-- [ ] **[human] Tighten the build token.** By default Builds auto-creates a token with Workers Scripts edit, **KV edit, R2 edit and Workers Routes edit on all zones**. Under My Profile → API Tokens, edit it down to Account Settings read and Workers Scripts edit for this account, plus User Details and Memberships read. Remove KV, R2 and zone access. Only *user* tokens are supported for now; account-owned tokens are "coming soon".
+- [x] **[human] Tighten the build token.** By default Builds auto-creates a token with Workers Scripts edit, **KV edit, R2 edit and Workers Routes edit on all zones**. Under My Profile → API Tokens, edit it down to Account Settings read and Workers Scripts edit for this account, plus User Details and Memberships read. Remove KV, R2 and zone access. Only *user* tokens are supported for now; account-owned tokens are "coming soon". *(Tightened by the user 2026-11-09. Verified by the first production build after the change; see the docs follow-up PR.)*
 - [x] **[human] Gate merges, because Builds doesn't wait for GitHub Actions.** Workers Builds deploys on push to `main` whether or not `ci` and `smoke` pass. Add a GitHub branch protection rule (or ruleset) on `main`: *(Done 2026-11-09: ruleset `protect-main` (id 26843888) is active on the default branch with an empty bypass list. It blocks deletion and force pushes, requires a PR with 0 approvals (sole maintainer), and requires the `ci` and `smoke` checks with an up-to-date branch. `Workers Builds` is deliberately not required because it doesn't run on PRs.)*
   - require a PR;
   - require the `ci` and `smoke` status checks;
   - block direct and force pushes, including for admins.
 
   **Merging the PR is the human approval for production.**
-- [ ] **Runtime secrets.** `SUPABASE_URL`/`SUPABASE_KEY` stay as Worker secrets from Phase 3, under Settings → Variables & Secrets. **Don't** add them as Build variables: those are build-only and invisible at runtime, and the build doesn't need them. `wrangler deploy` keeps the secrets already on the Worker.
-- [ ] **Name check.** `wrangler.jsonc` `name` must equal the dashboard Worker name, `carpooling`. On a mismatch the build fails with "The name in your Wrangler configuration file … must match the name of your Worker". Don't add `account_id` unless it's correct; a wrong one fails with error 7003.
-- [ ] **[agent] Verify the first Builds deploy.** Merge the PR from `deploy-infra-decision` to `main`, then:
+- [x] **Runtime secrets.** `SUPABASE_URL`/`SUPABASE_KEY` stay as Worker secrets from Phase 3, under Settings → Variables & Secrets. **Don't** add them as Build variables: those are build-only and invisible at runtime, and the build doesn't need them. `wrangler deploy` keeps the secrets already on the Worker. *(Confirmed 2026-11-09: after the Builds deploy, a fake sign-in still reaches Supabase.)*
+- [x] **Name check.** `wrangler.jsonc` `name` must equal the dashboard Worker name, `carpooling`. On a mismatch the build fails with "The name in your Wrangler configuration file … must match the name of your Worker". Don't add `account_id` unless it's correct; a wrong one fails with error 7003. *(OK: the first Builds deploy succeeded.)*
+- [x] **[agent] Verify the first Builds deploy.** Merge the PR from `deploy-infra-decision` to `main`, then: *(**Done 2026-11-09:** merge commit `51e9da2`, Workers Builds check ✅, new live version **`de663ce1-f504-483a-97f2-da17823aa23e`**, read-only smoke 2/2, Supabase probe OK. **Correction:** the version metadata does *not* carry the commit SHA (only `source: wrangler`, `triggered_by: version_upload`). Find the version for a commit through the `Workers Builds` check on that commit or the dashboard build list.)*
   - the build log shows the Node version, `npm ci`, the build and the deploy, and the bindings list shows only `ASSETS`;
   - `npx wrangler deployments list` shows a new version, with the commit SHA as its source;
   - `SMOKE_READONLY=1` smoke against the production URL passes. This is no longer automatic, so run it after each deploy, or add it later as a GitHub Actions job that only checks (it doesn't deploy).
-- [ ] **Failure handling.** A failed build leaves the previous version live. A bad *deployed* version needs a **human-only** rollback: `npx wrangler deployments list`, then `npx wrangler rollback <id> -m "<reason>"`. The next push to `main` will deploy again, so revert or fix on `main` as well.
-- [ ] **Limits (Free plan):** 3,000 build minutes/month, 1 concurrent build (pushes queue), 20-minute timeout and 90-day log retention.
-- [ ] Previews are **not added now**. Later options: turn on preview builds with `npx wrangler preview` (per-preview secrets, open beta) pointing at a **separate Supabase project**. Never use preview URLs that share production secrets. Fork PRs never get previews.
-- [ ] Update the README "Deployment" and "CI" sections: auto-deploy through Workers Builds, the URL, where secrets live, the branch protection rule, the rollback commands and the read-only smoke.
+- [x] **Failure handling.** A failed build leaves the previous version live. A bad *deployed* version needs a **human-only** rollback: `npx wrangler deployments list`, then `npx wrangler rollback <id> -m "<reason>"`. The next push to `main` will deploy again, so revert or fix on `main` as well. *(Documented in the README.)*
+- [x] **Limits (Free plan):** 3,000 build minutes/month, 1 concurrent build (pushes queue), 20-minute timeout and 90-day log retention. *(Noted.)*
+- [x] Previews are **not added now**. Later options: turn on preview builds with `npx wrangler preview` (per-preview secrets, open beta) pointing at a **separate Supabase project**. Never use preview URLs that share production secrets. Fork PRs never get previews. *(Preview builds off. Revisit with a separate Supabase project.)*
+- [x] Update the README "Deployment" and "CI" sections: auto-deploy through Workers Builds, the URL, where secrets live, the branch protection rule, the rollback commands and the read-only smoke. *(Done 2026-11-09.)*
 
 ## Phase 8 — Operational edge cases and follow-ups (track; not blocking)
 
