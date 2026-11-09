@@ -151,21 +151,22 @@ Route protection is handled in `src/middleware.ts`. Add paths to the `PROTECTED_
 
 ## Deployment
 
-This project deploys to [Cloudflare Workers](https://workers.cloudflare.com/).
+Production runs on [Cloudflare Workers](https://workers.cloudflare.com/) at **https://carpooling.pstawik.workers.dev**. The full setup and its audit trail are in `context/changes/deployment/deployment-plan.md`.
 
-1. Build the project:
+- **Auto-deploy.** Every push to `main` is built and deployed by Cloudflare Workers Builds (`npm run build`, then `npx wrangler deploy`). There is no GitHub Actions deploy job. Builds for preview branches are off.
+- **Merging is the approval.** The `protect-main` ruleset requires a PR with green `ci` and `smoke` checks and blocks direct and force pushes. Workers Builds doesn't wait for GitHub Actions, so the ruleset is what stops a broken commit from reaching production.
+- **Secrets.** `SUPABASE_URL` and `SUPABASE_KEY` (the anon/publishable key, never `service_role`) are Worker secrets, under Settings → Variables & Secrets. Set them with `npx wrangler secret put <NAME>` in a real terminal: `!` in Claude Code runs non-interactively and stores an empty value. Don't add them as Build variables.
+- **Placement.** `wrangler.jsonc` pins the Worker to `aws:eu-west-2`, next to the Supabase project. `preview_urls` is `false` because preview URLs would share production secrets.
+- **After each deploy,** run the read-only smoke: `BASE_URL=https://carpooling.pstawik.workers.dev SMOKE_READONLY=1 npm run smoke`.
+- **Rollback (human-only).** A failed build leaves the previous version live. For a bad deployed version:
 
-```bash
-npm run build
-```
+  ```bash
+  npx wrangler deployments list
+  npx wrangler rollback <version-id> -m "<reason>"
+  ```
 
-2. Deploy with Wrangler:
-
-```bash
-npx wrangler deploy
-```
-
-Set `SUPABASE_URL` and `SUPABASE_KEY` as secrets in your Cloudflare dashboard or via `npx wrangler secret put`.
+  Then revert or fix on `main` as well, or the next push redeploys the bad code.
+- **Manual deploy** (break-glass only): `npm run build && npx wrangler deploy`.
 
 ## Smoke test
 
@@ -178,6 +179,8 @@ BASE_URL=http://localhost:4321 npm run smoke
 
 It needs a reachable Supabase instance (local or cloud) with email confirmation disabled.
 
+Against production, always set `SMOKE_READONLY=1`. It skips every step that creates users or sessions and checks only that the home page renders and that `/dashboard` redirects anonymous users.
+
 > **Note:** this script exists primarily to guard the development of the starter itself — it is a fast sanity check that dependency upgrades did not break the build, the Cloudflare adapter or the Supabase auth flow. It is **not** a substitute for a real test suite. Once you build your own product on top of this starter, add proper tests (unit, integration, end-to-end) suited to your application.
 
 ## CI
@@ -186,6 +189,8 @@ GitHub Actions runs two jobs on every push and PR to `main`:
 
 - **ci** — lint, `astro check` and build. Configure `SUPABASE_URL` and `SUPABASE_KEY` as repository secrets for the build step.
 - **smoke** — starts a local Supabase via the Supabase CLI, builds, serves the production preview on the Cloudflare runtime and runs `npm run smoke` against it. No secrets required.
+
+Both jobs are required checks for merging to `main`. Deploying is not done by CI: Cloudflare Workers Builds deploys `main` on its own (see [Deployment](#deployment)).
 
 ## License
 
