@@ -161,17 +161,17 @@ These steps set up the tools and accounts. Provisioning the real resources happe
 ## Phase 6 — Verify production  **[agent + human]**
 
 - [x] **[agent]** In PowerShell: `$env:BASE_URL="https://carpooling.pstawik.workers.dev"; $env:SMOKE_READONLY="1"; npm run smoke`. Both steps must pass. *(Passed 2/2 on 2026-11-09. Also: a POST to `/api/auth/signin` with fake credentials returned "Invalid login credentials" from Supabase, which proves SUPABASE_URL and SUPABASE_KEY are correct.)*
-- [ ] **[human]** Sign up by hand with a real inbox:
+- [x] **[human]** Sign up by hand with a real inbox: *(Passed, as reported by the user 2026-11-09.)*
   1. Receive the email; this proves SMTP works.
   2. Click the link; you land on `/` (finding 6).
   3. Sign in.
   4. Open `/dashboard`.
   5. Sign out.
   Then delete the test user in Supabase → Authentication → Users.
-- [ ] **[agent]** `npx wrangler tail --format pretty --status error` runs during the manual test and must show no exceptions.
-- [ ] **[human/agent]** In Workers Observability, look at **CPU time per request** for `/`, `/dashboard` and the `/api/auth/*` routes. If p99 is above ~7 ms, upgrade to Workers Paid ($5/mo) **before** inviting users. This is the risk register's top risk (error 1102).
-- [ ] Check the 360 px mobile view on the deployed URL (home and auth pages).
-- [ ] Record the URL, version ID, CPU numbers and SMTP decision in this file.
+- [x] **[agent]** `npx wrangler tail --format pretty --status error` runs during the manual test and must show no exceptions. *(2026-11-09: tail piped through tee captured nothing because of buffering. Used the GraphQL Analytics API (`workersInvocationsAdaptive`) instead: 20 requests, **0 errors**, all status `success`.)*
+- [ ] **[human/agent]** In Workers Observability, look at **CPU time per request** for `/`, `/dashboard` and the `/api/auth/*` routes. If p99 is above ~7 ms, upgrade to Workers Paid ($5/mo) **before** inviting users. This is the risk register's top risk (error 1102). *(**Measured 2026-11-09 (20 requests, all routes, including cold starts): CPU p50 15.3 ms, p99 and max 65.7 ms.** That's above the 7 ms threshold and the Free 10 ms limit. No 1102 yet, but **upgrade to Workers Paid before inviting users** (human, billing).)*
+- [x] Check the 360 px mobile view on the deployed URL (home and auth pages). *(Checked by the user during the manual test 2026-11-09.)*
+- [x] Record the URL, version ID, CPU numbers and SMTP decision in this file. *(Recorded above: URL in Phase 4, version `0e57fa80…`, CPU in this phase, SMTP option (b) in Phase 5.)*
 
 ## Phase 7 — Automate deploys with Cloudflare Workers Builds  **[human configures, agent verifies]**
 
