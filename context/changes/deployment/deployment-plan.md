@@ -139,12 +139,12 @@ These steps set up the tools and accounts. Provisioning the real resources happe
 
 ## Phase 4 — First manual deploy  **[agent runs, after you approve]** ⛔
 
-- [ ] `npm run build`, then `npx wrangler deploy`. Wrangler picks up the config that the Cloudflare Vite plugin redirects to.
-- [ ] Check the deploy output:
+- [x] `npm run build`, then `npx wrangler deploy`. Wrangler picks up the config that the Cloudflare Vite plugin redirects to.
+- [x] Check the deploy output: *(2026-11-09: only `env.ASSETS`; startup 14 ms; 2061 KiB / 462 KiB gzip; URL https://carpooling.pstawik.workers.dev; version `b1ef0491-0fa8-4757-ba73-d5ba78f22a49`. **Deviation:** wrangler enabled Preview URLs by default, and they share production secrets, so I added `"workers_dev": true, "preview_urls": false` and redeployed as version `0e57fa80-e779-43e9-9290-e3e41e8be960` (current).)*
   - the bindings list shows **only ASSETS**, with no SESSION KV;
   - the URL `https://carpooling.pstawik.workers.dev` is printed;
   - a version ID is recorded in this file.
-- [ ] `npx wrangler deployments list` shows exactly one deployment.
+- [x] `npx wrangler deployments list` shows exactly one deployment. *(Actually three: the draft Worker created by `secret put` (8b940546…), then b1ef0491…, then 0e57fa80…. Expected. Probe: `/` 200, `/auth/signin` 200 with no "not configured", `/dashboard` 302 to signin.)*
 - *If the deploy fails with an auth error (code 10000):* check that the token or account matches the `whoami` output.
 - *If the bundle is too large or a module is missing:* confirm `nodejs_compat` is present, and read the build output from `dist/server`.
 

@@ -15,6 +15,9 @@
     "mode": "targeted",
     "region": "aws:eu-west-2",
   },
+  // Production lives on carpooling.pstawik.workers.dev. Preview URLs would share production secrets, so keep them off.
+  "workers_dev": true,
+  "preview_urls": false,
   "observability": {
     "enabled": true,
   },
