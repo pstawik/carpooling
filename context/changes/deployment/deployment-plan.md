@@ -76,7 +76,7 @@ These steps set up the tools and accounts. Provisioning the real resources happe
 
 - [x] **Account and org:** *(done; user confirmed 2026-11-09)* sign up at supabase.com (GitHub login is fine). Create or choose an **organization**. The Free plan allows **2 active projects** per org; keep one free slot for a future preview/staging project.
 - [ ] **CLI login:** *(not done: on 2026-11-09 `npx supabase projects list` returned `AccessTokenRequiredError`. It's only needed for `link` and migrations, not for deploying.)* `npx supabase login` opens a browser and stores an access token in the OS credential store. On a headless machine or where the browser is blocked: create a personal access token under Account → Access Tokens and set `$env:SUPABASE_ACCESS_TOKEN="<token>"` for the session only.
-- [x] **Create the hosted project** *(done; user confirmed 2026-11-09. Region and Postgres version not yet verified, see Phase 2)* (Phase 2): region **Central EU (Frankfurt)**, a generated DB password saved in a password manager, and Postgres 17 so it matches local `major_version = 17`.
+- [x] **Create the hosted project** *(done; user confirmed 2026-11-09. Region verified as `eu-west-2` (London), Postgres 17 verified 2026-11-09)* (Phase 2): region **Central EU (Frankfurt)**, a generated DB password saved in a password manager, and Postgres 17 so it matches local `major_version = 17`.
 - [ ] **Link the repo:** run `npx supabase link --project-ref <ref>`; it prompts for the DB password. This writes `supabase/.temp/` (gitignored by `supabase/.gitignore`).
   - Check with `npx supabase projects list`, which marks the linked project with ●.
   - Run `npx supabase migration list` to compare local and remote; both are empty for now.
