@@ -150,17 +150,17 @@ These steps set up the tools and accounts. Provisioning the real resources happe
 
 ## Phase 5 — Wire up Supabase Auth  **[human]** ⛔
 
-- [ ] In Supabase → Authentication → URL Configuration:
+- [x] In Supabase → Authentication → URL Configuration: *(Done by the user 2026-11-09.)*
   - **Site URL** = `https://carpooling.pstawik.workers.dev`
   - **Redirect URLs** = `https://carpooling.pstawik.workers.dev/**`, plus `http://localhost:4321/**` for dev.
-- [ ] Decide on email confirmation:
+- [x] Decide on email confirmation: *(**Decision 2026-11-09: option (b), interim.** Default Supabase SMTP and Confirm email on; only org members (the owner) can test. **Don't invite real parents until custom SMTP is configured.**)*
   - **Recommended for production:** turn on "Confirm email" and configure custom SMTP (Brevo needs only sender-address verification; Resend or Postmark need a domain you own). Add the SMTP host, port, user and key under Authentication → SMTP Settings, then raise the email rate limit.
   - **Interim, if you don't have SMTP yet:** leave "Confirm email" on and invite only org members, or turn confirmation **off** temporarily and note it in the risk register. Don't invite real parents while default SMTP is active.
 - [ ] Turn on leaked-password protection if your plan offers it, and confirm the minimum password length.
 
 ## Phase 6 — Verify production  **[agent + human]**
 
-- [ ] **[agent]** In PowerShell: `$env:BASE_URL="https://carpooling.pstawik.workers.dev"; $env:SMOKE_READONLY="1"; npm run smoke`. Both steps must pass.
+- [x] **[agent]** In PowerShell: `$env:BASE_URL="https://carpooling.pstawik.workers.dev"; $env:SMOKE_READONLY="1"; npm run smoke`. Both steps must pass. *(Passed 2/2 on 2026-11-09. Also: a POST to `/api/auth/signin` with fake credentials returned "Invalid login credentials" from Supabase, which proves SUPABASE_URL and SUPABASE_KEY are correct.)*
 - [ ] **[human]** Sign up by hand with a real inbox:
   1. Receive the email; this proves SMTP works.
   2. Click the link; you land on `/` (finding 6).
