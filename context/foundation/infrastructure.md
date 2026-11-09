@@ -167,13 +167,13 @@ The team kept Workers because the starter already targeted it and deployed on th
 | Risk | Source | Likelihood | Impact | Mitigation |
 |---|---|---|---|---|
 | SSR requests exceed the Free plan's 10 ms CPU limit (error 1102) at the evening peak | Devil's advocate | M | H | After the first deploy, check CPU time per request in Workers Observability. If p99 is above ~7 ms, upgrade to Workers Paid ($5/mo) before inviting users. |
-| Supabase project in a far region makes each SSR page slow (several sequential round trips) | Devil's advocate / Pre-mortem | M | M | Create or confirm the Supabase project in an EU region (e.g. Frankfurt), and set `placement.region = "aws:<supabase-region>"` in `wrangler.jsonc`. Batch queries per page. |
+| Supabase project in a far region makes each SSR page slow (several sequential round trips) | Devil's advocate / Pre-mortem | M | M | Create or confirm the Supabase project in an EU region (e.g. Frankfurt), and set `"placement": { "mode": "targeted", "region": "aws:<supabase-region>" }` in `wrangler.jsonc`. Batch queries per page. |
 | Preview versions write to the production Supabase | Devil's advocate / Pre-mortem | M | H | Use a separate Supabase project (or branch) for previews. Never put production Supabase secrets on preview versions. RLS stays on in both. |
 | Rollback restores code but not the schema | Devil's advocate / Pre-mortem | M | H | Keep migrations additive and backward-compatible with the previous release. Apply production migrations manually (human approval) before the code that needs them. |
 | Following Pages-era docs (`wrangler pages deploy`, `Astro.locals.runtime`) breaks the build | Unknown unknowns / Research finding | M | M | Treat this file as the source of truth: target Workers + Static Assets only. Correct `deployment_target` in `tech-stack.md`. |
 | Public `workers.dev` hostname carries the starter name `10x-astro-starter` | Unknown unknowns | H | L | Rename `name` in `wrangler.jsonc` to `carpooling` before the first `wrangler deploy`. |
 | Supabase Auth redirect and site URLs missing the deployed origin, so sign-up and reset links break | Pre-mortem / Unknown unknowns | H | M | Add the `workers.dev` URL, preview aliases and the future custom domain to Supabase Auth → URL Configuration. Re-run `npm run smoke` against the deployed URL. |
-| Adapter auto-provisions an unused `SESSION` KV namespace | Devil's advocate | H | L | Set `session: false` in `cloudflare()` options in `@astro.config.mjs` unless Astro sessions are adopted. |
+| Adapter auto-provisions an unused `SESSION` KV namespace | Devil's advocate | H | L | Set top-level `session: false` in `defineConfig()` in `@astro.config.mjs` unless Astro sessions are adopted. (Corrected 2026-11-09: `cloudflare()` has no `session` option in adapter 14.4.3.) |
 | Agent tooling configured against deprecated Cloudflare MCP servers | Research finding (deprecated) | L | L | Use only `mcp.cloudflare.com/mcp` and `docs.mcp.cloudflare.com/mcp`. |
 | Smart Placement (beta) or host-based placement (experimental) behaves unexpectedly | Research finding (beta) | L | M | Use an explicit `placement.region` hint (no beta label shown in the docs) instead of Smart Placement. |
 
@@ -183,8 +183,8 @@ The commands below fit the pinned versions: `wrangler` ^4.156 and `@astrojs/clou
 
 1. **Prepare the config.**
    - In `wrangler.jsonc`, set `"name": "carpooling"`.
-   - Optionally add `"placement": { "region": "aws:<your-supabase-region>" }`.
-   - In `astro.config.mjs`, use `cloudflare({ session: false })`, unless you need Astro sessions.
+   - Optionally add `"placement": { "mode": "targeted", "region": "aws:<your-supabase-region>" }` (wrangler 4.156 schema).
+   - In `astro.config.mjs`, set top-level `session: false` in `defineConfig()`, unless you need Astro sessions. (`cloudflare()` has no `session` option; corrected 2026-11-09.)
 2. **Authenticate and set production secrets.**
    - Run `npx wrangler login`, then `npx wrangler secret put SUPABASE_URL` and `npx wrangler secret put SUPABASE_KEY`, using the hosted Supabase project's URL and anon key.
    - Local development keeps using `.dev.vars` with `npm run dev`. `astro dev` already runs on workerd, so `wrangler dev` is unnecessary.
