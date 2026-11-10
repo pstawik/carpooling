@@ -436,10 +436,10 @@ First migration in the repo. Locally `npx supabase db reset` recreates everythin
 
 #### Automated
 
-- [ ] 5.1 Read-only production smoke passes: `BASE_URL=https://carpooling.pstawik.workers.dev SMOKE_READONLY=1 npm run smoke`
+- [x] 5.1 Read-only production smoke passes: `BASE_URL=https://carpooling.pstawik.workers.dev SMOKE_READONLY=1 npm run smoke`
 
 #### Manual
 
-- [ ] 5.2 On a real phone against production: sign up with name, nick and phone, land on the dashboard signed in, and see the greeting and nick there
-- [ ] 5.3 Close the browser, reopen the site the next day: still signed in; auth cookie expiry in devtools is months away, not session-only
-- [ ] 5.4 "Wyloguj" ends the session and `/dashboard` redirects to sign-in
+- [x] 5.2 On a real phone against production: sign up with name, nick and phone, land on the dashboard signed in, and see the greeting and nick there
+- [x] 5.3 Close the browser, reopen the site the next day: still signed in; auth cookie expiry in devtools is months away, not session-only
+- [x] 5.4 "Wyloguj" ends the session and `/dashboard` redirects to sign-in

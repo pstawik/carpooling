@@ -1,7 +1,7 @@
 ---
 change_id: signup-with-profile
 title: Rejestracja z profilem i długa sesja
-status: implementing
+status: implemented
 created: 2026-11-09
 updated: 2026-11-10
 archived_at: null
