@@ -45,7 +45,7 @@ const readonlySteps = [
   ["dashboard redirects anonymous user", () => request("/dashboard"), { status: 302, location: "/auth/signin" }],
 ];
 
-const profile = { first_name: "Smoke", nick: "Smoke", phone: "600 123 456" };
+const profile = { first_name: "Rodzic", nick: "Smoke", phone: "600 123 456" };
 
 const writeSteps = [
   [
@@ -58,7 +58,11 @@ const writeSteps = [
     () => request("/api/auth/signup", { method: "POST", form: { ...profile, email, password } }),
     { status: 302, location: "/dashboard" },
   ],
-  ["dashboard renders right after signup", () => request("/dashboard"), { status: 200 }],
+  [
+    "dashboard shows profile nick",
+    () => request("/dashboard", { readBody: true }),
+    { status: 200, contains: profile.nick },
+  ],
   ["signout clears session", () => request("/api/auth/signout", { method: "POST" }), { status: 302, location: "/" }],
   [
     "signin rejects wrong password",

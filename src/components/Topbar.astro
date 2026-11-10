@@ -1,31 +1,33 @@
 ---
-const { user } = Astro.locals;
+const { user, profile } = Astro.locals;
+const linkClass =
+  "inline-flex min-h-11 items-center text-purple-300 transition-colors hover:text-purple-100 hover:underline";
 ---
 
-<div class="mb-4 flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80">
+<div class="mb-4 flex flex-wrap items-center justify-between gap-x-3 rounded-xl border border-white/10 bg-white/5 px-4 py-1 text-sm text-white/80">
   {user ? (
     <>
-      <span class="text-blue-100/70">{user.email}</span>
+      <span class="min-w-0 truncate text-blue-100/70">{profile?.nick ?? user.email}</span>
       <div class="flex items-center gap-3">
-        <a href="/dashboard" class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
-          Dashboard
+        <a href="/dashboard" class:list={linkClass}>
+          Panel
         </a>
         <form method="POST" action="/api/auth/signout">
-          <button type="submit" class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
-            Sign out
+          <button type="submit" class:list={linkClass}>
+            Wyloguj
           </button>
         </form>
       </div>
     </>
   ) : (
     <>
-      <span class="text-blue-100/70">Not signed in</span>
+      <span class="text-blue-100/70">Nie zalogowano</span>
       <div class="flex gap-3">
-        <a href="/auth/signin" class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
-          Sign in
+        <a href="/auth/signin" class:list={linkClass}>
+          Zaloguj się
         </a>
-        <a href="/auth/signup" class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
-          Sign up
+        <a href="/auth/signup" class:list={linkClass}>
+          Zarejestruj się
         </a>
       </div>
     </>

@@ -396,29 +396,29 @@ First migration in the repo. Locally `npx supabase db reset` recreates everythin
 
 #### Automated
 
-- [x] 2.1 Lint and type checks pass: `npm run lint` and `npx astro check`
-- [x] 2.2 Build succeeds: `npm run build`
-- [x] 2.3 Smoke passes against local dev server with local Supabase: `npm run smoke`
-- [x] 2.4 No references to the removed page: `grep -r "confirm-email" src scripts` returns nothing
+- [x] 2.1 Lint and type checks pass: `npm run lint` and `npx astro check` — 65dd121
+- [x] 2.2 Build succeeds: `npm run build` — 65dd121
+- [x] 2.3 Smoke passes against local dev server with local Supabase: `npm run smoke` — 65dd121
+- [x] 2.4 No references to the removed page: `grep -r "confirm-email" src scripts` returns nothing — 65dd121
 
 #### Manual
 
-- [x] 2.5 A POST to `/api/auth/signup` with a malformed phone (e.g. `abc`) via curl redirects with a Polish error and creates no user
+- [x] 2.5 A POST to `/api/auth/signup` with a malformed phone (e.g. `abc`) via curl redirects with a Polish error and creates no user — 65dd121
 
 ### Phase 3: Polish auth UI and profile display
 
 #### Automated
 
-- [ ] 3.1 Lint and type checks pass: `npm run lint` and `npx astro check`
-- [ ] 3.2 Build succeeds: `npm run build`
-- [ ] 3.3 Smoke passes against local dev server, including "dashboard shows profile nick": `npm run smoke`
+- [x] 3.1 Lint and type checks pass: `npm run lint` and `npx astro check`
+- [x] 3.2 Build succeeds: `npm run build`
+- [x] 3.3 Smoke passes against local dev server, including "dashboard shows profile nick": `npm run smoke`
 
 #### Manual
 
-- [ ] 3.4 At 360 px viewport (devtools), signup, signin and dashboard have no horizontal scroll and all inputs/buttons are at least 44 px tall
-- [ ] 3.5 Submitting signup with empty Imię/Nick or phone "12" shows Polish inline errors without a request
-- [ ] 3.6 Signup with a valid optional phone, then without a phone, both land on `/dashboard` with "Cześć, <imię>!" and the nick shown on the dashboard
-- [ ] 3.7 Signing up with an already-registered e-mail shows "Konto z tym adresem e-mail już istnieje"
+- [x] 3.4 At 360 px viewport (devtools), signup, signin and dashboard have no horizontal scroll and all inputs/buttons are at least 44 px tall
+- [x] 3.5 Submitting signup with empty Imię/Nick or phone "12" shows Polish inline errors without a request
+- [x] 3.6 Signup with a valid optional phone, then without a phone, both land on `/dashboard` with "Cześć, <imię>!" and the nick shown on the dashboard
+- [x] 3.7 Signing up with an already-registered e-mail shows "Konto z tym adresem e-mail już istnieje"
 
 ### Phase 4: Hosted rollout and docs
 
