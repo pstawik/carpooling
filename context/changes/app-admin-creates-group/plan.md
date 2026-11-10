@@ -347,30 +347,30 @@ New tables only; no backfill. Existing hosted accounts simply have no membership
 
 #### Automated
 
-- [x] 1.1 Migration applies on a fresh local database: `npx supabase db reset`
-- [x] 1.2 All pgTAP tests pass: `npx supabase test db`
-- [x] 1.3 Lint passes: `npm run lint`
+- [x] 1.1 Migration applies on a fresh local database: `npx supabase db reset` — 62ac45b
+- [x] 1.2 All pgTAP tests pass: `npx supabase test db` — 62ac45b
+- [x] 1.3 Lint passes: `npm run lint` — 62ac45b
 
 #### Manual
 
-- [x] 1.4 In Supabase Studio (local), a newly created group appears in `groups` and `group_members` after calling `create_group` as an app admin, and the table editor shows RLS enabled on all three new tables
+- [x] 1.4 In Supabase Studio (local), a newly created group appears in `groups` and `group_members` after calling `create_group` as an app admin, and the table editor shows RLS enabled on all three new tables — 62ac45b
 
 ### Phase 2: App-admin group management UI
 
 #### Automated
 
-- [ ] 2.1 Seed loads on reset: `npx supabase db reset`
-- [ ] 2.2 Lint passes: `npm run lint`
-- [ ] 2.3 Type check passes: `npx astro check`
-- [ ] 2.4 Build passes: `npm run build`
-- [ ] 2.5 Smoke passes against local dev server including the new admin steps: `npm run smoke`
+- [x] 2.1 Seed loads on reset: `npx supabase db reset`
+- [x] 2.2 Lint passes: `npm run lint`
+- [x] 2.3 Type check passes: `npx astro check`
+- [x] 2.4 Build passes: `npm run build`
+- [x] 2.5 Smoke passes against local dev server including the new admin steps: `npm run smoke`
 
 #### Manual
 
-- [ ] 2.6 Signed in as the seed admin on a 360 px viewport, creating a group with two admin e-mails works without zooming or horizontal scroll, and both admins appear in the list
-- [ ] 2.7 Entering an unregistered e-mail shows the Polish error naming that e-mail and no group is created
-- [ ] 2.8 "Dodaj administratora" adds a third admin to an existing group
-- [ ] 2.9 Signed in as a regular user, `/admin/groups` returns 404 and the dashboard shows no admin link
+- [x] 2.6 Signed in as the seed admin on a 360 px viewport, creating a group with two admin e-mails works without zooming or horizontal scroll, and both admins appear in the list
+- [x] 2.7 Entering an unregistered e-mail shows the Polish error naming that e-mail and no group is created
+- [x] 2.8 "Dodaj administratora" adds a third admin to an existing group
+- [x] 2.9 Signed in as a regular user, `/admin/groups` returns 404 and the dashboard shows no admin link
 
 ### Phase 3: Member group views
 

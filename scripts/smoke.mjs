@@ -47,6 +47,11 @@ const readonlySteps = [
 
 const profile = { first_name: "Rodzic", nick: "Smoke", phone: "600 123 456" };
 
+// App admin from supabase/seed.sql (local/CI only); override for other environments.
+const adminEmail = process.env.SMOKE_ADMIN_EMAIL ?? "admin@example.com";
+const adminPassword = process.env.SMOKE_ADMIN_PASSWORD ?? "Admin-Passw0rd!";
+const groupName = `Smoke ${Date.now()}`;
+
 const writeSteps = [
   [
     "signup rejects missing nick",
@@ -75,8 +80,34 @@ const writeSteps = [
     { status: 302, location: "/dashboard" },
   ],
   ["dashboard renders for signed-in user", () => request("/dashboard"), { status: 200 }],
+  ["regular user gets 404 on admin groups", () => request("/admin/groups"), { status: 404 }],
   ["signout clears session", () => request("/api/auth/signout", { method: "POST" }), { status: 302, location: "/" }],
   ["dashboard redirects after signout", () => request("/dashboard"), { status: 302, location: "/auth/signin" }],
+  [
+    "seed app admin signs in",
+    () => request("/api/auth/signin", { method: "POST", form: { email: adminEmail, password: adminPassword } }),
+    { status: 302, location: "/dashboard" },
+  ],
+  [
+    "create group rejects unknown e-mail",
+    () =>
+      request("/api/admin/groups", {
+        method: "POST",
+        form: { name: groupName, admin_emails: `nobody-${Date.now()}@example.com` },
+      }),
+    { status: 302, location: "/admin/groups?error=unknown_email" },
+  ],
+  [
+    "app admin creates group with smoke user as admin",
+    () => request("/api/admin/groups", { method: "POST", form: { name: groupName, admin_emails: email } }),
+    { status: 302, location: "/admin/groups?message=group_created" },
+  ],
+  [
+    "admin groups page lists the new group",
+    () => request("/admin/groups", { readBody: true }),
+    { status: 200, contains: groupName },
+  ],
+  ["admin signs out", () => request("/api/auth/signout", { method: "POST" }), { status: 302, location: "/" }],
 ];
 
 const steps = READONLY ? readonlySteps : [...readonlySteps, ...writeSteps];

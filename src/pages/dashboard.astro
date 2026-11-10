@@ -1,7 +1,7 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 
-const { user, profile } = Astro.locals;
+const { user, profile, isAppAdmin } = Astro.locals;
 ---
 
 <Layout title="Panel">
@@ -21,6 +21,14 @@ const { user, profile } = Astro.locals;
           </>
         )}
       </p>
+      {isAppAdmin && (
+        <a
+          href="/admin/groups"
+          class="mt-6 inline-flex min-h-11 items-center rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium transition-colors hover:bg-purple-500"
+        >
+          Panel administratora
+        </a>
+      )}
       <form method="POST" action="/api/auth/signout" class="mt-6">
         <button
           type="submit"
