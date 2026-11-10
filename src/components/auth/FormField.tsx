@@ -1,9 +1,9 @@
-import type { ReactNode } from "react";
+import type { HTMLAttributes, ReactNode } from "react";
 import { CircleAlert } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const inputBase =
-  "w-full rounded-lg bg-white/10 border px-3 py-2 pl-10 text-white placeholder-white/40 focus:outline-none focus:ring-2 transition-colors";
+  "min-h-11 w-full rounded-lg bg-white/10 border px-3 py-2 pl-10 text-white placeholder-white/40 focus:outline-none focus:ring-2 transition-colors";
 
 interface FormFieldProps {
   id: string;
@@ -17,6 +17,8 @@ interface FormFieldProps {
   hint?: ReactNode;
   icon: ReactNode;
   endContent?: ReactNode;
+  autoComplete?: string;
+  inputMode?: HTMLAttributes<HTMLInputElement>["inputMode"];
 }
 
 export function FormField({
@@ -31,6 +33,8 @@ export function FormField({
   hint,
   icon,
   endContent,
+  autoComplete,
+  inputMode,
 }: FormFieldProps) {
   return (
     <div>
@@ -48,8 +52,12 @@ export function FormField({
             onChange(e.target.value);
           }}
           placeholder={placeholder}
+          autoComplete={autoComplete}
+          inputMode={inputMode}
+          aria-invalid={error ? true : undefined}
           className={cn(
             inputBase,
+            endContent && "pr-11",
             error ? "border-red-400/60 focus:ring-red-400" : "border-white/20 focus:ring-purple-400",
           )}
         />
@@ -57,7 +65,7 @@ export function FormField({
       </div>
       {error ? (
         <p className="mt-1 flex items-center gap-1 text-xs text-red-300">
-          <CircleAlert className="size-3" />
+          <CircleAlert className="size-3 shrink-0" />
           {error}
         </p>
       ) : (

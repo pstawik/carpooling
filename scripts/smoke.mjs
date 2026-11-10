@@ -20,7 +20,7 @@ function storeCookies(response) {
   }
 }
 
-async function request(path, { method = "GET", form } = {}) {
+async function request(path, { method = "GET", form, readBody = false } = {}) {
   const response = await fetch(BASE_URL + path, {
     method,
     redirect: "manual",
@@ -32,7 +32,8 @@ async function request(path, { method = "GET", form } = {}) {
     body: form ? new URLSearchParams(form).toString() : undefined,
   });
   storeCookies(response);
-  return { status: response.status, location: response.headers.get("location") ?? "" };
+  const body = readBody ? await response.text() : "";
+  return { status: response.status, location: response.headers.get("location") ?? "", body };
 }
 
 // SMOKE_READONLY=1 skips every step that creates users or sessions — use it against production,
@@ -44,12 +45,25 @@ const readonlySteps = [
   ["dashboard redirects anonymous user", () => request("/dashboard"), { status: 302, location: "/auth/signin" }],
 ];
 
+const profile = { first_name: "Rodzic", nick: "Smoke", phone: "600 123 456" };
+
 const writeSteps = [
   [
-    "signup creates account",
-    () => request("/api/auth/signup", { method: "POST", form: { email, password } }),
-    { status: 302, location: "/auth/confirm-email" },
+    "signup rejects missing nick",
+    () => request("/api/auth/signup", { method: "POST", form: { first_name: profile.first_name, email, password } }),
+    { status: 302, location: "/auth/signup?error=" },
   ],
+  [
+    "signup creates account and signs in",
+    () => request("/api/auth/signup", { method: "POST", form: { ...profile, email, password } }),
+    { status: 302, location: "/dashboard" },
+  ],
+  [
+    "dashboard shows profile nick",
+    () => request("/dashboard", { readBody: true }),
+    { status: 200, contains: profile.nick },
+  ],
+  ["signout clears session", () => request("/api/auth/signout", { method: "POST" }), { status: 302, location: "/" }],
   [
     "signin rejects wrong password",
     () => request("/api/auth/signin", { method: "POST", form: { email, password: "wrong" } }),
@@ -58,7 +72,7 @@ const writeSteps = [
   [
     "signin accepts correct password",
     () => request("/api/auth/signin", { method: "POST", form: { email, password } }),
-    { status: 302, location: "/" },
+    { status: 302, location: "/dashboard" },
   ],
   ["dashboard renders for signed-in user", () => request("/dashboard"), { status: 200 }],
   ["signout clears session", () => request("/api/auth/signout", { method: "POST" }), { status: 302, location: "/" }],
@@ -73,11 +87,13 @@ for (const [name, run, expected] of steps) {
   const actual = await run();
   const ok =
     actual.status === expected.status &&
-    (expected.location === undefined || actual.location.startsWith(expected.location));
+    (expected.location === undefined || actual.location.startsWith(expected.location)) &&
+    (expected.contains === undefined || actual.body.includes(expected.contains));
   console.log(`${ok ? "PASS" : "FAIL"}  ${name}  -> ${actual.status} ${actual.location}`);
   if (!ok) {
     failed++;
-    console.log(`      expected ${expected.status} ${expected.location ?? ""}`);
+    const containsNote = expected.contains === undefined ? "" : ` (body containing "${expected.contains}")`;
+    console.log(`      expected ${expected.status} ${expected.location ?? ""}${containsNote}`);
   }
 }
 

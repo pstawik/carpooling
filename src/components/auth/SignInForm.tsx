@@ -4,32 +4,34 @@ import { FormField } from "@/components/auth/FormField";
 import { PasswordToggle } from "@/components/auth/PasswordToggle";
 import { SubmitButton } from "@/components/auth/SubmitButton";
 import { ServerError } from "@/components/auth/ServerError";
+import { signInSchema } from "@/lib/validation/auth";
 
 interface Props {
   serverError?: string | null;
 }
 
+type FieldErrors = Partial<Record<"email" | "password", string>>;
+
 export default function SignInForm({ serverError }: Props) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [errors, setErrors] = useState<FieldErrors>({});
 
   function validate() {
-    const next: typeof errors = {};
-    if (!email.trim()) {
-      next.email = "Email is required";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      next.email = "Enter a valid email address";
-    }
-    if (!password) {
-      next.password = "Password is required";
+    const next: FieldErrors = {};
+    const result = signInSchema.safeParse({ email, password });
+    if (!result.success) {
+      for (const issue of result.error.issues) {
+        const field = issue.path[0] as keyof FieldErrors;
+        next[field] ??= issue.message;
+      }
     }
     setErrors(next);
     return Object.keys(next).length === 0;
   }
 
-  function clearError(field: keyof typeof errors) {
+  function clearError(field: keyof FieldErrors) {
     if (errors[field]) setErrors((prev) => ({ ...prev, [field]: undefined }));
   }
 
@@ -44,27 +46,30 @@ export default function SignInForm({ serverError }: Props) {
       <FormField
         id="email"
         type="email"
-        label="Email"
+        label="E-mail"
         value={email}
         onChange={(v) => {
           setEmail(v);
           clearError("email");
         }}
-        placeholder="you@example.com"
+        placeholder="ty@example.com"
+        autoComplete="email"
+        inputMode="email"
         error={errors.email}
         icon={<Mail className="size-4" />}
       />
 
       <FormField
         id="password"
-        label="Password"
+        label="Hasło"
         type={showPassword ? "text" : "password"}
         value={password}
         onChange={(v) => {
           setPassword(v);
           clearError("password");
         }}
-        placeholder="Your password"
+        placeholder="Twoje hasło"
+        autoComplete="current-password"
         error={errors.password}
         icon={<Lock className="size-4" />}
         endContent={
@@ -79,8 +84,8 @@ export default function SignInForm({ serverError }: Props) {
 
       <ServerError message={serverError} />
 
-      <SubmitButton pendingText="Signing in..." icon={<LogIn className="size-4" />}>
-        Sign in
+      <SubmitButton pendingText="Logowanie..." icon={<LogIn className="size-4" />}>
+        Zaloguj się
       </SubmitButton>
     </form>
   );
