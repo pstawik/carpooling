@@ -42,7 +42,7 @@ Rodzice dzieci z tych samych zajęć dodatkowych ustalają wspólne dojazdy na c
 | ID   | Change ID                       | Outcome (user can …)                                                                 | Prerequisites | PRD refs                    | Status   |
 | ---- | ------------------------------- | ------------------------------------------------------------------------------------ | ------------- | --------------------------- | -------- |
 | S-01 | signup-with-profile             | założyć konto z imieniem, nickiem i opcjonalnym telefonem oraz pozostać zalogowanym | —             | FR-001, FR-002              | done |
-| S-02 | app-admin-creates-group         | (admin aplikacji) utworzyć grupę i wskazać jej administratora                        | S-01          | FR-004                      | planning |
+| S-02 | app-admin-creates-group         | (admin aplikacji) utworzyć grupę i wskazać jej administratora                        | S-01          | FR-004                      | in-progress |
 | S-03 | join-group-by-invite-link       | (admin grupy) wygenerować link zaproszeniowy; użytkownik dołącza przez link          | S-02          | FR-005, FR-006              | proposed |
 | S-04 | parent-adds-child               | dodać, edytować i usunąć swoje dziecko przypisane do grupy                          | S-02          | FR-010                      | proposed |
 | S-05 | group-admin-manages-events      | (admin grupy) tworzyć, edytować i usuwać terminy; członek widzi listę terminów      | S-02          | FR-011, FR-012              | proposed |
@@ -103,7 +103,7 @@ Brak osobnych fundamentów. Jedyna brakująca warstwa to dane (schemat + RLS), a
 - **Unknowns:**
   - Jak technicznie nadawać rolę administratora aplikacji poza interfejsem (PRD §Access Control)? — Owner: team. Block: no.
 - **Risk:** Wprowadza pierwsze tabele z danymi grup, więc tu powstaje wzorzec RLS i test izolacji, z którego korzystają wszystkie kolejne wycinki — błąd tutaj powiela się dalej.
-- **Status:** planning
+- **Status:** in-progress
 
 ### S-03: Dołączenie do grupy przez link zaproszeniowy
 

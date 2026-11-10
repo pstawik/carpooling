@@ -347,13 +347,13 @@ New tables only; no backfill. Existing hosted accounts simply have no membership
 
 #### Automated
 
-- [ ] 1.1 Migration applies on a fresh local database: `npx supabase db reset`
-- [ ] 1.2 All pgTAP tests pass: `npx supabase test db`
-- [ ] 1.3 Lint passes: `npm run lint`
+- [x] 1.1 Migration applies on a fresh local database: `npx supabase db reset`
+- [x] 1.2 All pgTAP tests pass: `npx supabase test db`
+- [x] 1.3 Lint passes: `npm run lint`
 
 #### Manual
 
-- [ ] 1.4 In Supabase Studio (local), a newly created group appears in `groups` and `group_members` after calling `create_group` as an app admin, and the table editor shows RLS enabled on all three new tables
+- [x] 1.4 In Supabase Studio (local), a newly created group appears in `groups` and `group_members` after calling `create_group` as an app admin, and the table editor shows RLS enabled on all three new tables
 
 ### Phase 2: App-admin group management UI
 

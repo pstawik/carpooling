@@ -1,7 +1,7 @@
 ---
 change_id: app-admin-creates-group
 title: App admin creates group
-status: plan_reviewed
+status: implementing
 created: 2026-11-10
 updated: 2026-11-10
 archived_at: null
