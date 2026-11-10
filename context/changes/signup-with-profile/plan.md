@@ -384,26 +384,26 @@ First migration in the repo. Locally `npx supabase db reset` recreates everythin
 
 #### Automated
 
-- [x] 1.1 Migration applies on a clean local DB: `npx supabase db reset`
-- [x] 1.2 RLS/trigger tests pass: `npx supabase test db`
-- [x] 1.3 Lint and type checks pass: `npm run lint` and `npx astro check`
+- [x] 1.1 Migration applies on a clean local DB: `npx supabase db reset` — a4b02ec
+- [x] 1.2 RLS/trigger tests pass: `npx supabase test db` — a4b02ec
+- [x] 1.3 Lint and type checks pass: `npm run lint` and `npx astro check` — a4b02ec
 
 #### Manual
 
-- [x] 1.4 In local Studio, `profiles` shows RLS enabled with only the `profiles_select_own` policy
+- [x] 1.4 In local Studio, `profiles` shows RLS enabled with only the `profiles_select_own` policy — a4b02ec
 
 ### Phase 2: Signup/signin API with zod validation
 
 #### Automated
 
-- [ ] 2.1 Lint and type checks pass: `npm run lint` and `npx astro check`
-- [ ] 2.2 Build succeeds: `npm run build`
-- [ ] 2.3 Smoke passes against local dev server with local Supabase: `npm run smoke`
-- [ ] 2.4 No references to the removed page: `grep -r "confirm-email" src scripts` returns nothing
+- [x] 2.1 Lint and type checks pass: `npm run lint` and `npx astro check`
+- [x] 2.2 Build succeeds: `npm run build`
+- [x] 2.3 Smoke passes against local dev server with local Supabase: `npm run smoke`
+- [x] 2.4 No references to the removed page: `grep -r "confirm-email" src scripts` returns nothing
 
 #### Manual
 
-- [ ] 2.5 A POST to `/api/auth/signup` with a malformed phone (e.g. `abc`) via curl redirects with a Polish error and creates no user
+- [x] 2.5 A POST to `/api/auth/signup` with a malformed phone (e.g. `abc`) via curl redirects with a Polish error and creates no user
 
 ### Phase 3: Polish auth UI and profile display
 
