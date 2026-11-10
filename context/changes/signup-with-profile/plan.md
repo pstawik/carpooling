@@ -424,13 +424,13 @@ First migration in the repo. Locally `npx supabase db reset` recreates everythin
 
 #### Automated
 
-- [x] 4.1 Lint passes: `npm run lint`
-- [x] 4.2 Hosted migration is applied: `npx supabase migration list` shows `20261109120000` in both Local and Remote columns
+- [x] 4.1 Lint passes: `npm run lint` — 34902cf
+- [x] 4.2 Hosted migration is applied: `npx supabase migration list` shows `20261109120000` in both Local and Remote columns — 34902cf
 
 #### Manual
 
-- [x] 4.3 Hosted dashboard shows "Confirm email" disabled and minimum password length 6
-- [x] 4.4 Roadmap question #13 (issue #13) is closed with the decision "confirmation disabled"
+- [x] 4.3 Hosted dashboard shows "Confirm email" disabled and minimum password length 6 — 34902cf
+- [x] 4.4 Roadmap question #13 (issue #13) is closed with the decision "confirmation disabled" — 34902cf
 
 ### Phase 5: Post-deploy verification
 
