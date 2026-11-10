@@ -16,13 +16,18 @@ export const onRequest = defineMiddleware(async (context, next) => {
     } = await supabase.auth.getUser();
     context.locals.user = user ?? null;
 
-    if (user) {
+    // API endpoints never render the profile; skip the extra round trip there.
+    if (user && !context.url.pathname.startsWith("/api/")) {
       // A missing or unreadable profile is not fatal: pages fall back to the e-mail.
       const { data, error } = await supabase
         .from("profiles")
         .select("id, first_name, nick, phone, created_at")
         .eq("id", user.id)
         .maybeSingle<Profile>();
+      if (error) {
+        // eslint-disable-next-line no-console -- surfaces in Cloudflare Worker logs
+        console.error("profile lookup failed:", error.message);
+      }
       context.locals.profile = error ? null : (data ?? null);
     }
   }

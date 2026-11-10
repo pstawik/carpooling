@@ -132,6 +132,8 @@ SUPABASE_KEY=<anon-key>
 
 The app sends no e-mails (PRD), and group auto-join (FR-006) needs the user signed in right after sign-up, so **e-mail confirmation is off in every environment**: locally (`enable_confirmations = false` in `supabase/config.toml`) and in the hosted project (dashboard → **Authentication → Sign In / Providers → Email → Confirm email** off). A successful sign-up returns a session and lands on `/dashboard`. Minimum password length is 6 in both places.
 
+Known trade-off: sign-up answers "Konto z tym adresem e-mail już istnieje" for a registered address, so anyone can check whether an e-mail has an account (account enumeration). Without confirmation e-mails this can't be hidden while keeping instant sign-in, so it is accepted. The mitigation is Supabase Auth's rate limits — keep them enabled in the hosted project (dashboard → **Authentication → Rate Limits**).
+
 ### Sessions
 
 Sessions last until the user clicks "Wyloguj" (FR-002). `[auth.sessions]` in `supabase/config.toml` is deliberately left unset (no timebox, no inactivity timeout); `@supabase/ssr` stores the auth cookies with a long `maxAge` and the middleware refreshes the access token on each request.

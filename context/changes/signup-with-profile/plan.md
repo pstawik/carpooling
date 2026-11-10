@@ -376,6 +376,22 @@ First migration in the repo. Locally `npx supabase db reset` recreates everythin
 - Session config: `supabase/config.toml:158-167`, `supabase/config.toml:255-259`
 - CI: `.github/workflows/ci.yml:27-56`
 
+## Implementation Addenda
+
+Recorded after `/10x-impl-review` (`reviews/impl-review.md`, 2026-11-10). Treat these as the baseline for S-02+.
+
+- **Unplanned but kept (implementation):**
+  - `eslint.config.js` ignores `.claude/`, since 10x-cli skills ship their own scripts.
+  - The migration also revokes `truncate` from `anon`/`authenticated` and `execute` on `public.handle_new_user()`.
+  - The Topbar has a "Panel" link to `/dashboard`.
+- **Review fixes (post-merge, on `signup-with-profile-closeout`):**
+  - Auth redirects carry only whitelisted codes (`?error=<code>`, `?message=account_created`). `src/lib/services/auth-errors.ts` maps them to Polish text, replacing `toPolishAuthError`.
+  - Server-side validation shows one fixed message per field.
+  - The endpoints answer non-form bodies with `invalid_input` instead of a 500.
+  - Middleware skips the profile query on `/api/*` and logs profile lookup errors.
+  - Submit buttons are disabled while a native submit is in flight (`src/components/hooks/useSubmitting.ts`). This replaces `useFormStatus`, which never fires for string actions.
+  - README records account enumeration as an accepted trade-off, mitigated by auth rate limits.
+
 ## Progress
 
 > Convention: `- [ ]` pending, `- [x]` done. Append ` — <commit sha>` when a step lands. Do not rename step titles. See `references/progress-format.md`.
