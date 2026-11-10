@@ -4,6 +4,7 @@ import { FormField } from "@/components/auth/FormField";
 import { PasswordToggle } from "@/components/auth/PasswordToggle";
 import { SubmitButton } from "@/components/auth/SubmitButton";
 import { ServerError } from "@/components/auth/ServerError";
+import { useSubmitting } from "@/components/hooks/useSubmitting";
 import { signInSchema } from "@/lib/validation/auth";
 
 interface Props {
@@ -17,6 +18,7 @@ export default function SignInForm({ serverError }: Props) {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<FieldErrors>({});
+  const [submitting, setSubmitting] = useSubmitting();
 
   function validate() {
     const next: FieldErrors = {};
@@ -36,9 +38,11 @@ export default function SignInForm({ serverError }: Props) {
   }
 
   function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
-    if (!validate()) {
+    if (submitting || !validate()) {
       e.preventDefault();
+      return;
     }
+    setSubmitting(true);
   }
 
   return (
@@ -84,7 +88,7 @@ export default function SignInForm({ serverError }: Props) {
 
       <ServerError message={serverError} />
 
-      <SubmitButton pendingText="Logowanie..." icon={<LogIn className="size-4" />}>
+      <SubmitButton pending={submitting} pendingText="Logowanie..." icon={<LogIn className="size-4" />}>
         Zaloguj się
       </SubmitButton>
     </form>

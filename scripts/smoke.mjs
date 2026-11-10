@@ -37,7 +37,7 @@ async function request(path, { method = "GET", form, readBody = false } = {}) {
 }
 
 // SMOKE_READONLY=1 skips every step that creates users or sessions — use it against production,
-// where e-mail confirmation is on and throwaway sign-ups would pollute auth and bounce e-mails.
+// where throwaway sign-ups would pollute auth.users and profiles with test accounts.
 const READONLY = process.env.SMOKE_READONLY === "1";
 
 const readonlySteps = [
