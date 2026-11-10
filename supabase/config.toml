@@ -251,6 +251,8 @@ max_frequency = "5s"
 # [auth.sms.test_otp]
 # 4152127777 = "123456"
 
+# FR-002: sessions last until the user signs out. No timebox and no inactivity timeout,
+# by design (a parent should stay signed in on their phone). Leave [auth.sessions] unset.
 # Configure logged in session timeouts.
 # [auth.sessions]
 # Force log out after the specified duration.

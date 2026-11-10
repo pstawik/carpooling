@@ -128,26 +128,36 @@ SUPABASE_URL=https://<project-ref>.supabase.co
 SUPABASE_KEY=<anon-key>
 ```
 
-### Email confirmation in local development
+### Email confirmation is disabled everywhere
 
-By default Supabase requires email confirmation before a user can sign in. To skip this during local development:
+The app sends no e-mails (PRD), and group auto-join (FR-006) needs the user signed in right after sign-up, so **e-mail confirmation is off in every environment**: locally (`enable_confirmations = false` in `supabase/config.toml`) and in the hosted project (dashboard → **Authentication → Sign In / Providers → Email → Confirm email** off). A successful sign-up returns a session and lands on `/dashboard`. Minimum password length is 6 in both places.
 
-1. Open the Supabase dashboard for your project
-2. Go to **Authentication → Email → Confirm email**
-3. Toggle it **off**
+### Sessions
 
-Users can then sign in immediately after sign-up without clicking a confirmation link.
+Sessions last until the user clicks "Wyloguj" (FR-002). `[auth.sessions]` in `supabase/config.toml` is deliberately left unset (no timebox, no inactivity timeout); `@supabase/ssr` stores the auth cookies with a long `maxAge` and the middleware refreshes the access token on each request.
+
+### Database migrations
+
+Schema lives in `supabase/migrations/` (`YYYYMMDDHHmmss_short_description.sql`, RLS enabled in the same file); pgTAP tests live in `supabase/tests/`.
+
+```bash
+npx supabase db reset     # recreate the local DB and apply all migrations (drops local data)
+npx supabase test db      # run the RLS/trigger tests
+npx supabase db push      # apply to the hosted project — BEFORE merging a migration PR
+npx supabase migration list   # confirm Local and Remote match
+```
+
+Workers Builds deploys `main` immediately, so a migration must already be on the hosted project when its PR merges.
 
 ### Auth routes
 
-| Route                 | Description                                                             |
-| --------------------- | ----------------------------------------------------------------------- |
-| `/auth/signin`        | Email/password sign-in form                                             |
-| `/auth/signup`        | Email/password sign-up form                                             |
-| `/auth/confirm-email` | Post-signup "check your inbox" page                                     |
-| `/dashboard`          | Example protected page (redirects to `/auth/signin` if unauthenticated) |
+| Route          | Description                                                               |
+| -------------- | ------------------------------------------------------------------------- |
+| `/auth/signin` | E-mail/password sign-in form                                              |
+| `/auth/signup` | Sign-up form (first name, nick, e-mail, optional phone, password)         |
+| `/dashboard`   | Post-login screen with the profile greeting (redirects to `/auth/signin`) |
 
-Route protection is handled in `src/middleware.ts`. Add paths to the `PROTECTED_ROUTES` array there to require authentication.
+Route protection is handled in `src/middleware.ts`. Add paths to the `PROTECTED_ROUTES` array there to require authentication. The middleware also loads the signed-in user's row from `public.profiles` into `Astro.locals.profile`.
 
 ## Deployment
 
@@ -166,6 +176,7 @@ Production runs on [Cloudflare Workers](https://workers.cloudflare.com/) at **ht
   ```
 
   Then revert or fix on `main` as well, or the next push redeploys the bad code.
+
 - **Manual deploy** (break-glass only): `npm run build && npx wrangler deploy`.
 
 ## Smoke test
@@ -188,7 +199,7 @@ Against production, always set `SMOKE_READONLY=1`. It skips every step that crea
 GitHub Actions runs two jobs on every push and PR to `main`:
 
 - **ci** — lint, `astro check` and build. Configure `SUPABASE_URL` and `SUPABASE_KEY` as repository secrets for the build step.
-- **smoke** — starts a local Supabase via the Supabase CLI, builds, serves the production preview on the Cloudflare runtime and runs `npm run smoke` against it. No secrets required.
+- **smoke** — starts a local Supabase via the Supabase CLI (which applies `supabase/migrations/`), runs `supabase test db`, builds, serves the production preview on the Cloudflare runtime and runs `npm run smoke` against it. No secrets required.
 
 Both jobs are required checks for merging to `main`. Deploying is not done by CI: Cloudflare Workers Builds deploys `main` on its own (see [Deployment](#deployment)).
 

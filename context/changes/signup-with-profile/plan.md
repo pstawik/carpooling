@@ -409,28 +409,28 @@ First migration in the repo. Locally `npx supabase db reset` recreates everythin
 
 #### Automated
 
-- [x] 3.1 Lint and type checks pass: `npm run lint` and `npx astro check`
-- [x] 3.2 Build succeeds: `npm run build`
-- [x] 3.3 Smoke passes against local dev server, including "dashboard shows profile nick": `npm run smoke`
+- [x] 3.1 Lint and type checks pass: `npm run lint` and `npx astro check` — a6bd7ba
+- [x] 3.2 Build succeeds: `npm run build` — a6bd7ba
+- [x] 3.3 Smoke passes against local dev server, including "dashboard shows profile nick": `npm run smoke` — a6bd7ba
 
 #### Manual
 
-- [x] 3.4 At 360 px viewport (devtools), signup, signin and dashboard have no horizontal scroll and all inputs/buttons are at least 44 px tall
-- [x] 3.5 Submitting signup with empty Imię/Nick or phone "12" shows Polish inline errors without a request
-- [x] 3.6 Signup with a valid optional phone, then without a phone, both land on `/dashboard` with "Cześć, <imię>!" and the nick shown on the dashboard
-- [x] 3.7 Signing up with an already-registered e-mail shows "Konto z tym adresem e-mail już istnieje"
+- [x] 3.4 At 360 px viewport (devtools), signup, signin and dashboard have no horizontal scroll and all inputs/buttons are at least 44 px tall — a6bd7ba
+- [x] 3.5 Submitting signup with empty Imię/Nick or phone "12" shows Polish inline errors without a request — a6bd7ba
+- [x] 3.6 Signup with a valid optional phone, then without a phone, both land on `/dashboard` with "Cześć, <imię>!" and the nick shown on the dashboard — a6bd7ba
+- [x] 3.7 Signing up with an already-registered e-mail shows "Konto z tym adresem e-mail już istnieje" — a6bd7ba
 
 ### Phase 4: Hosted rollout and docs
 
 #### Automated
 
-- [ ] 4.1 Lint passes: `npm run lint`
-- [ ] 4.2 Hosted migration is applied: `npx supabase migration list` shows `20261109120000` in both Local and Remote columns
+- [x] 4.1 Lint passes: `npm run lint`
+- [x] 4.2 Hosted migration is applied: `npx supabase migration list` shows `20261109120000` in both Local and Remote columns
 
 #### Manual
 
-- [ ] 4.3 Hosted dashboard shows "Confirm email" disabled and minimum password length 6
-- [ ] 4.4 Roadmap question #13 (issue #13) is closed with the decision "confirmation disabled"
+- [x] 4.3 Hosted dashboard shows "Confirm email" disabled and minimum password length 6
+- [x] 4.4 Roadmap question #13 (issue #13) is closed with the decision "confirmation disabled"
 
 ### Phase 5: Post-deploy verification
 
