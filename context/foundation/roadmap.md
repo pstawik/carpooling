@@ -162,7 +162,7 @@ Brak osobnych fundamentów. Jedyna brakująca warstwa to dane (schemat + RLS), a
 - **Prerequisites:** S-04, S-05
 - **Parallel with:** S-03, S-06
 - **Blockers:** —
-- **Unknowns:** —
+- **Unknowns:** Co z dziećmi (i ich deklaracjami) rodzica usuniętego z grupy — dziś zostają widoczne i nikt nie może ich usunąć (impl-review parent-adds-child F2); zdecydować przed usuwaniem członków (FR-007).
 - **Risk:** Wprowadza dwie reguły serwerowe naraz — „brak deklaracji = nie jedzie” i blokadę po rozpoczęciu terminu; obie muszą działać w bazie, nie tylko w interfejsie.
 - **Status:** proposed
 
