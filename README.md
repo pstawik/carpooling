@@ -177,16 +177,19 @@ delete from public.group_members where group_id = '<group id>' and user_id = '<u
 
 ### Auth routes
 
-| Route                     | Description                                                                                                                       |
-| ------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| `/auth/signin`            | E-mail/password sign-in form                                                                                                      |
-| `/auth/signup`            | Sign-up form (first name, nick, e-mail, optional phone, password)                                                                 |
-| `/dashboard`              | Post-login screen: profile greeting and "Twoje grupy" (redirects to `/auth/signin`)                                               |
-| `/groups/[id]`            | Group page with its admins; group admins also see the invite link panel; 404 for non-members                                      |
-| `/admin/groups`           | App admins only: create groups, add group admins, list all groups; 404 for others                                                 |
-| `/join/[token]`           | Public invite page: group name plus sign-up/sign-in, or "Dołącz do grupy" when signed in; 404 for an unknown or regenerated token |
-| `POST /api/groups/invite` | Group admins only: create or regenerate the group's invite link (`group_id`)                                                      |
-| `POST /api/groups/join`   | Signed-in user joins the group behind an invite `token`                                                                           |
+| Route                              | Description                                                                                                                       |
+| ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `/auth/signin`                     | E-mail/password sign-in form                                                                                                      |
+| `/auth/signup`                     | Sign-up form (first name, nick, e-mail, optional phone, password)                                                                 |
+| `/dashboard`                       | Post-login screen: profile greeting and "Twoje grupy" (redirects to `/auth/signin`)                                               |
+| `/groups/[id]`                     | Group page with its admins; group admins also see the invite link panel; 404 for non-members                                      |
+| `/admin/groups`                    | App admins only: create groups, add group admins, list all groups; 404 for others                                                 |
+| `/join/[token]`                    | Public invite page: group name plus sign-up/sign-in, or "Dołącz do grupy" when signed in; 404 for an unknown or regenerated token |
+| `POST /api/groups/invite`          | Group admins only: create or regenerate the group's invite link (`group_id`)                                                      |
+| `POST /api/groups/join`            | Signed-in user joins the group behind an invite `token`                                                                           |
+| `POST /api/groups/children`        | Group member adds their own child (`group_id`, `name`)                                                                            |
+| `POST /api/groups/children/update` | Parent renames their own child (`group_id`, `child_id`, `name`)                                                                   |
+| `POST /api/groups/children/delete` | Parent deletes their own child (`group_id`, `child_id`)                                                                           |
 
 Route protection is handled in `src/middleware.ts`. Add paths to the `PROTECTED_ROUTES` array there to require authentication. The middleware also loads the signed-in user's row from `public.profiles` into `Astro.locals.profile`.
 
@@ -196,6 +199,15 @@ Route protection is handled in `src/middleware.ts`. Add paths to the `PROTECTED_
 - **Regeneration invalidates the old link immediately.** The old URL then shows "Ten link jest nieaktualny" (404). There is no expiry or usage limit in MVP — regenerating is the remedy for a leaked link.
 - **The anonymous page shows only the group name** (`invite_group_name`, the only RPC granted to `anon`). Opening a link never changes data; joining is a POST.
 - **`?invite=<token>` threads through auth.** The invite page links to `/auth/signup?invite=…` and `/auth/signin?invite=…`; the token survives error redirects and the sign-up ↔ sign-in links, and the user is joined right after successful auth and lands on `/groups/<id>?message=joined` (or `already_member` — an existing role is never changed).
+
+### Children
+
+The group page has a "Dzieci" card. A parent adds, renames and deletes their own children there.
+
+- **Every member sees all children of the group**, with the parent's nick next to other parents' children. Members of other groups see none of them (RLS on `public.children`).
+- **Only the parent can rename or delete their own child**, and only while still a member of the group. Neither a group admin nor an app admin can manage another parent's children. A child's group and parent never change. To move a child, delete it and add it again.
+- **A name is unique per parent per group.** Case and surrounding whitespace are ignored. Two parents may each have an "Ola".
+- **Delete is permanent.** There is no soft delete. Removing a member via SQL leaves their children in the group, so delete those too: `delete from public.children where group_id = '<group id>' and parent_id = '<user id>';`
 
 ## Deployment
 
@@ -228,7 +240,7 @@ BASE_URL=http://localhost:4321 npm run smoke
 
 It needs a reachable Supabase instance (local or cloud) with email confirmation disabled.
 
-Write mode also covers groups: it signs in as an app admin, creates a group with the smoke user as its admin, checks that the smoke user sees it on the dashboard and its page, and that a second fresh user gets an empty list and a 404. It then covers invite links: the group admin generates a link, the anonymous invite page shows the group name, a brand-new user signs up with the invite and joins, the second user signs in with it and joins, a repeated join reports "already member", and after regeneration the old token is rejected and its page returns 404. The app admin defaults to the local seed account; override it with `SMOKE_ADMIN_EMAIL` and `SMOKE_ADMIN_PASSWORD` for other environments.
+Write mode also covers groups: it signs in as an app admin, creates a group with the smoke user as its admin, checks that the smoke user sees it on the dashboard and its page, and that a second fresh user gets an empty list and a 404. It then covers invite links: the group admin generates a link, the anonymous invite page shows the group name, a brand-new user signs up with the invite and joins, the second user signs in with it and joins, a repeated join reports "already member", and after regeneration the old token is rejected and its page returns 404. It then covers children: the joined member adds a child, gets errors for a duplicate and an empty name, renames the child, adds and deletes a second one, and gets 404 for a malformed group id. The group admin then sees the renamed child and gets "child not found" when trying to delete it. The app admin defaults to the local seed account; override it with `SMOKE_ADMIN_EMAIL` and `SMOKE_ADMIN_PASSWORD` for other environments.
 
 Against production, always set `SMOKE_READONLY=1`. It skips every step that creates users or sessions and checks only that the home page renders, that `/dashboard` and `/groups/<id>` redirect anonymous users, and that an unknown `/join/<token>` returns 404.
 

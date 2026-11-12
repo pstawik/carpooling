@@ -351,25 +351,25 @@ The migration only adds things and needs no backfill. Rollback is `drop table pu
 
 #### Automated
 
-- [x] 2.1 Lint passes: `npm run lint`
-- [x] 2.2 Type check passes: `npx astro check`
-- [x] 2.3 Build passes: `npm run build`
-- [x] 2.4 Smoke passes, including the new children steps: `npm run smoke`
+- [x] 2.1 Lint passes: `npm run lint` — c81eb1b
+- [x] 2.2 Type check passes: `npx astro check` — c81eb1b
+- [x] 2.3 Build passes: `npm run build` — c81eb1b
+- [x] 2.4 Smoke passes, including the new children steps: `npm run smoke` — c81eb1b
 
 #### Manual
 
-- [x] 2.5 At a 360 px viewport, a parent adds, renames and deletes a child without zooming or horizontal scroll, and sees each notice
-- [x] 2.6 A second member of the same group sees that child with the parent's nick but no "Edytuj" / "Usuń" buttons
-- [x] 2.7 A user from another group gets 404 on the group page and sees no children; a duplicate name shows "Masz już dziecko o tym imieniu w tej grupie"
+- [x] 2.5 At a 360 px viewport, a parent adds, renames and deletes a child without zooming or horizontal scroll, and sees each notice — c81eb1b
+- [x] 2.6 A second member of the same group sees that child with the parent's nick but no "Edytuj" / "Usuń" buttons — c81eb1b
+- [x] 2.7 A user from another group gets 404 on the group page and sees no children; a duplicate name shows "Masz już dziecko o tym imieniu w tej grupie" — c81eb1b
 
 ### Phase 3: Hosted rollout and docs
 
 #### Automated
 
-- [ ] 3.1 Migrations are in sync with hosted: `npx supabase migration list`
+- [x] 3.1 Migrations are in sync with hosted: `npx supabase migration list`
 - [ ] 3.2 Production read-only smoke passes after deploy: `SMOKE_READONLY=1 BASE_URL=<production url> npm run smoke`
 
 #### Manual
 
 - [ ] 3.3 In production, the author adds a real child to their group and a second member sees it
-- [ ] 3.4 README describes the children flow and new routes
+- [x] 3.4 README describes the children flow and new routes
