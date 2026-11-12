@@ -31,6 +31,10 @@ export const POST: APIRoute = async (context) => {
   if (error) {
     const failure = groupRpcFailure(error);
     if (failure.kind === "forbidden") return context.rewrite("/404");
+    if (failure.code === "unknown") {
+      // eslint-disable-next-line no-console -- surfaces in Cloudflare Worker logs
+      console.error("create_group failed:", error.code, error.message);
+    }
     return context.redirect(adminGroupsErrorUrl(failure.code, failure.email));
   }
 

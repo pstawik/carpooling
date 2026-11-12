@@ -1,14 +1,11 @@
 import { z } from "zod";
+import { emailSchema } from "@/lib/validation/auth";
+
+export { emailSchema };
 
 // Same limits as the groups_name_length check in the database.
 const NAME_MAX = 80;
 const MAX_ADMIN_EMAILS = 10;
-
-export const emailSchema = z
-  .string({ error: "Podaj adres e-mail" })
-  .trim()
-  .toLowerCase()
-  .pipe(z.email({ error: "Podaj prawidłowy adres e-mail" }));
 
 /** Splits a free-text field on commas, semicolons, whitespace or newlines into unique, lower-cased e-mails. */
 function splitEmails(value: string): string[] {

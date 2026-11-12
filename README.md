@@ -173,7 +173,7 @@ update public.group_members set role = 'member' where group_id = '<group id>' an
 delete from public.group_members where group_id = '<group id>' and user_id = '<user id>';
 ```
 
-**Local seed app admin.** `supabase/seed.sql` creates `admin@example.com` / `Admin-Passw0rd!` and makes it an app admin. It is applied only by local `npx supabase db reset` / first `npx supabase start` (and in CI). It must never reach the hosted project: never run `npx supabase db push --include-seed` or `npx supabase db reset --linked`.
+**Local seed app admin.** `supabase/seed.sql` creates `admin@example.com` / `Admin-Passw0rd!` and makes it an app admin. It is applied only by local `npx supabase db reset` / first `npx supabase start` (and in CI). It must never reach the hosted project: never run `npx supabase db push --include-seed` or `npx supabase db reset --linked`, and keep Supabase Branching (GitHub integration) off — it seeds hosted preview branches automatically, which would give each a publicly reachable app admin with this known password.
 
 ### Auth routes
 

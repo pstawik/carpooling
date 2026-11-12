@@ -245,6 +245,11 @@ select throws_ok(
 
 reset role;
 
+-- Groups that exist before X acts: the fixtures plus anything a local dev DB already holds
+-- (e.g. smoke runs). Assertions below compare against this snapshot instead of absolute counts.
+create temp table preexisting_groups on commit drop as select id from public.groups;
+grant select on preexisting_groups to authenticated;
+
 -- ---------------------------------------------------------------------------
 -- As app admin X
 -- ---------------------------------------------------------------------------
@@ -256,7 +261,7 @@ select is(public.is_app_admin(), true, 'is_app_admin() is true for X');
 
 select set_eq(
   $$select id from public.groups$$,
-  array['10000000-0000-0000-0000-000000000001'::uuid, '20000000-0000-0000-0000-000000000002'::uuid],
+  $$select id from preexisting_groups$$,
   'X sees all groups via select'
 );
 
@@ -267,28 +272,28 @@ select isnt(
 );
 
 select is(
-  (select name from public.groups where id = (select id from public.groups where name = 'Judo – wtorki')),
+  (select name from public.groups where id not in (select id from preexisting_groups)),
   'Judo – wtorki',
   'create_group trims the name'
 );
 
 select is(
-  (select created_by from public.groups where id = (select id from public.groups where name = 'Judo – wtorki')),
+  (select created_by from public.groups where id not in (select id from preexisting_groups)),
   '00000000-0000-0000-0000-0000000000a0'::uuid,
   'create_group records the app admin as created_by'
 );
 
 select results_eq(
   $$select user_id, role from public.group_members
-    where group_id = (select id from public.groups where name = 'Judo – wtorki')$$,
+    where group_id = (select id from public.groups where id not in (select id from preexisting_groups))$$,
   $$values ('00000000-0000-0000-0000-0000000000a1'::uuid, 'admin'::text)$$,
   'create_group dedupes e-mails case-insensitively into one admin membership'
 );
 
 select is(
-  (select count(*) from public.groups),
-  3::bigint,
-  'three groups exist after create_group'
+  (select count(*) from public.groups where id not in (select id from preexisting_groups)),
+  1::bigint,
+  'create_group adds exactly one group'
 );
 
 select throws_ok(
@@ -303,8 +308,8 @@ select is(
 );
 
 select is(
-  (select count(*) from public.groups),
-  3::bigint,
+  (select count(*) from public.groups where id not in (select id from preexisting_groups)),
+  1::bigint,
   'unknown e-mail leaves no new group row'
 );
 
