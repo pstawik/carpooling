@@ -177,15 +177,25 @@ delete from public.group_members where group_id = '<group id>' and user_id = '<u
 
 ### Auth routes
 
-| Route           | Description                                                                         |
-| --------------- | ----------------------------------------------------------------------------------- |
-| `/auth/signin`  | E-mail/password sign-in form                                                        |
-| `/auth/signup`  | Sign-up form (first name, nick, e-mail, optional phone, password)                   |
-| `/dashboard`    | Post-login screen: profile greeting and "Twoje grupy" (redirects to `/auth/signin`) |
-| `/groups/[id]`  | Group page with its admins; 404 for anyone who is not a member                      |
-| `/admin/groups` | App admins only: create groups, add group admins, list all groups; 404 for others   |
+| Route                     | Description                                                                                                                       |
+| ------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `/auth/signin`            | E-mail/password sign-in form                                                                                                      |
+| `/auth/signup`            | Sign-up form (first name, nick, e-mail, optional phone, password)                                                                 |
+| `/dashboard`              | Post-login screen: profile greeting and "Twoje grupy" (redirects to `/auth/signin`)                                               |
+| `/groups/[id]`            | Group page with its admins; group admins also see the invite link panel; 404 for non-members                                      |
+| `/admin/groups`           | App admins only: create groups, add group admins, list all groups; 404 for others                                                 |
+| `/join/[token]`           | Public invite page: group name plus sign-up/sign-in, or "Dołącz do grupy" when signed in; 404 for an unknown or regenerated token |
+| `POST /api/groups/invite` | Group admins only: create or regenerate the group's invite link (`group_id`)                                                      |
+| `POST /api/groups/join`   | Signed-in user joins the group behind an invite `token`                                                                           |
 
 Route protection is handled in `src/middleware.ts`. Add paths to the `PROTECTED_ROUTES` array there to require authentication. The middleware also loads the signed-in user's row from `public.profiles` into `Astro.locals.profile`.
+
+### Invite links
+
+- **One link per group.** A group admin generates it on the group page; until then the group has no link. Tokens live in `public.group_invites`, readable only by that group's admins (RLS) and written only through the `regenerate_group_invite` RPC.
+- **Regeneration invalidates the old link immediately.** The old URL then shows "Ten link jest nieaktualny" (404). There is no expiry or usage limit in MVP — regenerating is the remedy for a leaked link.
+- **The anonymous page shows only the group name** (`invite_group_name`, the only RPC granted to `anon`). Opening a link never changes data; joining is a POST.
+- **`?invite=<token>` threads through auth.** The invite page links to `/auth/signup?invite=…` and `/auth/signin?invite=…`; the token survives error redirects and the sign-up ↔ sign-in links, and the user is joined right after successful auth and lands on `/groups/<id>?message=joined` (or `already_member` — an existing role is never changed).
 
 ## Deployment
 
@@ -218,9 +228,9 @@ BASE_URL=http://localhost:4321 npm run smoke
 
 It needs a reachable Supabase instance (local or cloud) with email confirmation disabled.
 
-Write mode also covers groups: it signs in as an app admin, creates a group with the smoke user as its admin, checks that the smoke user sees it on the dashboard and its page, and that a second fresh user gets an empty list and a 404. The app admin defaults to the local seed account; override it with `SMOKE_ADMIN_EMAIL` and `SMOKE_ADMIN_PASSWORD` for other environments.
+Write mode also covers groups: it signs in as an app admin, creates a group with the smoke user as its admin, checks that the smoke user sees it on the dashboard and its page, and that a second fresh user gets an empty list and a 404. It then covers invite links: the group admin generates a link, the anonymous invite page shows the group name, a brand-new user signs up with the invite and joins, the second user signs in with it and joins, a repeated join reports "already member", and after regeneration the old token is rejected and its page returns 404. The app admin defaults to the local seed account; override it with `SMOKE_ADMIN_EMAIL` and `SMOKE_ADMIN_PASSWORD` for other environments.
 
-Against production, always set `SMOKE_READONLY=1`. It skips every step that creates users or sessions and checks only that the home page renders and that `/dashboard` and `/groups/<id>` redirect anonymous users.
+Against production, always set `SMOKE_READONLY=1`. It skips every step that creates users or sessions and checks only that the home page renders, that `/dashboard` and `/groups/<id>` redirect anonymous users, and that an unknown `/join/<token>` returns 404.
 
 > **Note:** this script exists primarily to guard the development of the starter itself — it is a fast sanity check that dependency upgrades did not break the build, the Cloudflare adapter or the Supabase auth flow. It is **not** a substitute for a real test suite. Once you build your own product on top of this starter, add proper tests (unit, integration, end-to-end) suited to your application.
 

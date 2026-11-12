@@ -380,26 +380,26 @@ Additive migration; no backfill (groups get a link on first admin request). Roll
 
 #### Automated
 
-- [x] 4.1 Lint passes: `npm run lint`
-- [x] 4.2 Type check passes: `npx astro check`
-- [x] 4.3 Build passes: `npm run build`
-- [x] 4.4 Smoke passes locally with the invite steps: `npm run smoke`
-- [ ] 4.5 CI pipeline is green on the PR (db tests + smoke)
+- [x] 4.1 Lint passes: `npm run lint` — eb1adc9
+- [x] 4.2 Type check passes: `npx astro check` — eb1adc9
+- [x] 4.3 Build passes: `npm run build` — eb1adc9
+- [x] 4.4 Smoke passes locally with the invite steps: `npm run smoke` — eb1adc9
+- [x] 4.5 CI pipeline is green on the PR (db tests + smoke) — eb1adc9
 
 #### Manual
 
-- [x] 4.6 In a private window at 360 px: open an invite link, tap "Załóż konto", submit once with an already-registered e-mail (server error), fix it and submit — you land in the group with "Dołączyłeś do grupy"
-- [x] 4.7 Same with "Mam konto — zaloguj się" using a wrong password first, then the right one
-- [x] 4.8 Plain sign-up and sign-in without an invite still land on `/dashboard`
+- [x] 4.6 In a private window at 360 px: open an invite link, tap "Załóż konto", submit once with an already-registered e-mail (server error), fix it and submit — you land in the group with "Dołączyłeś do grupy" — eb1adc9
+- [x] 4.7 Same with "Mam konto — zaloguj się" using a wrong password first, then the right one — eb1adc9
+- [x] 4.8 Plain sign-up and sign-in without an invite still land on `/dashboard` — eb1adc9
 
 ### Phase 5: Hosted rollout and docs
 
 #### Automated
 
-- [ ] 5.1 Migrations are in sync with hosted: `npx supabase migration list`
+- [x] 5.1 Migrations are in sync with hosted: `npx supabase migration list`
 - [ ] 5.2 Production read-only smoke passes after deploy: `SMOKE_READONLY=1 BASE_URL=<production url> npm run smoke`
 
 #### Manual
 
 - [ ] 5.3 In production, the author generates a link for a real group and a second account joins through it
-- [ ] 5.4 README describes the invite flow and new routes
+- [x] 5.4 README describes the invite flow and new routes
