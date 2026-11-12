@@ -3,7 +3,8 @@ import { z } from "zod";
 // Same rule as the profiles_phone_format check in the database.
 const PHONE_PATTERN = /^\+?[0-9]{9,15}$/;
 
-const emailSchema = z
+/** Shared e-mail rule: trimmed, lower-cased, valid address (also used by validation/groups.ts). */
+export const emailSchema = z
   .string({ error: "Podaj adres e-mail" })
   .trim()
   .toLowerCase()
