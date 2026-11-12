@@ -1,0 +1,55 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Topbar from "@/components/Topbar.astro";
+import { createClient } from "@/lib/supabase";
+import { getGroupWithAdmins } from "@/lib/services/groups";
+
+// Middleware guarantees a signed-in user on /groups/*. Non-members (including a non-member app
+// admin), unknown and malformed ids all get the same 404, so group existence is not leaked.
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+const { user } = Astro.locals;
+if (!supabase || !user) {
+  return Astro.rewrite("/404");
+}
+
+const group = await getGroupWithAdmins(supabase, Astro.params.id ?? "", user.id);
+if (!group) {
+  return Astro.rewrite("/404");
+}
+
+const cardClass = "rounded-2xl border border-white/10 bg-white/10 p-4 text-white backdrop-blur-xl sm:p-6";
+---
+
+<Layout title={group.name}>
+  <div class="bg-cosmic min-h-screen p-4">
+    <div class="mx-auto w-full max-w-xl">
+      <Topbar />
+
+      <h1 class="mb-4 bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-2xl font-bold break-words text-transparent">
+        {group.name}
+      </h1>
+
+      <section class:list={[cardClass, "mb-6"]}>
+        <h2 class="mb-3 text-lg font-semibold">Administratorzy</h2>
+        {group.admins.length === 0 ? (
+          <p class="text-sm text-blue-100/70">Brak administratorów.</p>
+        ) : (
+          <ul class="space-y-1 text-sm">
+            {group.admins.map((admin) => (
+              <li class="break-words">
+                <span class="font-medium">{admin.first_name}</span> <span class="text-blue-100/70">({admin.nick})</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <a
+        href="/dashboard"
+        class="inline-flex min-h-11 items-center rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm text-white transition-colors hover:bg-white/20"
+      >
+        Wróć do panelu
+      </a>
+    </div>
+  </div>
+</Layout>

@@ -359,35 +359,35 @@ New tables only; no backfill. Existing hosted accounts simply have no membership
 
 #### Automated
 
-- [x] 2.1 Seed loads on reset: `npx supabase db reset`
-- [x] 2.2 Lint passes: `npm run lint`
-- [x] 2.3 Type check passes: `npx astro check`
-- [x] 2.4 Build passes: `npm run build`
-- [x] 2.5 Smoke passes against local dev server including the new admin steps: `npm run smoke`
+- [x] 2.1 Seed loads on reset: `npx supabase db reset` — 3037a25
+- [x] 2.2 Lint passes: `npm run lint` — 3037a25
+- [x] 2.3 Type check passes: `npx astro check` — 3037a25
+- [x] 2.4 Build passes: `npm run build` — 3037a25
+- [x] 2.5 Smoke passes against local dev server including the new admin steps: `npm run smoke` — 3037a25
 
 #### Manual
 
-- [x] 2.6 Signed in as the seed admin on a 360 px viewport, creating a group with two admin e-mails works without zooming or horizontal scroll, and both admins appear in the list
-- [x] 2.7 Entering an unregistered e-mail shows the Polish error naming that e-mail and no group is created
-- [x] 2.8 "Dodaj administratora" adds a third admin to an existing group
-- [x] 2.9 Signed in as a regular user, `/admin/groups` returns 404 and the dashboard shows no admin link
+- [x] 2.6 Signed in as the seed admin on a 360 px viewport, creating a group with two admin e-mails works without zooming or horizontal scroll, and both admins appear in the list — 3037a25
+- [x] 2.7 Entering an unregistered e-mail shows the Polish error naming that e-mail and no group is created — 3037a25
+- [x] 2.8 "Dodaj administratora" adds a third admin to an existing group — 3037a25
+- [x] 2.9 Signed in as a regular user, `/admin/groups` returns 404 and the dashboard shows no admin link — 3037a25
 
 ### Phase 3: Member group views
 
 #### Automated
 
-- [ ] 3.1 Lint passes: `npm run lint`
-- [ ] 3.2 Type check passes: `npx astro check`
-- [ ] 3.3 Build passes: `npm run build`
-- [ ] 3.4 Smoke passes locally with the isolation steps: `npm run smoke`
+- [x] 3.1 Lint passes: `npm run lint`
+- [x] 3.2 Type check passes: `npx astro check`
+- [x] 3.3 Build passes: `npm run build`
+- [x] 3.4 Smoke passes locally with the isolation steps: `npm run smoke`
 - [ ] 3.5 CI pipeline is green on the PR (db tests + smoke against preview build)
 
 #### Manual
 
-- [ ] 3.6 On a 360 px phone viewport the dashboard group list and group page render without horizontal scroll and links are easy to tap
-- [ ] 3.7 A user in two groups sees both, with the "administrator" badge only where they are admin
-- [ ] 3.8 Pasting another group's `/groups/<id>` URL as a non-member shows 404
-- [ ] 3.9 Signed in as the seed app admin (not a member of the group), opening that group's `/groups/<id>` shows the 404 page, while `/admin/groups` still lists it
+- [x] 3.6 On a 360 px phone viewport the dashboard group list and group page render without horizontal scroll and links are easy to tap
+- [x] 3.7 A user in two groups sees both, with the "administrator" badge only where they are admin
+- [x] 3.8 Pasting another group's `/groups/<id>` URL as a non-member shows 404
+- [x] 3.9 Signed in as the seed app admin (not a member of the group), opening that group's `/groups/<id>` shows the 404 page, while `/admin/groups` still lists it
 
 ### Phase 4: Hosted rollout and docs
 

@@ -1,7 +1,22 @@
 ---
 import Layout from "@/layouts/Layout.astro";
+import { createClient } from "@/lib/supabase";
+import { listMyGroups, type MyGroup } from "@/lib/services/groups";
 
 const { user, profile, isAppAdmin } = Astro.locals;
+
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+let groups: MyGroup[] = [];
+let groupsFailed = false;
+if (supabase && user) {
+  try {
+    groups = await listMyGroups(supabase, user.id);
+  } catch (err) {
+    // eslint-disable-next-line no-console -- surfaces in Cloudflare Worker logs
+    console.error(err instanceof Error ? err.message : err);
+    groupsFailed = true;
+  }
+}
 ---
 
 <Layout title="Panel">
@@ -21,6 +36,32 @@ const { user, profile, isAppAdmin } = Astro.locals;
           </>
         )}
       </p>
+      <section class="mt-6 text-left">
+        <h2 class="mb-3 text-lg font-semibold">Twoje grupy</h2>
+        {groupsFailed ? (
+          <p class="text-sm text-red-300" role="alert">
+            Nie udało się wczytać grup. Spróbuj ponownie później.
+          </p>
+        ) : groups.length === 0 ? (
+          <p class="text-sm text-blue-100/70">Nie należysz jeszcze do żadnej grupy.</p>
+        ) : (
+          <ul class="space-y-2">
+            {groups.map((group) => (
+              <li>
+                <a
+                  href={`/groups/${group.id}`}
+                  class="flex min-h-11 items-center justify-between gap-3 rounded-lg border border-white/10 bg-white/5 px-3 py-2 transition-colors hover:bg-white/15"
+                >
+                  <span class="min-w-0 font-medium break-words">{group.name}</span>
+                  {group.role === "admin" && (
+                    <span class="shrink-0 rounded-full bg-purple-600/60 px-2 py-0.5 text-xs">administrator</span>
+                  )}
+                </a>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
       {isAppAdmin && (
         <a
           href="/admin/groups"
