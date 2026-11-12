@@ -393,12 +393,12 @@ New tables only; no backfill. Existing hosted accounts simply have no membership
 
 #### Automated
 
-- [x] 4.1 Hosted migration list matches local: `npx supabase migration list` shows the groups migration applied remotely
-- [ ] 4.2 Production read-only smoke passes after deploy: `SMOKE_READONLY=1 BASE_URL=<production url> npm run smoke`
+- [x] 4.1 Hosted migration list matches local: `npx supabase migration list` shows the groups migration applied remotely — d5be428
+- [x] 4.2 Production read-only smoke passes after deploy: `SMOKE_READONLY=1 BASE_URL=<production url> npm run smoke`
 
 #### Manual
 
-- [x] 4.3 Before merge: the owner's hosted account is in `app_admins` and no other rows exist there
-- [ ] 4.4 After deploy: the owner creates a real group on production with themselves (and optionally a second parent) as admin from a phone, and it appears on their dashboard
-- [ ] 4.5 After deploy: another real account not in the group sees no groups and gets 404 on the group URL
-- [x] 4.6 Before merge: hosted `auth.users` has no `admin@example.com` account (the local seed admin never reached production)
+- [x] 4.3 Before merge: the owner's hosted account is in `app_admins` and no other rows exist there — d5be428
+- [x] 4.4 After deploy: the owner creates a real group on production with themselves (and optionally a second parent) as admin from a phone, and it appears on their dashboard
+- [x] 4.5 After deploy: another real account not in the group sees no groups and gets 404 on the group URL
+- [x] 4.6 Before merge: hosted `auth.users` has no `admin@example.com` account (the local seed admin never reached production) — d5be428
