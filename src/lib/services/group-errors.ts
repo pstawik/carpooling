@@ -11,6 +11,7 @@ const ERROR_MESSAGES = {
   unknown_email: "Nie znaleziono konta dla jednego z podanych adresów e-mail",
   group_not_found: "Nie znaleziono grupy",
   no_admins: "Podaj co najmniej jeden adres e-mail administratora",
+  invalid_invite: "Ten link jest nieaktualny — poproś administratora grupy o nowy",
   not_configured: "Supabase nie jest skonfigurowany",
   invalid_input: "Nieprawidłowe dane",
   unknown: "Coś poszło nie tak, spróbuj ponownie",
@@ -19,16 +20,19 @@ const ERROR_MESSAGES = {
 const NOTICE_MESSAGES = {
   group_created: "Grupa utworzona",
   admin_added: "Administrator dodany",
+  invite_ready: "Link zaproszeniowy gotowy",
+  joined: "Dołączyłeś do grupy",
+  already_member: "Już jesteś członkiem tej grupy",
 } as const;
 
 export type GroupErrorCode = keyof typeof ERROR_MESSAGES;
 export type GroupNoticeCode = keyof typeof NOTICE_MESSAGES;
 
 /** Business-error keys raised by the RPCs as `errcode P0001, message <key>`. */
-const RPC_ERROR_KEYS = new Set<string>(["unknown_email", "group_not_found", "no_admins"]);
+const RPC_ERROR_KEYS = new Set<string>(["unknown_email", "group_not_found", "no_admins", "invalid_invite"]);
 
 export type GroupRpcFailure =
-  /** Caller is not an app admin (42501): the route answers 404 so it does not advertise itself. */
+  /** Caller lacks the right (42501): the route answers 404 so it does not advertise itself. */
   { kind: "forbidden" } | { kind: "error"; code: GroupErrorCode; email?: string };
 
 export function groupRpcFailure(error: PostgrestError): GroupRpcFailure {

@@ -11,6 +11,8 @@ const MIN_PASSWORD_LENGTH = 6;
 
 interface Props {
   serverError?: string | null;
+  /** Well-formed invite token to join with after sign-up; posted as a hidden field. */
+  invite?: string | null;
 }
 
 type FieldErrors = Partial<Record<"first_name" | "nick" | "email" | "phone" | "password" | "confirmPassword", string>>;
@@ -19,7 +21,7 @@ function Hint({ children }: { children: React.ReactNode }) {
   return <p className="mt-1 text-xs text-blue-100/50">{children}</p>;
 }
 
-export default function SignUpForm({ serverError }: Props) {
+export default function SignUpForm({ serverError, invite }: Props) {
   const [firstName, setFirstName] = useState("");
   const [nick, setNick] = useState("");
   const [email, setEmail] = useState("");
@@ -72,6 +74,7 @@ export default function SignUpForm({ serverError }: Props) {
 
   return (
     <form method="POST" action="/api/auth/signup" className="space-y-4" onSubmit={handleSubmit} noValidate>
+      {invite && <input type="hidden" name="invite" value={invite} />}
       <FormField
         id="first_name"
         label="Imię"

@@ -1,6 +1,6 @@
 // Smoke test: proves the built app, the Cloudflare adapter and the Supabase auth flow still work together.
 // Zero dependencies on purpose. Run against a live server: BASE_URL=http://localhost:4321 node scripts/smoke.mjs
-import { randomUUID } from "node:crypto";
+import { randomBytes, randomUUID } from "node:crypto";
 
 const BASE_URL = process.env.BASE_URL ?? "http://localhost:4321";
 const email = `smoke-${Date.now()}@example.com`;
@@ -49,6 +49,8 @@ const readonlySteps = [
     () => request(`/groups/${randomUUID()}`),
     { status: 302, location: "/auth/signin" },
   ],
+  // 24 random bytes in url-safe base64: a well-formed token that matches no group.
+  ["unknown invite link renders 404", () => request(`/join/${randomBytes(24).toString("base64url")}`), { status: 404 }],
 ];
 
 const profile = { first_name: "Rodzic", nick: "Smoke", phone: "600 123 456" };
@@ -59,8 +61,23 @@ const adminPassword = process.env.SMOKE_ADMIN_PASSWORD ?? "Admin-Passw0rd!";
 const groupName = `Smoke ${Date.now()}`;
 // A second account that is in no group, to prove isolation.
 const strangerEmail = `smoke-stranger-${Date.now()}@example.com`;
+// A brand-new account that signs up straight from the invite link.
+const joinerEmail = `smoke-joiner-${Date.now()}@example.com`;
 // Filled from the smoke user's dashboard link once the admin has created the group.
 let groupPath = "/groups/missing";
+// Filled from the group page once the designated admin has generated the invite link.
+let inviteToken = "missing";
+let oldInviteToken = "missing";
+
+const groupId = () => groupPath.slice("/groups/".length);
+
+/** Reads the group page and remembers the invite token shown to the group admin. */
+async function groupPageWithInviteToken() {
+  const result = await request(groupPath, { readBody: true });
+  const match = /\/join\/([A-Za-z0-9_-]{32})/.exec(result.body);
+  if (match) inviteToken = match[1];
+  return result;
+}
 
 /** Reads the dashboard and remembers the link of the group named `groupName`. */
 async function dashboardWithGroupLink() {
@@ -136,7 +153,18 @@ const writeSteps = [
   ],
   ["dashboard lists the new group", dashboardWithGroupLink, { status: 200, contains: groupName }],
   ["group page renders for member", () => request(groupPath, { readBody: true }), { status: 200, contains: groupName }],
+  [
+    "group admin generates invite link",
+    () => request("/api/groups/invite", { method: "POST", form: { group_id: groupId() } }),
+    { status: 302, location: () => `${groupPath}?message=invite_ready` },
+  ],
+  ["group page shows the invite link", groupPageWithInviteToken, { status: 200, contains: "/join/" }],
   ["member signs out", () => request("/api/auth/signout", { method: "POST" }), { status: 302, location: "/" }],
+  [
+    "anonymous invite page shows the group name",
+    () => request(`/join/${inviteToken}`, { readBody: true }),
+    { status: 200, contains: groupName },
+  ],
   [
     "stranger signs up",
     () => request("/api/auth/signup", { method: "POST", form: { ...profile, email: strangerEmail, password } }),
@@ -149,14 +177,59 @@ const writeSteps = [
   ],
   ["stranger gets 404 on the group page", () => request(groupPath), { status: 404 }],
   ["stranger signs out", () => request("/api/auth/signout", { method: "POST" }), { status: 302, location: "/" }],
+  [
+    "new user signs up with invite and joins",
+    () =>
+      request("/api/auth/signup", {
+        method: "POST",
+        form: { ...profile, email: joinerEmail, password, invite: inviteToken },
+      }),
+    { status: 302, location: () => `${groupPath}?message=joined` },
+  ],
+  ["group page renders for new member", () => request(groupPath), { status: 200 }],
+  ["new member signs out", () => request("/api/auth/signout", { method: "POST" }), { status: 302, location: "/" }],
+  [
+    "stranger signs in with invite and joins",
+    () =>
+      request("/api/auth/signin", { method: "POST", form: { email: strangerEmail, password, invite: inviteToken } }),
+    { status: 302, location: () => `${groupPath}?message=joined` },
+  ],
+  [
+    "joining again reports already member",
+    () => request("/api/groups/join", { method: "POST", form: { token: inviteToken } }),
+    { status: 302, location: () => `${groupPath}?message=already_member` },
+  ],
+  ["stranger signs out", () => request("/api/auth/signout", { method: "POST" }), { status: 302, location: "/" }],
+  [
+    "designated admin signs in again",
+    () => request("/api/auth/signin", { method: "POST", form: { email, password } }),
+    { status: 302, location: "/dashboard" },
+  ],
+  [
+    "group admin regenerates invite link",
+    () => {
+      oldInviteToken = inviteToken;
+      return request("/api/groups/invite", { method: "POST", form: { group_id: groupId() } });
+    },
+    { status: 302, location: () => `${groupPath}?message=invite_ready` },
+  ],
+  [
+    "joining with the old token redirects to its join page",
+    () => request("/api/groups/join", { method: "POST", form: { token: oldInviteToken } }),
+    { status: 302, location: () => `/join/${oldInviteToken}` },
+  ],
+  ["old invite link renders 404", () => request(`/join/${oldInviteToken}`), { status: 404 }],
+  ["admin signs out", () => request("/api/auth/signout", { method: "POST" }), { status: 302, location: "/" }],
 ];
 
 const steps = READONLY ? readonlySteps : [...readonlySteps, ...writeSteps];
 console.log(`Smoke against ${BASE_URL}${READONLY ? " (read-only)" : ""}`);
 
 let failed = 0;
-for (const [name, run, expected] of steps) {
+for (const [name, run, raw] of steps) {
   const actual = await run();
+  // A location may depend on values captured by earlier steps (group id, invite token): resolve it late.
+  const expected = { ...raw, location: typeof raw.location === "function" ? raw.location() : raw.location };
   const ok =
     actual.status === expected.status &&
     (expected.location === undefined || actual.location.startsWith(expected.location)) &&
