@@ -50,10 +50,11 @@ export function joinRedirect(result: JoinResult, token: string): string {
     case "joined":
     case "already_member":
       return `/groups/${result.groupId}?message=${result.kind}`;
+    // An unexpected failure goes back to the join page too: there the signed-in user can retry with
+    // "Dołącz do grupy" instead of landing on the dashboard with no hint that the join didn't happen.
     case "invalid":
-      return `/join/${token}`;
     case "error":
-      return "/dashboard";
+      return `/join/${token}`;
   }
 }
 

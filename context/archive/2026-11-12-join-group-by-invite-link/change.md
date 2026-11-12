@@ -1,10 +1,10 @@
 ---
 change_id: join-group-by-invite-link
 title: Join group by invite link
-status: implemented
+status: archived
 created: 2026-11-12
 updated: 2026-11-12
-archived_at: null
+archived_at: 2026-11-12T11:10:22Z
 ---
 
 ## Notes
