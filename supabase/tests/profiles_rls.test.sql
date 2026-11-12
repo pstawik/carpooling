@@ -1,5 +1,5 @@
 -- RLS and signup-trigger tests for public.profiles.
--- S-02 extends this pattern for group isolation.
+-- Group isolation tests live in groups_rls.test.sql.
 begin;
 
 create extension if not exists pgtap with schema extensions;
@@ -21,8 +21,8 @@ select is(
 select policies_are(
   'public',
   'profiles',
-  array['profiles_select_own'],
-  'profiles has only the profiles_select_own policy'
+  array['profiles_select_own', 'profiles_select_group_peers'],
+  'profiles has the own and group-peers policies'
 );
 
 -- ---------------------------------------------------------------------------

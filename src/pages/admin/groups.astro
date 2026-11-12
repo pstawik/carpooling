@@ -1,0 +1,162 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Topbar from "@/components/Topbar.astro";
+import { Button } from "@/components/ui/button";
+import { createClient } from "@/lib/supabase";
+import { groupErrorMessage, groupNoticeMessage, groupRpcFailure } from "@/lib/services/group-errors";
+import type { AdminGroupRow } from "@/types";
+
+// Non-app-admins get the same 404 as an unknown path, so the page does not advertise itself.
+if (!Astro.locals.isAppAdmin) {
+  return Astro.rewrite("/404");
+}
+
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+
+let groups: AdminGroupRow[] = [];
+let error = groupErrorMessage(Astro.url.searchParams.get("error"), Astro.url.searchParams.get("email"));
+const message = groupNoticeMessage(Astro.url.searchParams.get("message"));
+
+if (!supabase) {
+  error = groupErrorMessage("not_configured", null);
+} else {
+  // No generated DB types: rpc() data is `any`, so read it through `unknown`.
+  const response = await supabase.rpc("admin_list_groups");
+  const rpcError = response.error;
+  const rows: unknown = response.data;
+  if (rpcError) {
+    if (groupRpcFailure(rpcError).kind === "forbidden") {
+      return Astro.rewrite("/404");
+    }
+    // eslint-disable-next-line no-console -- surfaces in Cloudflare Worker logs
+    console.error("admin_list_groups failed:", rpcError.message);
+    error ??= groupErrorMessage("unknown", null);
+  } else {
+    groups = Array.isArray(rows) ? (rows as AdminGroupRow[]) : [];
+  }
+}
+
+const dateFormat = new Intl.DateTimeFormat("pl-PL", { dateStyle: "medium", timeZone: "Europe/Warsaw" });
+
+const cardClass = "rounded-2xl border border-white/10 bg-white/10 p-4 text-white backdrop-blur-xl sm:p-6";
+const labelClass = "mb-1 block text-sm text-blue-100/80";
+const inputClass =
+  "min-h-11 w-full rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-white placeholder-white/40 transition-colors focus:ring-2 focus:ring-purple-400 focus:outline-none";
+const submitClass =
+  "h-auto min-h-11 w-full rounded-lg bg-purple-600 px-4 py-2 font-medium whitespace-normal text-white transition-colors hover:bg-purple-500";
+---
+
+<Layout title="Grupy — panel administratora">
+  <div class="bg-cosmic min-h-screen p-4">
+    <div class="mx-auto w-full max-w-xl">
+      <Topbar />
+
+      <h1 class="mb-4 bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-2xl font-bold text-transparent">
+        Grupy
+      </h1>
+
+      {message && (
+        <p
+          class="mb-4 rounded-lg border border-blue-300/30 bg-blue-900/30 px-3 py-2 text-sm text-blue-100"
+          role="status"
+        >
+          {message}
+        </p>
+      )}
+      {error && (
+        <p
+          class="mb-4 rounded-lg border border-red-500/30 bg-red-900/30 px-3 py-2 text-sm break-words text-red-300"
+          role="alert"
+        >
+          {error}
+        </p>
+      )}
+
+      <section class:list={[cardClass, "mb-6"]}>
+        <h2 class="mb-4 text-lg font-semibold">Nowa grupa</h2>
+        <form method="POST" action="/api/admin/groups" class="space-y-4">
+          <div>
+            <label for="name" class:list={labelClass}>
+              Nazwa grupy
+            </label>
+            <input
+              id="name"
+              name="name"
+              type="text"
+              required
+              maxlength="80"
+              placeholder="np. Judo – wtorki"
+              class:list={inputClass}
+            />
+          </div>
+          <div>
+            <label for="admin_emails" class:list={labelClass}>
+              E-maile administratorów
+            </label>
+            <textarea
+              id="admin_emails"
+              name="admin_emails"
+              required
+              rows="3"
+              inputmode="email"
+              autocomplete="off"
+              placeholder="anna@example.com, piotr@example.com"
+              class:list={inputClass}
+            ></textarea>
+            <p class="mt-1 text-xs text-blue-100/50">
+              Oddziel przecinkiem lub nową linią. Każda osoba musi mieć już konto.
+            </p>
+          </div>
+          <Button type="submit" className={submitClass}>
+            Utwórz grupę
+          </Button>
+        </form>
+      </section>
+
+      <section>
+        <h2 class="mb-3 text-lg font-semibold text-white">Wszystkie grupy</h2>
+        {groups.length === 0 ? (
+          <p class="text-blue-100/70">Nie ma jeszcze żadnych grup.</p>
+        ) : (
+          <ul class="space-y-4">
+            {groups.map((group) => (
+              <li class:list={cardClass}>
+                <h3 class="text-lg font-semibold break-words">{group.name}</h3>
+                <p class="mb-3 text-xs text-blue-100/60">Utworzona {dateFormat.format(new Date(group.created_at))}</p>
+                <p class="mb-1 text-sm text-blue-100/80">Administratorzy:</p>
+                <ul class="mb-4 space-y-1 text-sm">
+                  {group.admins.map((admin) => (
+                    <li class="break-words">
+                      <span class="font-medium">{admin.first_name}</span>{" "}
+                      <span class="text-blue-100/70">({admin.nick})</span>{" "}
+                      <span class="text-blue-100/60">{admin.email}</span>
+                    </li>
+                  ))}
+                </ul>
+                <form method="POST" action="/api/admin/groups/admins" class="space-y-2">
+                  <input type="hidden" name="group_id" value={group.id} />
+                  <label for={`email-${group.id}`} class:list={labelClass}>
+                    Dodaj administratora
+                  </label>
+                  <input
+                    id={`email-${group.id}`}
+                    name="email"
+                    type="email"
+                    required
+                    inputmode="email"
+                    autocomplete="off"
+                    placeholder="e-mail istniejącego konta"
+                    class:list={inputClass}
+                  />
+                  <Button type="submit" className={submitClass}>
+                    Dodaj administratora
+                  </Button>
+                </form>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+    </div>
+  </div>
+</Layout>
