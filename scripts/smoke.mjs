@@ -71,6 +71,33 @@ let oldInviteToken = "missing";
 
 const groupId = () => groupPath.slice("/groups/".length);
 
+// Unique per run, so `contains` / `notContains` can't match other text on the page.
+const childSuffix = randomBytes(4).toString("hex");
+const childName = `Dziecko-${childSuffix}`;
+const childRenamed = `Dziecko-${childSuffix}-K`;
+const childToDelete = `Dziecko-${childSuffix}-B`;
+// Filled from the group page once the stranger (by then a member) has added the child.
+let childId = "missing";
+let childToDeleteId = "missing";
+
+/** Id of the own child named `name`, read from the hidden `child_id` field rendered after it. */
+function childIdAfterName(body, name) {
+  const at = body.indexOf(`>${name}<`);
+  if (at === -1) return "missing";
+  const match = /name="child_id" value="([0-9a-f-]{36})"/.exec(body.slice(at));
+  return match ? match[1] : "missing";
+}
+
+/** Reads the group page and remembers the id of the child named `childName`. */
+async function groupPageWithChildId() {
+  const result = await request(groupPath, { readBody: true });
+  childId = childIdAfterName(result.body, childName);
+  return result;
+}
+
+const addChildForm = (name) => () =>
+  request("/api/groups/children", { method: "POST", form: { group_id: groupId(), name } });
+
 /** Reads the group page and remembers the invite token shown to the group admin. */
 async function groupPageWithInviteToken() {
   const result = await request(groupPath, { readBody: true });
@@ -199,11 +226,78 @@ const writeSteps = [
     () => request("/api/groups/join", { method: "POST", form: { token: inviteToken } }),
     { status: 302, location: () => `${groupPath}?message=already_member` },
   ],
+  ["member adds a child", addChildForm(childName), { status: 302, location: () => `${groupPath}?message=child_added` }],
+  [
+    "adding the same name again reports a duplicate",
+    addChildForm(` ${childName.toUpperCase()} `),
+    { status: 302, location: () => `${groupPath}?error=duplicate_child` },
+  ],
+  [
+    "adding an empty name is rejected",
+    addChildForm("   "),
+    { status: 302, location: () => `${groupPath}?error=invalid_child_name` },
+  ],
+  ["group page shows the child", groupPageWithChildId, { status: 200, contains: childName }],
+  [
+    "member renames the child",
+    () =>
+      request("/api/groups/children/update", {
+        method: "POST",
+        form: { group_id: groupId(), child_id: childId, name: childRenamed },
+      }),
+    { status: 302, location: () => `${groupPath}?message=child_updated` },
+  ],
+  [
+    "group page shows the new name",
+    () => request(groupPath, { readBody: true }),
+    { status: 200, contains: childRenamed },
+  ],
+  [
+    "member adds a second child",
+    addChildForm(childToDelete),
+    { status: 302, location: () => `${groupPath}?message=child_added` },
+  ],
+  [
+    "member deletes the second child",
+    async () => {
+      childToDeleteId = childIdAfterName((await request(groupPath, { readBody: true })).body, childToDelete);
+      return request("/api/groups/children/delete", {
+        method: "POST",
+        form: { group_id: groupId(), child_id: childToDeleteId },
+      });
+    },
+    { status: 302, location: () => `${groupPath}?message=child_deleted` },
+  ],
+  [
+    "group page no longer shows the deleted child",
+    () => request(groupPath, { readBody: true }),
+    { status: 200, notContains: childToDelete },
+  ],
+  [
+    "adding a child with a malformed group id renders 404",
+    () => request("/api/groups/children", { method: "POST", form: { group_id: "not-a-uuid", name: childName } }),
+    { status: 404 },
+  ],
   ["stranger signs out", () => request("/api/auth/signout", { method: "POST" }), { status: 302, location: "/" }],
   [
     "designated admin signs in again",
     () => request("/api/auth/signin", { method: "POST", form: { email, password } }),
     { status: 302, location: "/dashboard" },
+  ],
+  [
+    "another member sees the child",
+    () => request(groupPath, { readBody: true }),
+    { status: 200, contains: childRenamed },
+  ],
+  [
+    "another member cannot delete the child",
+    () => request("/api/groups/children/delete", { method: "POST", form: { group_id: groupId(), child_id: childId } }),
+    { status: 302, location: () => `${groupPath}?error=child_not_found` },
+  ],
+  [
+    "the child is still in the group",
+    () => request(groupPath, { readBody: true }),
+    { status: 200, contains: childRenamed },
   ],
   [
     "group admin regenerates invite link",

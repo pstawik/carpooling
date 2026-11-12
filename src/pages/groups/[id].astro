@@ -2,11 +2,13 @@
 import Layout from "@/layouts/Layout.astro";
 import Topbar from "@/components/Topbar.astro";
 import InvitePanel from "@/components/groups/InvitePanel";
+import ChildItem from "@/components/groups/ChildItem";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase";
 import { getGroupWithAdmins } from "@/lib/services/groups";
 import { getGroupInviteToken } from "@/lib/services/invites";
-import { groupErrorMessage, groupNoticeMessage } from "@/lib/services/group-errors";
+import { listGroupChildren, type GroupChild } from "@/lib/services/children";
+import { groupErrorMessage, groupNoticeMessage, isChildFeedbackCode } from "@/lib/services/group-errors";
 
 // Middleware guarantees a signed-in user on /groups/*. Non-members (including a non-member app
 // admin), unknown and malformed ids all get the same 404, so group existence is not leaked.
@@ -21,8 +23,28 @@ if (!group) {
   return Astro.rewrite("/404");
 }
 
-const message = groupNoticeMessage(Astro.url.searchParams.get("message"));
-const error = groupErrorMessage(Astro.url.searchParams.get("error"), null);
+// Feedback from the children actions lands on #dzieci, so it is shown inside that card (visible
+// after the jump on a 360 px screen) and skipped in the banner at the top of the page.
+const messageCode = Astro.url.searchParams.get("message");
+const errorCode = Astro.url.searchParams.get("error");
+const childFeedbackMessage = isChildFeedbackCode(messageCode);
+const childFeedbackError = isChildFeedbackCode(errorCode);
+const message = childFeedbackMessage ? null : groupNoticeMessage(messageCode);
+const error = childFeedbackError ? null : groupErrorMessage(errorCode, null);
+const childMessage = childFeedbackMessage ? groupNoticeMessage(messageCode) : null;
+const childError = childFeedbackError ? groupErrorMessage(errorCode, null) : null;
+
+// A failed children query must not take the whole group page down.
+let children: GroupChild[] | null;
+try {
+  children = await listGroupChildren(supabase, group.id);
+} catch (loadError) {
+  // eslint-disable-next-line no-console -- surfaces in Cloudflare Worker logs
+  console.error(loadError);
+  children = null;
+}
+const myChildren = children?.filter((child) => child.parentId === user.id) ?? [];
+const otherChildren = children?.filter((child) => child.parentId !== user.id) ?? [];
 
 // Only admins see the invite section; RLS hides the token from everyone else anyway.
 const isAdmin = group.myRole === "admin";
@@ -73,6 +95,80 @@ const submitClass =
             ))}
           </ul>
         )}
+      </section>
+
+      <section id="dzieci" class:list={[cardClass, "mb-6 scroll-mt-4"]}>
+        <h2 class="mb-3 text-lg font-semibold">Dzieci</h2>
+        {children === null ? (
+          <p class="text-sm text-red-300" role="alert">
+            Nie udało się wczytać dzieci.
+          </p>
+        ) : (
+          <>
+            <h3 class="mb-2 text-sm font-semibold text-blue-100/80">Twoje dzieci</h3>
+            {myChildren.length === 0 ? (
+              <p class="mb-4 text-sm text-blue-100/70">Nie dodałeś jeszcze dziecka.</p>
+            ) : (
+              <ul class="mb-4 space-y-2">
+                {myChildren.map((child) => (
+                  <li>
+                    <ChildItem groupId={group.id} childId={child.id} name={child.name} client:load />
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            {otherChildren.length > 0 && (
+              <>
+                <h3 class="mb-2 text-sm font-semibold text-blue-100/80">Pozostałe dzieci w grupie</h3>
+                <ul class="mb-4 space-y-1 text-sm">
+                  {otherChildren.map((child) => (
+                    <li class="break-words">
+                      <span class="font-medium">{child.name}</span>
+                      {child.parentNick && <span class="text-blue-100/70"> ({child.parentNick})</span>}
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+          </>
+        )}
+
+        {childMessage && (
+          <p
+            class="mb-3 rounded-lg border border-blue-300/30 bg-blue-900/30 px-3 py-2 text-sm text-blue-100"
+            role="status"
+          >
+            {childMessage}
+          </p>
+        )}
+        {childError && (
+          <p
+            class="mb-3 rounded-lg border border-red-500/30 bg-red-900/30 px-3 py-2 text-sm break-words text-red-300"
+            role="alert"
+          >
+            {childError}
+          </p>
+        )}
+
+        <form method="POST" action="/api/groups/children" class="space-y-2">
+          <input type="hidden" name="group_id" value={group.id} />
+          <label for="child-name" class="block text-sm text-blue-100/80">
+            Imię lub nick dziecka
+          </label>
+          <input
+            id="child-name"
+            name="name"
+            type="text"
+            required
+            maxlength="40"
+            autocomplete="off"
+            class="min-h-11 w-full rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-white focus:ring-2 focus:ring-purple-400 focus:outline-none"
+          />
+          <Button type="submit" className={submitClass}>
+            Dodaj dziecko
+          </Button>
+        </form>
       </section>
 
       {isAdmin && (

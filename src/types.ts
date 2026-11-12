@@ -32,3 +32,12 @@ export interface AdminGroupRow {
   created_at: string;
   admins: { first_name: string; nick: string; email: string }[];
 }
+
+/** Child row from `public.children`; readable by group members, writable only by the owning parent. */
+export interface Child {
+  id: string;
+  group_id: string;
+  parent_id: string;
+  name: string;
+  created_at: string;
+}
