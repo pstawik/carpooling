@@ -1,10 +1,10 @@
 ---
 change_id: app-admin-creates-group
 title: App admin creates group
-status: impl_reviewed
+status: archived
 created: 2026-11-10
 updated: 2026-11-12
-archived_at: null
+archived_at: 2026-11-12T08:28:29Z
 ---
 
 ## Notes
