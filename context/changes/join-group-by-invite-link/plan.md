@@ -340,26 +340,26 @@ Additive migration; no backfill (groups get a link on first admin request). Roll
 
 #### Automated
 
-- [x] 1.1 Migration applies on a clean local DB: `npx supabase db reset`
-- [x] 1.2 All pgTAP tests pass, including the new file: `npx supabase test db`
+- [x] 1.1 Migration applies on a clean local DB: `npx supabase db reset` — dfc3193
+- [x] 1.2 All pgTAP tests pass, including the new file: `npx supabase test db` — dfc3193
 
 #### Manual
 
-- [x] 1.3 In local Studio, `group_invites` shows RLS enabled with exactly one SELECT policy and no write grants for `anon`/`authenticated`
+- [x] 1.3 In local Studio, `group_invites` shows RLS enabled with exactly one SELECT policy and no write grants for `anon`/`authenticated` — dfc3193
 
 ### Phase 2: Admin invite panel
 
 #### Automated
 
-- [ ] 2.1 Lint passes: `npm run lint`
-- [ ] 2.2 Type check passes: `npx astro check`
-- [ ] 2.3 Build passes: `npm run build`
-- [ ] 2.4 Existing smoke still passes: `npm run smoke`
+- [x] 2.1 Lint passes: `npm run lint`
+- [x] 2.2 Type check passes: `npx astro check`
+- [x] 2.3 Build passes: `npm run build`
+- [x] 2.4 Existing smoke still passes: `npm run smoke`
 
 #### Manual
 
-- [ ] 2.5 As a group admin at 360 px: generate a link, copy it, regenerate (confirm dialog shown, URL changes) — no zoom or horizontal scroll needed
-- [ ] 2.6 As a plain member of the same group the section is absent
+- [x] 2.5 As a group admin at 360 px: generate a link, copy it, regenerate (confirm dialog shown, URL changes) — no zoom or horizontal scroll needed
+- [x] 2.6 As a plain member of the same group the section is absent
 
 ### Phase 3: Join page for signed-in users
 

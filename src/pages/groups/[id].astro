@@ -1,8 +1,12 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 import Topbar from "@/components/Topbar.astro";
+import InvitePanel from "@/components/groups/InvitePanel";
+import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase";
 import { getGroupWithAdmins } from "@/lib/services/groups";
+import { getGroupInviteToken } from "@/lib/services/invites";
+import { groupErrorMessage, groupNoticeMessage } from "@/lib/services/group-errors";
 
 // Middleware guarantees a signed-in user on /groups/*. Non-members (including a non-member app
 // admin), unknown and malformed ids all get the same 404, so group existence is not leaked.
@@ -17,7 +21,17 @@ if (!group) {
   return Astro.rewrite("/404");
 }
 
+const message = groupNoticeMessage(Astro.url.searchParams.get("message"));
+const error = groupErrorMessage(Astro.url.searchParams.get("error"), null);
+
+// Only admins see the invite section; RLS hides the token from everyone else anyway.
+const isAdmin = group.myRole === "admin";
+const inviteToken = isAdmin ? await getGroupInviteToken(supabase, group.id) : null;
+const inviteUrl = inviteToken ? `${Astro.url.origin}/join/${inviteToken}` : null;
+
 const cardClass = "rounded-2xl border border-white/10 bg-white/10 p-4 text-white backdrop-blur-xl sm:p-6";
+const submitClass =
+  "h-auto min-h-11 w-full rounded-lg bg-purple-600 px-4 py-2 font-medium whitespace-normal text-white transition-colors hover:bg-purple-500";
 ---
 
 <Layout title={group.name}>
@@ -28,6 +42,23 @@ const cardClass = "rounded-2xl border border-white/10 bg-white/10 p-4 text-white
       <h1 class="mb-4 bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-2xl font-bold break-words text-transparent">
         {group.name}
       </h1>
+
+      {message && (
+        <p
+          class="mb-4 rounded-lg border border-blue-300/30 bg-blue-900/30 px-3 py-2 text-sm text-blue-100"
+          role="status"
+        >
+          {message}
+        </p>
+      )}
+      {error && (
+        <p
+          class="mb-4 rounded-lg border border-red-500/30 bg-red-900/30 px-3 py-2 text-sm break-words text-red-300"
+          role="alert"
+        >
+          {error}
+        </p>
+      )}
 
       <section class:list={[cardClass, "mb-6"]}>
         <h2 class="mb-3 text-lg font-semibold">Administratorzy</h2>
@@ -43,6 +74,25 @@ const cardClass = "rounded-2xl border border-white/10 bg-white/10 p-4 text-white
           </ul>
         )}
       </section>
+
+      {isAdmin && (
+        <section class:list={[cardClass, "mb-6"]}>
+          <h2 class="mb-3 text-lg font-semibold">Link zaproszeniowy</h2>
+          {inviteUrl ? (
+            <InvitePanel url={inviteUrl} groupId={group.id} client:load />
+          ) : (
+            <form method="POST" action="/api/groups/invite" class="space-y-3">
+              <p class="text-sm text-blue-100/70">
+                Grupa nie ma jeszcze linku. Każdy, kto go otrzyma, będzie mógł dołączyć do grupy.
+              </p>
+              <input type="hidden" name="group_id" value={group.id} />
+              <Button type="submit" className={submitClass}>
+                Wygeneruj link
+              </Button>
+            </form>
+          )}
+        </section>
+      )}
 
       <a
         href="/dashboard"

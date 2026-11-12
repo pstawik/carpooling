@@ -18,6 +18,8 @@ export interface GroupWithAdmins {
   id: string;
   name: string;
   admins: GroupAdmin[];
+  /** The current user's own role in the group. */
+  myRole: GroupRole;
 }
 
 // No generated DB types: query results are read through these shapes via `unknown`.
@@ -69,11 +71,12 @@ export async function getGroupWithAdmins(
     throw new Error(`getGroupWithAdmins failed: ${error.message}`);
   }
   const group = data as unknown as GroupRow | null;
-  if (!group?.group_members.some((member) => member.user_id === userId)) {
+  const me = group?.group_members.find((member) => member.user_id === userId);
+  if (!group || !me) {
     return null;
   }
   const admins = group.group_members
     .flatMap((member) => (member.role === "admin" && member.profiles ? [member.profiles] : []))
     .sort((a, b) => a.first_name.localeCompare(b.first_name, "pl"));
-  return { id: group.id, name: group.name, admins };
+  return { id: group.id, name: group.name, admins, myRole: me.role };
 }
