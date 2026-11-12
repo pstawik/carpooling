@@ -1,10 +1,10 @@
 ---
 change_id: parent-adds-child
 title: Parent adds child
-status: impl_reviewed
+status: archived
 created: 2026-11-12
 updated: 2026-11-12
-archived_at: null
+archived_at: 2026-11-12T12:56:08Z
 ---
 
 ## Notes
