@@ -12,6 +12,9 @@ const ERROR_MESSAGES = {
   group_not_found: "Nie znaleziono grupy",
   no_admins: "Podaj co najmniej jeden adres e-mail administratora",
   invalid_invite: "Ten link jest nieaktualny — poproś administratora grupy o nowy",
+  invalid_child_name: "Podaj imię lub nick dziecka (najwyżej 40 znaków)",
+  duplicate_child: "Masz już dziecko o tym imieniu w tej grupie",
+  child_not_found: "Nie znaleziono dziecka",
   not_configured: "Supabase nie jest skonfigurowany",
   invalid_input: "Nieprawidłowe dane",
   unknown: "Coś poszło nie tak, spróbuj ponownie",
@@ -23,10 +26,30 @@ const NOTICE_MESSAGES = {
   invite_ready: "Link zaproszeniowy gotowy",
   joined: "Dołączyłeś do grupy",
   already_member: "Już jesteś członkiem tej grupy",
+  child_added: "Dziecko dodane",
+  child_updated: "Zmieniono imię dziecka",
+  child_deleted: "Dziecko usunięte",
 } as const;
 
 export type GroupErrorCode = keyof typeof ERROR_MESSAGES;
 export type GroupNoticeCode = keyof typeof NOTICE_MESSAGES;
+
+/**
+ * Codes from the children actions. Their redirect lands on `#dzieci`, so the group page shows them
+ * inside the Dzieci card instead of in the banner at the top of the page.
+ */
+const CHILD_FEEDBACK_CODES = new Set<string>([
+  "invalid_child_name",
+  "duplicate_child",
+  "child_not_found",
+  "child_added",
+  "child_updated",
+  "child_deleted",
+]);
+
+export function isChildFeedbackCode(code: string | null): boolean {
+  return code !== null && CHILD_FEEDBACK_CODES.has(code);
+}
 
 /** Business-error keys raised by the RPCs as `errcode P0001, message <key>`. */
 const RPC_ERROR_KEYS = new Set<string>(["unknown_email", "group_not_found", "no_admins", "invalid_invite"]);

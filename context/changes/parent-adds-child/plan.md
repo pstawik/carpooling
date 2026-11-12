@@ -340,27 +340,27 @@ The migration only adds things and needs no backfill. Rollback is `drop table pu
 
 #### Automated
 
-- [x] 1.1 Migration applies on a clean local DB: `npx supabase db reset`
-- [x] 1.2 All pgTAP tests pass, including the new file: `npx supabase test db`
+- [x] 1.1 Migration applies on a clean local DB: `npx supabase db reset` — 0fdf501
+- [x] 1.2 All pgTAP tests pass, including the new file: `npx supabase test db` — 0fdf501
 
 #### Manual
 
-- [x] 1.3 In local Studio, `children` shows RLS enabled with exactly the four policies (select/insert/update/delete) and no privileges for `anon`
+- [x] 1.3 In local Studio, `children` shows RLS enabled with exactly the four policies (select/insert/update/delete) and no privileges for `anon` — 0fdf501
 
 ### Phase 2: Children section on the group page
 
 #### Automated
 
-- [ ] 2.1 Lint passes: `npm run lint`
-- [ ] 2.2 Type check passes: `npx astro check`
-- [ ] 2.3 Build passes: `npm run build`
-- [ ] 2.4 Smoke passes, including the new children steps: `npm run smoke`
+- [x] 2.1 Lint passes: `npm run lint`
+- [x] 2.2 Type check passes: `npx astro check`
+- [x] 2.3 Build passes: `npm run build`
+- [x] 2.4 Smoke passes, including the new children steps: `npm run smoke`
 
 #### Manual
 
-- [ ] 2.5 At a 360 px viewport, a parent adds, renames and deletes a child without zooming or horizontal scroll, and sees each notice
-- [ ] 2.6 A second member of the same group sees that child with the parent's nick but no "Edytuj" / "Usuń" buttons
-- [ ] 2.7 A user from another group gets 404 on the group page and sees no children; a duplicate name shows "Masz już dziecko o tym imieniu w tej grupie"
+- [x] 2.5 At a 360 px viewport, a parent adds, renames and deletes a child without zooming or horizontal scroll, and sees each notice
+- [x] 2.6 A second member of the same group sees that child with the parent's nick but no "Edytuj" / "Usuń" buttons
+- [x] 2.7 A user from another group gets 404 on the group page and sees no children; a duplicate name shows "Masz już dziecko o tym imieniu w tej grupie"
 
 ### Phase 3: Hosted rollout and docs
 
