@@ -2,9 +2,12 @@
 import Layout from "@/layouts/Layout.astro";
 import SignInForm from "@/components/auth/SignInForm";
 import { authErrorMessage, noticeMessage } from "@/lib/services/auth-errors";
+import { optionalInviteToken } from "@/lib/validation/invites";
 
 const error = authErrorMessage(Astro.url.searchParams.get("error"));
 const message = noticeMessage(Astro.url.searchParams.get("message"));
+// Only a well-formed token is carried on; anything else is dropped silently.
+const invite = optionalInviteToken(Astro.url.searchParams.get("invite"));
 ---
 
 <Layout title="Logowanie">
@@ -21,10 +24,21 @@ const message = noticeMessage(Astro.url.searchParams.get("message"));
           {message}
         </p>
       )}
-      <SignInForm serverError={error} client:load />
+      {invite && (
+        <p
+          class="mb-4 rounded-lg border border-blue-300/30 bg-blue-900/30 px-3 py-2 text-sm text-blue-100"
+          role="status"
+        >
+          Po zalogowaniu dołączysz do grupy.
+        </p>
+      )}
+      <SignInForm serverError={error} invite={invite} client:load />
       <p class="mt-4 text-center text-sm text-blue-100/60">
         Nie masz konta?{" "}
-        <a href="/auth/signup" class="inline-flex min-h-11 items-center text-purple-300 hover:underline">
+        <a
+          href={invite ? `/auth/signup?invite=${invite}` : "/auth/signup"}
+          class="inline-flex min-h-11 items-center text-purple-300 hover:underline"
+        >
           Zarejestruj się
         </a>
       </p>

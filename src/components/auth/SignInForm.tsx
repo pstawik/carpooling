@@ -9,11 +9,13 @@ import { signInSchema } from "@/lib/validation/auth";
 
 interface Props {
   serverError?: string | null;
+  /** Well-formed invite token to join with after sign-in; posted as a hidden field. */
+  invite?: string | null;
 }
 
 type FieldErrors = Partial<Record<"email" | "password", string>>;
 
-export default function SignInForm({ serverError }: Props) {
+export default function SignInForm({ serverError, invite }: Props) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -47,6 +49,7 @@ export default function SignInForm({ serverError }: Props) {
 
   return (
     <form method="POST" action="/api/auth/signin" className="space-y-4" onSubmit={handleSubmit} noValidate>
+      {invite && <input type="hidden" name="invite" value={invite} />}
       <FormField
         id="email"
         type="email"

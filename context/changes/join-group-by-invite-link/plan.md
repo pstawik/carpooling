@@ -365,32 +365,32 @@ Additive migration; no backfill (groups get a link on first admin request). Roll
 
 #### Automated
 
-- [x] 3.1 Lint passes: `npm run lint`
-- [x] 3.2 Type check passes: `npx astro check`
-- [x] 3.3 Build passes: `npm run build`
-- [x] 3.4 Existing smoke still passes: `npm run smoke`
+- [x] 3.1 Lint passes: `npm run lint` — dbbd7da
+- [x] 3.2 Type check passes: `npx astro check` — dbbd7da
+- [x] 3.3 Build passes: `npm run build` — dbbd7da
+- [x] 3.4 Existing smoke still passes: `npm run smoke` — dbbd7da
 
 #### Manual
 
-- [x] 3.5 A second signed-in user opens the copied link at 360 px, sees the group name, taps "Dołącz do grupy" and lands on the group page with "Dołączyłeś do grupy"; the group appears on their dashboard
-- [x] 3.6 Opening the link again shows the group page with "Już jesteś członkiem tej grupy"; the admin opening the link stays admin
-- [x] 3.7 After the admin regenerates, the old link shows the "nieaktualny" page
+- [x] 3.5 A second signed-in user opens the copied link at 360 px, sees the group name, taps "Dołącz do grupy" and lands on the group page with "Dołączyłeś do grupy"; the group appears on their dashboard — dbbd7da
+- [x] 3.6 Opening the link again shows the group page with "Już jesteś członkiem tej grupy"; the admin opening the link stays admin — dbbd7da
+- [x] 3.7 After the admin regenerates, the old link shows the "nieaktualny" page — dbbd7da
 
 ### Phase 4: Invite through sign-up/sign-in and end-to-end smoke
 
 #### Automated
 
-- [ ] 4.1 Lint passes: `npm run lint`
-- [ ] 4.2 Type check passes: `npx astro check`
-- [ ] 4.3 Build passes: `npm run build`
-- [ ] 4.4 Smoke passes locally with the invite steps: `npm run smoke`
+- [x] 4.1 Lint passes: `npm run lint`
+- [x] 4.2 Type check passes: `npx astro check`
+- [x] 4.3 Build passes: `npm run build`
+- [x] 4.4 Smoke passes locally with the invite steps: `npm run smoke`
 - [ ] 4.5 CI pipeline is green on the PR (db tests + smoke)
 
 #### Manual
 
-- [ ] 4.6 In a private window at 360 px: open an invite link, tap "Załóż konto", submit once with an already-registered e-mail (server error), fix it and submit — you land in the group with "Dołączyłeś do grupy"
-- [ ] 4.7 Same with "Mam konto — zaloguj się" using a wrong password first, then the right one
-- [ ] 4.8 Plain sign-up and sign-in without an invite still land on `/dashboard`
+- [x] 4.6 In a private window at 360 px: open an invite link, tap "Załóż konto", submit once with an already-registered e-mail (server error), fix it and submit — you land in the group with "Dołączyłeś do grupy"
+- [x] 4.7 Same with "Mam konto — zaloguj się" using a wrong password first, then the right one
+- [x] 4.8 Plain sign-up and sign-in without an invite still land on `/dashboard`
 
 ### Phase 5: Hosted rollout and docs
 

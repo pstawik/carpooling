@@ -6,6 +6,15 @@ import { z } from "zod";
  */
 export const inviteTokenSchema = z.string().regex(/^[A-Za-z0-9_-]{32}$/);
 
+/**
+ * The `invite` value carried through sign-up/sign-in: a well-formed token, or `null` for anything
+ * else (missing, empty, malformed). An invalid value is dropped silently, never reported as an error.
+ */
+export function optionalInviteToken(value: unknown): string | null {
+  const result = inviteTokenSchema.safeParse(value);
+  return result.success ? result.data : null;
+}
+
 export const regenerateInviteSchema = z.object({
   group_id: z.uuid(),
 });

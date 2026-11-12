@@ -43,7 +43,7 @@ Rodzice dzieci z tych samych zajęć dodatkowych ustalają wspólne dojazdy na c
 | ---- | ------------------------------- | ------------------------------------------------------------------------------------ | ------------- | --------------------------- | -------- |
 | S-01 | signup-with-profile             | założyć konto z imieniem, nickiem i opcjonalnym telefonem oraz pozostać zalogowanym | —             | FR-001, FR-002              | done |
 | S-02 | app-admin-creates-group         | (admin aplikacji) utworzyć grupę i wskazać jej administratora                        | S-01          | FR-004                      | done        |
-| S-03 | join-group-by-invite-link       | (admin grupy) wygenerować link zaproszeniowy; użytkownik dołącza przez link          | S-02          | FR-005, FR-006              | proposed |
+| S-03 | join-group-by-invite-link       | (admin grupy) wygenerować link zaproszeniowy; użytkownik dołącza przez link          | S-02          | FR-005, FR-006              | in-progress |
 | S-04 | parent-adds-child               | dodać, edytować i usunąć swoje dziecko przypisane do grupy                          | S-02          | FR-010                      | proposed |
 | S-05 | group-admin-manages-events      | (admin grupy) tworzyć, edytować i usuwać terminy; członek widzi listę terminów      | S-02          | FR-011, FR-012              | proposed |
 | S-06 | weekly-event-generator          | (admin grupy) wygenerować terminy cotygodniowe bez duplikatów                        | S-05          | FR-013                      | proposed |
@@ -116,7 +116,7 @@ Brak osobnych fundamentów. Jedyna brakująca warstwa to dane (schemat + RLS), a
 - **Unknowns:**
   - Co widzi użytkownik, który kliknie link do grupy, w której już jest? — Owner: user. Block: no.
 - **Risk:** Przepływ rejestracja → powrót → dołączenie przechodzi przez dwa ekrany i łatwo w nim zgubić link; sam link otwiera dostęp do danych dzieci, więc regeneracja musi natychmiast unieważniać poprzedni.
-- **Status:** proposed
+- **Status:** in-progress
 
 ### S-04: Rodzic dodaje dziecko do grupy
 
