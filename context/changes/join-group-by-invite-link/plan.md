@@ -351,30 +351,30 @@ Additive migration; no backfill (groups get a link on first admin request). Roll
 
 #### Automated
 
-- [x] 2.1 Lint passes: `npm run lint`
-- [x] 2.2 Type check passes: `npx astro check`
-- [x] 2.3 Build passes: `npm run build`
-- [x] 2.4 Existing smoke still passes: `npm run smoke`
+- [x] 2.1 Lint passes: `npm run lint` — 1454ffc
+- [x] 2.2 Type check passes: `npx astro check` — 1454ffc
+- [x] 2.3 Build passes: `npm run build` — 1454ffc
+- [x] 2.4 Existing smoke still passes: `npm run smoke` — 1454ffc
 
 #### Manual
 
-- [x] 2.5 As a group admin at 360 px: generate a link, copy it, regenerate (confirm dialog shown, URL changes) — no zoom or horizontal scroll needed
-- [x] 2.6 As a plain member of the same group the section is absent
+- [x] 2.5 As a group admin at 360 px: generate a link, copy it, regenerate (confirm dialog shown, URL changes) — no zoom or horizontal scroll needed — 1454ffc
+- [x] 2.6 As a plain member of the same group the section is absent — 1454ffc
 
 ### Phase 3: Join page for signed-in users
 
 #### Automated
 
-- [ ] 3.1 Lint passes: `npm run lint`
-- [ ] 3.2 Type check passes: `npx astro check`
-- [ ] 3.3 Build passes: `npm run build`
-- [ ] 3.4 Existing smoke still passes: `npm run smoke`
+- [x] 3.1 Lint passes: `npm run lint`
+- [x] 3.2 Type check passes: `npx astro check`
+- [x] 3.3 Build passes: `npm run build`
+- [x] 3.4 Existing smoke still passes: `npm run smoke`
 
 #### Manual
 
-- [ ] 3.5 A second signed-in user opens the copied link at 360 px, sees the group name, taps "Dołącz do grupy" and lands on the group page with "Dołączyłeś do grupy"; the group appears on their dashboard
-- [ ] 3.6 Opening the link again shows the group page with "Już jesteś członkiem tej grupy"; the admin opening the link stays admin
-- [ ] 3.7 After the admin regenerates, the old link shows the "nieaktualny" page
+- [x] 3.5 A second signed-in user opens the copied link at 360 px, sees the group name, taps "Dołącz do grupy" and lands on the group page with "Dołączyłeś do grupy"; the group appears on their dashboard
+- [x] 3.6 Opening the link again shows the group page with "Już jesteś członkiem tej grupy"; the admin opening the link stays admin
+- [x] 3.7 After the admin regenerates, the old link shows the "nieaktualny" page
 
 ### Phase 4: Invite through sign-up/sign-in and end-to-end smoke
 
