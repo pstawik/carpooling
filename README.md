@@ -151,13 +151,39 @@ npx supabase migration list   # confirm Local and Remote match
 
 Workers Builds deploys `main` immediately, so a migration must already be on the hosted project when its PR merges.
 
+### Roles
+
+- **App admin** — can see every group and create groups (`/admin/groups`). Granted by the owner via SQL only; there is no UI for it. Membership is a row in `public.app_admins`.
+- **Group admin** — designated by an app admin when a group is created, or added later with "Dodaj administratora". Group admins can't be demoted or removed in the UI in MVP; do that via SQL.
+- **Member** — everyone else in a group. Users see only the groups they belong to (enforced by RLS).
+
+Grant or revoke app-admin in the SQL editor (local Studio at `http://localhost:54323`, or the hosted dashboard → **SQL Editor**):
+
+```sql
+-- grant
+insert into public.app_admins (user_id)
+select id from auth.users where lower(email) = lower('<e-mail>');
+
+-- revoke
+delete from public.app_admins
+where user_id = (select id from auth.users where lower(email) = lower('<e-mail>'));
+
+-- demote a group admin to member / remove a member
+update public.group_members set role = 'member' where group_id = '<group id>' and user_id = '<user id>';
+delete from public.group_members where group_id = '<group id>' and user_id = '<user id>';
+```
+
+**Local seed app admin.** `supabase/seed.sql` creates `admin@example.com` / `Admin-Passw0rd!` and makes it an app admin. It is applied only by local `npx supabase db reset` / first `npx supabase start` (and in CI). It must never reach the hosted project: never run `npx supabase db push --include-seed` or `npx supabase db reset --linked`.
+
 ### Auth routes
 
-| Route          | Description                                                               |
-| -------------- | ------------------------------------------------------------------------- |
-| `/auth/signin` | E-mail/password sign-in form                                              |
-| `/auth/signup` | Sign-up form (first name, nick, e-mail, optional phone, password)         |
-| `/dashboard`   | Post-login screen with the profile greeting (redirects to `/auth/signin`) |
+| Route           | Description                                                                         |
+| --------------- | ----------------------------------------------------------------------------------- |
+| `/auth/signin`  | E-mail/password sign-in form                                                        |
+| `/auth/signup`  | Sign-up form (first name, nick, e-mail, optional phone, password)                   |
+| `/dashboard`    | Post-login screen: profile greeting and "Twoje grupy" (redirects to `/auth/signin`) |
+| `/groups/[id]`  | Group page with its admins; 404 for anyone who is not a member                      |
+| `/admin/groups` | App admins only: create groups, add group admins, list all groups; 404 for others   |
 
 Route protection is handled in `src/middleware.ts`. Add paths to the `PROTECTED_ROUTES` array there to require authentication. The middleware also loads the signed-in user's row from `public.profiles` into `Astro.locals.profile`.
 
@@ -183,7 +209,7 @@ Production runs on [Cloudflare Workers](https://workers.cloudflare.com/) at **ht
 
 ## Smoke test
 
-`scripts/smoke.mjs` is a dependency-free Node script that walks the whole auth flow (sign-up, sign-in, protected page, sign-out) over HTTP. Run it against the dev server or the production preview after dependency upgrades:
+`scripts/smoke.mjs` is a dependency-free Node script that walks the whole auth flow (sign-up, sign-in, protected page, sign-out) and the group flow over HTTP. Run it against the dev server or the production preview after dependency upgrades:
 
 ```bash
 npm run dev            # or: npm run build && npm run preview
@@ -192,7 +218,9 @@ BASE_URL=http://localhost:4321 npm run smoke
 
 It needs a reachable Supabase instance (local or cloud) with email confirmation disabled.
 
-Against production, always set `SMOKE_READONLY=1`. It skips every step that creates users or sessions and checks only that the home page renders and that `/dashboard` redirects anonymous users.
+Write mode also covers groups: it signs in as an app admin, creates a group with the smoke user as its admin, checks that the smoke user sees it on the dashboard and its page, and that a second fresh user gets an empty list and a 404. The app admin defaults to the local seed account; override it with `SMOKE_ADMIN_EMAIL` and `SMOKE_ADMIN_PASSWORD` for other environments.
+
+Against production, always set `SMOKE_READONLY=1`. It skips every step that creates users or sessions and checks only that the home page renders and that `/dashboard` and `/groups/<id>` redirect anonymous users.
 
 > **Note:** this script exists primarily to guard the development of the starter itself — it is a fast sanity check that dependency upgrades did not break the build, the Cloudflare adapter or the Supabase auth flow. It is **not** a substitute for a real test suite. Once you build your own product on top of this starter, add proper tests (unit, integration, end-to-end) suited to your application.
 

@@ -376,29 +376,29 @@ New tables only; no backfill. Existing hosted accounts simply have no membership
 
 #### Automated
 
-- [x] 3.1 Lint passes: `npm run lint`
-- [x] 3.2 Type check passes: `npx astro check`
-- [x] 3.3 Build passes: `npm run build`
-- [x] 3.4 Smoke passes locally with the isolation steps: `npm run smoke`
-- [ ] 3.5 CI pipeline is green on the PR (db tests + smoke against preview build)
+- [x] 3.1 Lint passes: `npm run lint` — 77b7b0f
+- [x] 3.2 Type check passes: `npx astro check` — 77b7b0f
+- [x] 3.3 Build passes: `npm run build` — 77b7b0f
+- [x] 3.4 Smoke passes locally with the isolation steps: `npm run smoke` — 77b7b0f
+- [x] 3.5 CI pipeline is green on the PR (db tests + smoke against preview build) — 77b7b0f
 
 #### Manual
 
-- [x] 3.6 On a 360 px phone viewport the dashboard group list and group page render without horizontal scroll and links are easy to tap
-- [x] 3.7 A user in two groups sees both, with the "administrator" badge only where they are admin
-- [x] 3.8 Pasting another group's `/groups/<id>` URL as a non-member shows 404
-- [x] 3.9 Signed in as the seed app admin (not a member of the group), opening that group's `/groups/<id>` shows the 404 page, while `/admin/groups` still lists it
+- [x] 3.6 On a 360 px phone viewport the dashboard group list and group page render without horizontal scroll and links are easy to tap — 77b7b0f
+- [x] 3.7 A user in two groups sees both, with the "administrator" badge only where they are admin — 77b7b0f
+- [x] 3.8 Pasting another group's `/groups/<id>` URL as a non-member shows 404 — 77b7b0f
+- [x] 3.9 Signed in as the seed app admin (not a member of the group), opening that group's `/groups/<id>` shows the 404 page, while `/admin/groups` still lists it — 77b7b0f
 
 ### Phase 4: Hosted rollout and docs
 
 #### Automated
 
-- [ ] 4.1 Hosted migration list matches local: `npx supabase migration list` shows the groups migration applied remotely
+- [x] 4.1 Hosted migration list matches local: `npx supabase migration list` shows the groups migration applied remotely
 - [ ] 4.2 Production read-only smoke passes after deploy: `SMOKE_READONLY=1 BASE_URL=<production url> npm run smoke`
 
 #### Manual
 
-- [ ] 4.3 Before merge: the owner's hosted account is in `app_admins` and no other rows exist there
+- [x] 4.3 Before merge: the owner's hosted account is in `app_admins` and no other rows exist there
 - [ ] 4.4 After deploy: the owner creates a real group on production with themselves (and optionally a second parent) as admin from a phone, and it appears on their dashboard
 - [ ] 4.5 After deploy: another real account not in the group sees no groups and gets 404 on the group URL
-- [ ] 4.6 Before merge: hosted `auth.users` has no `admin@example.com` account (the local seed admin never reached production)
+- [x] 4.6 Before merge: hosted `auth.users` has no `admin@example.com` account (the local seed admin never reached production)
