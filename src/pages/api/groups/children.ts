@@ -43,7 +43,9 @@ export const POST: APIRoute = async (context) => {
       // eslint-disable-next-line no-console -- surfaces in Cloudflare Worker logs
       console.error("addChild failed:", outcome.error?.code, outcome.error?.message);
     }
-    return context.redirect(`/groups/${groupId}?error=${outcome.failure}#dzieci`);
+    // `unknown` shows in the top banner, so don't jump past it to #dzieci.
+    const anchor = outcome.failure === "unknown" ? "" : "#dzieci";
+    return context.redirect(`/groups/${groupId}?error=${outcome.failure}${anchor}`);
   }
 
   return context.redirect(`/groups/${groupId}?message=child_added#dzieci`);

@@ -12,7 +12,8 @@ export const POST: APIRoute = async (context) => {
 
   let form: FormData;
   try {
-    form = await context.request.formData();
+    // Read a clone: Astro refuses rewrite("/404") once the original body has been consumed.
+    form = await context.request.clone().formData();
   } catch {
     // Not a form-encoded or multipart body (e.g. JSON): reject without a 500.
     return context.rewrite("/404");

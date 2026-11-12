@@ -1,4 +1,5 @@
 import type { PostgrestError, SupabaseClient } from "@supabase/supabase-js";
+import type { Child } from "@/types";
 
 /** A child of the group as shown on the group page. */
 export interface GroupChild {
@@ -14,12 +15,7 @@ export type ChildWriteFailure = "forbidden" | "duplicate_child" | "child_not_fou
 export type ChildWriteResult = { ok: true } | { ok: false; failure: ChildWriteFailure; error?: PostgrestError };
 
 // No generated DB types: query results are read through this shape via `unknown`.
-interface ChildRow {
-  id: string;
-  name: string;
-  parent_id: string;
-  profiles: { nick: string } | null;
-}
+type ChildRow = Pick<Child, "id" | "name" | "parent_id"> & { profiles: { nick: string } | null };
 
 /**
  * RLS turns a write on someone else's child into an error only for INSERT (42501). UPDATE and
