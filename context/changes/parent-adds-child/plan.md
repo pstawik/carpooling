@@ -366,10 +366,10 @@ The migration only adds things and needs no backfill. Rollback is `drop table pu
 
 #### Automated
 
-- [x] 3.1 Migrations are in sync with hosted: `npx supabase migration list`
-- [ ] 3.2 Production read-only smoke passes after deploy: `SMOKE_READONLY=1 BASE_URL=<production url> npm run smoke`
+- [x] 3.1 Migrations are in sync with hosted: `npx supabase migration list` — d31eec8
+- [x] 3.2 Production read-only smoke passes after deploy: `SMOKE_READONLY=1 BASE_URL=<production url> npm run smoke`
 
 #### Manual
 
-- [ ] 3.3 In production, the author adds a real child to their group and a second member sees it
-- [x] 3.4 README describes the children flow and new routes
+- [x] 3.3 In production, the author adds a real child to their group and a second member sees it
+- [x] 3.4 README describes the children flow and new routes — d31eec8
