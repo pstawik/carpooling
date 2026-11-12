@@ -1,7 +1,7 @@
 ---
 change_id: join-group-by-invite-link
 title: Join group by invite link
-status: implemented
+status: impl_reviewed
 created: 2026-11-12
 updated: 2026-11-12
 archived_at: null
