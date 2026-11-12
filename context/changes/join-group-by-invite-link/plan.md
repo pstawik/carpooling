@@ -396,10 +396,10 @@ Additive migration; no backfill (groups get a link on first admin request). Roll
 
 #### Automated
 
-- [x] 5.1 Migrations are in sync with hosted: `npx supabase migration list`
+- [x] 5.1 Migrations are in sync with hosted: `npx supabase migration list` — e49f699
 - [ ] 5.2 Production read-only smoke passes after deploy: `SMOKE_READONLY=1 BASE_URL=<production url> npm run smoke`
 
 #### Manual
 
 - [ ] 5.3 In production, the author generates a link for a real group and a second account joins through it
-- [x] 5.4 README describes the invite flow and new routes
+- [x] 5.4 README describes the invite flow and new routes — e49f699
