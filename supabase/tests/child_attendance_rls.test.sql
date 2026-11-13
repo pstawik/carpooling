@@ -7,7 +7,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(38);
+select plan(42);
 
 -- ---------------------------------------------------------------------------
 -- Schema and privileges
@@ -41,9 +41,23 @@ select is(
 
 select is(
   (select bool_or(has_table_privilege('authenticated', 'public.child_attendance', p))
-    from unnest(array['update', 'delete', 'truncate']) as p),
+    from unnest(array['insert', 'update', 'delete', 'truncate']) as p),
   false,
-  'authenticated has no table-level UPDATE, DELETE or TRUNCATE on child_attendance'
+  'authenticated has no table-level INSERT, UPDATE, DELETE or TRUNCATE on child_attendance'
+);
+
+select is(
+  (select bool_and(has_column_privilege('authenticated', 'public.child_attendance', col, 'insert'))
+    from unnest(array['event_id', 'child_id', 'group_id', 'going']) as col),
+  true,
+  'authenticated may INSERT the key columns and going'
+);
+
+select is(
+  has_column_privilege('authenticated', 'public.child_attendance', 'created_at', 'insert')
+    or has_column_privilege('authenticated', 'public.child_attendance', 'updated_at', 'insert'),
+  false,
+  'authenticated may not INSERT created_at or updated_at'
 );
 
 select is(
@@ -328,11 +342,48 @@ select is(
   'the declarations of the deleted child are gone'
 );
 
+-- Scoped to the fixture groups: a local database may hold other declarations.
 select is(
-  (select count(*) from public.child_attendance),
+  (select count(*) from public.child_attendance
+    where group_id in ('10000000-0000-0000-0000-000000000001', '20000000-0000-0000-0000-000000000002')),
   2::bigint,
   'only Ola''s E2 and Zosia''s E3 declarations remain'
 );
+
+-- ---------------------------------------------------------------------------
+-- Membership edge cases: a parent in two groups, and a parent who left
+-- ---------------------------------------------------------------------------
+
+-- A joins G2 too, so E3 (a G2 event) becomes visible to A.
+insert into public.group_members (group_id, user_id, role) values
+  ('20000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-0000000000a1', 'member');
+
+set local role authenticated;
+set local "request.jwt.claims" to '{"sub": "00000000-0000-0000-0000-0000000000a1", "role": "authenticated"}';
+
+select throws_ok(
+  $$select public.set_child_attendance('e0000000-0000-0000-0000-000000000003',
+                                       'c0000000-0000-0000-0000-0000000000a1', true)$$,
+  '42501', null, 'A, a member of both groups, cannot declare a G1 child for a G2 event'
+);
+
+reset role;
+
+-- A leaves G1; Ola's row stays, as it does today when a member is removed.
+delete from public.group_members
+  where group_id = '10000000-0000-0000-0000-000000000001'
+    and user_id = '00000000-0000-0000-0000-0000000000a1';
+
+set local role authenticated;
+set local "request.jwt.claims" to '{"sub": "00000000-0000-0000-0000-0000000000a1", "role": "authenticated"}';
+
+select throws_ok(
+  $$select public.set_child_attendance('e0000000-0000-0000-0000-000000000004',
+                                       'c0000000-0000-0000-0000-0000000000a1', true)$$,
+  '42501', null, 'A, after leaving G1, cannot declare Ola any more'
+);
+
+reset role;
 
 -- ---------------------------------------------------------------------------
 -- anon — no access at all

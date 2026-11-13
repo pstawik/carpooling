@@ -9,6 +9,10 @@
 -- There is no DELETE for anyone: a parent only toggles going <-> not going and
 -- cannot return to "no declaration". Deleting the event or the child removes
 -- its declarations by cascade (referential actions bypass RLS and grants).
+-- Accepted exception to the lock: children_delete_own has no time condition,
+-- so deleting a child also removes its declarations on events that already
+-- started (S-04 trade-off). Started events themselves cannot be deleted.
+-- Revisit before S-09 statistics (roadmap S-09 Unknowns).
 -- group_id is denormalised so the composite foreign keys guarantee that the
 -- child and the event belong to the same group. event_id, child_id and
 -- group_id are immutable: UPDATE is granted on going and updated_at only, so
@@ -58,7 +62,10 @@ alter table public.child_attendance enable row level security;
 
 revoke all on public.child_attendance from anon;
 -- The table-wide UPDATE grant must go first; a column grant alone is a no-op.
-revoke truncate, update, delete on public.child_attendance from authenticated;
+revoke truncate, insert, update, delete on public.child_attendance from authenticated;
+-- The timestamps come from defaults and the RPC, never from the client. updated_at
+-- stays in the UPDATE grant only because the security invoker RPC sets it.
+grant insert (event_id, child_id, group_id, going) on public.child_attendance to authenticated;
 grant update (going, updated_at) on public.child_attendance to authenticated;
 
 -- ---------------------------------------------------------------------------
@@ -90,6 +97,7 @@ create policy child_attendance_insert_own
     and exists (
       select 1 from public.events e
       where e.id = child_attendance.event_id
+        and e.group_id = child_attendance.group_id
         and e.starts_at > now()
     )
   );
@@ -111,6 +119,7 @@ create policy child_attendance_update_own
     and exists (
       select 1 from public.events e
       where e.id = child_attendance.event_id
+        and e.group_id = child_attendance.group_id
         and e.starts_at > now()
     )
   )
@@ -125,6 +134,7 @@ create policy child_attendance_update_own
     and exists (
       select 1 from public.events e
       where e.id = child_attendance.event_id
+        and e.group_id = child_attendance.group_id
         and e.starts_at > now()
     )
   );

@@ -186,7 +186,7 @@ Brak osobnych fundamentów. Jedyna brakująca warstwa to dane (schemat + RLS), a
 - **Prerequisites:** S-08
 - **Parallel with:** S-03, S-06
 - **Blockers:** —
-- **Unknowns:** —
+- **Unknowns:** Usunięcie dziecka kasuje kaskadowo jego deklaracje także z rozpoczętych terminów (kompromis S-04, impl-review child-attendance-declaration F1); przed statystykami zdecydować: miękkie usuwanie dzieci, zachowanie wierszy albo blokada usunięcia.
 - **Risk:** Ostatni, bo liczy z deklaracji obu typów; do weryfikacji potrzebuje terminów, które już się rozpoczęły.
 - **Status:** proposed
 
