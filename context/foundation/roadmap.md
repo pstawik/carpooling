@@ -47,7 +47,7 @@ Rodzice dzieci z tych samych zajęć dodatkowych ustalają wspólne dojazdy na c
 | S-04 | parent-adds-child               | dodać, edytować i usunąć swoje dziecko przypisane do grupy                          | S-02          | FR-010                      | done        |
 | S-05 | group-admin-manages-events      | (admin grupy) tworzyć, edytować i usuwać terminy; członek widzi listę terminów      | S-02          | FR-011, FR-012              | done        |
 | S-06 | weekly-event-generator          | (admin grupy) wygenerować terminy cotygodniowe bez duplikatów                        | S-05          | FR-013                      | done |
-| S-07 | child-attendance-declaration    | zadeklarować „jedzie/nie jedzie” dziecka i zobaczyć plan dzieci terminu              | S-04, S-05    | FR-014, FR-016, US-01       | in-progress |
+| S-07 | child-attendance-declaration    | zadeklarować „jedzie/nie jedzie” dziecka i zobaczyć plan dzieci terminu              | S-04, S-05    | FR-014, FR-016, US-01       | done |
 | S-08 | driver-declaration-seat-balance | zadeklarować się jako kierowca i zobaczyć bilans miejsc z ostrzeżeniem               | S-07          | FR-015, FR-016, US-01       | proposed |
 | S-09 | group-engagement-stats          | zobaczyć statystyki zakończonych terminów grupy                                      | S-08          | FR-017                      | proposed |
 
@@ -164,7 +164,7 @@ Brak osobnych fundamentów. Jedyna brakująca warstwa to dane (schemat + RLS), a
 - **Blockers:** —
 - **Unknowns:** Co z dziećmi (i ich deklaracjami) rodzica usuniętego z grupy — dziś zostają widoczne i nikt nie może ich usunąć (impl-review parent-adds-child F2); zdecydować przed usuwaniem członków (FR-007).
 - **Risk:** Wprowadza dwie reguły serwerowe naraz — „brak deklaracji = nie jedzie” i blokadę po rozpoczęciu terminu; obie muszą działać w bazie, nie tylko w interfejsie.
-- **Status:** in-progress
+- **Status:** done
 
 ### S-08: Deklaracja kierowcy i bilans miejsc
 
@@ -238,3 +238,4 @@ PRD nie ma otwartych pytań (rozstrzygnięte 2026-11-06). Pytania przekrojowe ze
 - **S-04: user can dodać, edytować i usunąć swoje dziecko (imię lub nick) przypisane do jednej grupy, której jest członkiem.** — Archived 2026-11-12 → `context/archive/2026-11-12-parent-adds-child/`. Lesson: —.
 - **S-05: user can (jako administrator grupy) tworzyć, edytować i usuwać pojedyncze terminy, a każdy członek widzi listę terminów zaczynającą się od najbliższego nadchodzącego.** — Archived 2026-11-13 → `context/archive/2026-11-12-group-admin-manages-events/`. Lesson: —.
 - **S-06: user can (jako administrator grupy) wygenerować terminy w wybrany dzień tygodnia, w zakresie dat i o wskazanej godzinie, bez duplikatów; każdy termin da się potem edytować i usunąć osobno.** — Archived 2026-11-13 → `context/archive/2026-11-13-weekly-event-generator/`. Lesson: —.
+- **S-07: user can ustawić dla terminu „jedzie” lub „nie jedzie” każdemu swojemu dziecku i zobaczyć w planie terminu dzieci jadące oraz niejadące, z etykietą „bez deklaracji” przy dzieciach bez deklaracji; po rozpoczęciu terminu status jest tylko do odczytu.** — Archived 2026-11-13 → `context/archive/2026-11-13-child-attendance-declaration/`. Lesson: —.
