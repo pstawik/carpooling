@@ -313,14 +313,14 @@ None. No schema change.
 
 #### Automated
 
-- [x] 3.1 Lint passes: `npm run lint`
-- [x] 3.2 Type check passes: `npx astro check`
-- [x] 3.3 Build passes: `npm run build`
-- [x] 3.4 Smoke passes including the generator steps: `npm run smoke`
+- [x] 3.1 Lint passes: `npm run lint` — 0fcdbe9
+- [x] 3.2 Type check passes: `npx astro check` — 0fcdbe9
+- [x] 3.3 Build passes: `npm run build` — 0fcdbe9
+- [x] 3.4 Smoke passes including the generator steps: `npm run smoke` — 0fcdbe9
 
 #### Manual
 
-- [x] 3.5 At a 360 px viewport, the generator section opens, all fields and the button are usable without zooming, there is no horizontal scroll, and targets are at least 44 px
-- [x] 3.6 A series spanning the last Sunday of March or October keeps the same Warsaw time on every generated event
-- [x] 3.7 A generated event can be edited and deleted on its own with the existing Edytuj/Usuń controls
-- [x] 3.8 A member (non-admin) sees no generator section
+- [x] 3.5 At a 360 px viewport, the generator section opens, all fields and the button are usable without zooming, there is no horizontal scroll, and targets are at least 44 px — 0fcdbe9
+- [x] 3.6 A series spanning the last Sunday of March or October keeps the same Warsaw time on every generated event — 0fcdbe9
+- [x] 3.7 A generated event can be edited and deleted on its own with the existing Edytuj/Usuń controls — 0fcdbe9
+- [x] 3.8 A member (non-admin) sees no generator section — 0fcdbe9
