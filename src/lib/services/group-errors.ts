@@ -15,6 +15,10 @@ const ERROR_MESSAGES = {
   invalid_child_name: "Podaj imię lub nick dziecka (najwyżej 40 znaków)",
   duplicate_child: "Masz już dziecko o tym imieniu w tej grupie",
   child_not_found: "Nie znaleziono dziecka",
+  invalid_event_start: "Podaj prawidłową datę i godzinę w przyszłości",
+  invalid_event_note: "Notatka może mieć najwyżej 200 znaków",
+  duplicate_event: "Termin o tej dacie i godzinie już istnieje",
+  event_not_found: "Nie znaleziono terminu albo termin już się rozpoczął",
   not_configured: "Supabase nie jest skonfigurowany",
   invalid_input: "Nieprawidłowe dane",
   unknown: "Coś poszło nie tak, spróbuj ponownie",
@@ -29,26 +33,39 @@ const NOTICE_MESSAGES = {
   child_added: "Dziecko dodane",
   child_updated: "Zmieniono imię dziecka",
   child_deleted: "Dziecko usunięte",
+  event_added: "Termin dodany",
+  event_updated: "Termin zmieniony",
+  event_deleted: "Termin usunięty",
 } as const;
 
 export type GroupErrorCode = keyof typeof ERROR_MESSAGES;
 export type GroupNoticeCode = keyof typeof NOTICE_MESSAGES;
 
-/**
- * Codes from the children actions. Their redirect lands on `#dzieci`, so the group page shows them
- * inside the Dzieci card instead of in the banner at the top of the page.
- */
-const CHILD_FEEDBACK_CODES = new Set<string>([
-  "invalid_child_name",
-  "duplicate_child",
-  "child_not_found",
-  "child_added",
-  "child_updated",
-  "child_deleted",
-]);
+export type FeedbackSection = "dzieci" | "terminy";
 
-export function isChildFeedbackCode(code: string | null): boolean {
-  return code !== null && CHILD_FEEDBACK_CODES.has(code);
+/**
+ * Codes from the children and events actions. Their redirect lands on the card's anchor, so the
+ * group page shows them inside that card instead of in the banner at the top of the page.
+ */
+const FEEDBACK_SECTIONS: Record<string, FeedbackSection> = {
+  invalid_child_name: "dzieci",
+  duplicate_child: "dzieci",
+  child_not_found: "dzieci",
+  child_added: "dzieci",
+  child_updated: "dzieci",
+  child_deleted: "dzieci",
+  invalid_event_start: "terminy",
+  invalid_event_note: "terminy",
+  duplicate_event: "terminy",
+  event_not_found: "terminy",
+  event_added: "terminy",
+  event_updated: "terminy",
+  event_deleted: "terminy",
+};
+
+/** The group-page card that shows feedback for this code, or `null` for the top banner. */
+export function feedbackSection(code: string | null): FeedbackSection | null {
+  return code !== null && Object.hasOwn(FEEDBACK_SECTIONS, code) ? FEEDBACK_SECTIONS[code] : null;
 }
 
 /** Business-error keys raised by the RPCs as `errcode P0001, message <key>`. */

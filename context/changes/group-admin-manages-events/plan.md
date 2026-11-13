@@ -288,25 +288,25 @@ New table only; no existing data. Rollback = drop the table (no other object dep
 
 #### Automated
 
-- [x] 1.1 Migration applies cleanly on a fresh database: `npx supabase db reset`
-- [x] 1.2 All database tests pass, including the new file: `npx supabase test db`
+- [x] 1.1 Migration applies cleanly on a fresh database: `npx supabase db reset` — 1a9836c
+- [x] 1.2 All database tests pass, including the new file: `npx supabase test db` — 1a9836c
 
 #### Manual
 
-- [x] 1.3 Migration file reviewed: four policies, column grant after the table-wide revoke, no client write path other than the policies
+- [x] 1.3 Migration file reviewed: four policies, column grant after the table-wide revoke, no client write path other than the policies — 1a9836c
 
 ### Phase 2: Server side — types, time helpers, validation, service, endpoints
 
 #### Automated
 
-- [ ] 2.1 Linting passes: `npm run lint`
-- [ ] 2.2 Type checking passes: `npx astro check`
-- [ ] 2.3 Build passes: `npm run build`
+- [x] 2.1 Linting passes: `npm run lint`
+- [x] 2.2 Type checking passes: `npx astro check`
+- [x] 2.3 Build passes: `npm run build`
 
 #### Manual
 
-- [ ] 2.4 Admin POST with a future Warsaw date/time stores the correct UTC `starts_at` (winter and summer date)
-- [ ] 2.5 A spring-forward gap time redirects with `error=invalid_event_start`
+- [x] 2.4 Admin POST with a future Warsaw date/time stores the correct UTC `starts_at` (winter and summer date)
+- [x] 2.5 A spring-forward gap time redirects with `error=invalid_event_start`
 
 ### Phase 3: Terminy card on the group page and smoke test
 

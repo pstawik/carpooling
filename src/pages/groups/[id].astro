@@ -8,7 +8,7 @@ import { createClient } from "@/lib/supabase";
 import { getGroupWithAdmins } from "@/lib/services/groups";
 import { getGroupInviteToken } from "@/lib/services/invites";
 import { listGroupChildren, type GroupChild } from "@/lib/services/children";
-import { groupErrorMessage, groupNoticeMessage, isChildFeedbackCode } from "@/lib/services/group-errors";
+import { feedbackSection, groupErrorMessage, groupNoticeMessage } from "@/lib/services/group-errors";
 
 // Middleware guarantees a signed-in user on /groups/*. Non-members (including a non-member app
 // admin), unknown and malformed ids all get the same 404, so group existence is not leaked.
@@ -27,8 +27,8 @@ if (!group) {
 // after the jump on a 360 px screen) and skipped in the banner at the top of the page.
 const messageCode = Astro.url.searchParams.get("message");
 const errorCode = Astro.url.searchParams.get("error");
-const childFeedbackMessage = isChildFeedbackCode(messageCode);
-const childFeedbackError = isChildFeedbackCode(errorCode);
+const childFeedbackMessage = feedbackSection(messageCode) === "dzieci";
+const childFeedbackError = feedbackSection(errorCode) === "dzieci";
 const message = childFeedbackMessage ? null : groupNoticeMessage(messageCode);
 const error = childFeedbackError ? null : groupErrorMessage(errorCode, null);
 const childMessage = childFeedbackMessage ? groupNoticeMessage(messageCode) : null;
