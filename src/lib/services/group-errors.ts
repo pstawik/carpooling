@@ -20,6 +20,7 @@ const ERROR_MESSAGES = {
   duplicate_event: "Termin o tej dacie i godzinie już istnieje",
   event_not_found: "Nie znaleziono terminu albo termin już się rozpoczął",
   invalid_event_series: "Wybierz dzień tygodnia, godzinę i zakres dat (najwyżej rok), w którym ten dzień wypada",
+  attendance_locked: "Termin już się rozpoczął — deklaracji nie można zmienić",
   not_configured: "Supabase nie jest skonfigurowany",
   invalid_input: "Nieprawidłowe dane",
   unknown: "Coś poszło nie tak, spróbuj ponownie",

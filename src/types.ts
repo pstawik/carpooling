@@ -56,3 +56,17 @@ export interface GroupEvent {
   created_by: string | null;
   created_at: string;
 }
+
+/**
+ * Attendance declaration row from `public.child_attendance`; readable by group members, written
+ * only by the child's parent through the `set_child_attendance` RPC, and only until the event
+ * starts. A missing row means "bez deklaracji" (counts as not going), never an error.
+ */
+export interface ChildAttendance {
+  event_id: string;
+  child_id: string;
+  group_id: string;
+  going: boolean;
+  created_at: string;
+  updated_at: string;
+}

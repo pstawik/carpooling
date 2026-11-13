@@ -67,6 +67,9 @@ try {
 const now = new Date();
 const { upcoming, past } = splitEvents(events ?? [], now);
 const todayInWarsaw = utcToWarsawParts(now.toISOString()).date;
+const eventPlanHref = (eventId: string) => `/groups/${group.id}/terminy/${eventId}`;
+// The date label of every event, upcoming or past, opens its child plan.
+const planLinkClass = "flex min-h-11 items-center break-words underline-offset-4 hover:underline";
 
 // A failed children query must not take the whole group page down.
 let children: GroupChild[] | null;
@@ -156,11 +159,14 @@ const submitClass =
                           note={event.note}
                           date={date}
                           time={time}
+                          planHref={eventPlanHref(event.id)}
                           client:load
                         />
                       ) : (
                         <>
-                          <p class="font-medium break-words">{label}</p>
+                          <a href={eventPlanHref(event.id)} class:list={[planLinkClass, "font-medium"]}>
+                            {label}
+                          </a>
                           {event.note && <p class="text-sm break-words text-blue-100/70">{event.note}</p>}
                         </>
                       )}
@@ -178,7 +184,9 @@ const submitClass =
                 <ul class="mt-2 space-y-2">
                   {past.map((event) => (
                     <li class="text-blue-100/70">
-                      <p class="break-words">{formatEventStart(event.startsAt)}</p>
+                      <a href={eventPlanHref(event.id)} class:list={planLinkClass}>
+                        {formatEventStart(event.startsAt)}
+                      </a>
                       {event.note && <p class="text-sm break-words">{event.note}</p>}
                     </li>
                   ))}

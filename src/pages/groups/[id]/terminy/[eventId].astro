@@ -1,0 +1,196 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Topbar from "@/components/Topbar.astro";
+import { Button } from "@/components/ui/button";
+import { createClient } from "@/lib/supabase";
+import { cn } from "@/lib/utils";
+import { getGroupWithAdmins } from "@/lib/services/groups";
+import { getGroupEvent, hasStarted } from "@/lib/services/events";
+import { listGroupChildren } from "@/lib/services/children";
+import { buildChildPlan, listEventAttendance, type AttendanceStatus, type ChildPlan } from "@/lib/services/attendance";
+import { groupErrorMessage } from "@/lib/services/group-errors";
+import { formatEventStart } from "@/lib/time";
+
+// The child plan of one event (US-01 without drivers). Middleware guarantees a signed-in user on
+// /groups/*. Non-members, an event of another group, unknown and malformed ids all get the same 404.
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+const { user } = Astro.locals;
+if (!supabase || !user) {
+  return Astro.rewrite("/404");
+}
+
+const group = await getGroupWithAdmins(supabase, Astro.params.id ?? "", user.id);
+if (!group) {
+  return Astro.rewrite("/404");
+}
+const event = await getGroupEvent(supabase, group.id, Astro.params.eventId ?? "");
+if (!event) {
+  return Astro.rewrite("/404");
+}
+
+// One `now` per request, the same rule as the group page's upcoming / past split. The database
+// enforces the lock anyway; this only decides whether the buttons are shown.
+const locked = hasStarted(event, new Date());
+
+// Only the attendance endpoint's codes are shown here. `attendance_locked` lands on #twoje-dzieci,
+// so it is shown in that card; the others are shown at the top of the page.
+const errorCode = Astro.url.searchParams.get("error");
+const lockedError = errorCode === "attendance_locked" ? groupErrorMessage(errorCode, null) : null;
+const error = errorCode === "not_configured" || errorCode === "unknown" ? groupErrorMessage(errorCode, null) : null;
+
+// A failed children or attendance query must not take the whole page down.
+let plan: ChildPlan | null;
+try {
+  const [children, attendance] = await Promise.all([
+    listGroupChildren(supabase, group.id),
+    listEventAttendance(supabase, event.id),
+  ]);
+  plan = buildChildPlan(children, attendance, user.id);
+} catch (loadError) {
+  // eslint-disable-next-line no-console -- surfaces in Cloudflare Worker logs
+  console.error(loadError);
+  plan = null;
+}
+
+const label = formatEventStart(event.startsAt);
+const statusLabels: Record<AttendanceStatus, string> = {
+  going: "jedzie",
+  not_going: "nie jedzie",
+  undeclared: "bez deklaracji",
+};
+
+const cardClass = "rounded-2xl border border-white/10 bg-white/10 p-4 text-white backdrop-blur-xl sm:p-6";
+const choiceClass =
+  "h-auto min-h-11 w-full rounded-lg px-3 py-2 font-medium whitespace-normal text-white transition-colors";
+const choiceOnClass = "bg-purple-600 hover:bg-purple-500";
+const choiceOffClass = "border border-white/20 bg-white/10 hover:bg-white/20";
+const badgeClass = "ml-1 inline-block rounded bg-white/10 px-1.5 py-0.5 text-xs text-blue-100/80";
+---
+
+<Layout title={`${label} · ${group.name}`}>
+  <div class="bg-cosmic min-h-screen p-4">
+    <div class="mx-auto w-full max-w-xl">
+      <Topbar />
+
+      <header class="mb-4">
+        <p class="mb-1 text-sm break-words text-blue-100/70">{group.name}</p>
+        <h1 class="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-2xl font-bold break-words text-transparent">
+          {label}
+        </h1>
+        {event.note && <p class="mt-1 break-words text-blue-100/80">{event.note}</p>}
+      </header>
+
+      {error && (
+        <p
+          class="mb-4 rounded-lg border border-red-500/30 bg-red-900/30 px-3 py-2 text-sm break-words text-red-300"
+          role="alert"
+        >
+          {error}
+        </p>
+      )}
+
+      {plan === null ? (
+        <section class:list={[cardClass, "mb-6"]}>
+          <p class="text-sm text-red-300" role="alert">
+            Nie udało się wczytać planu dzieci.
+          </p>
+        </section>
+      ) : (
+        <>
+          {plan.mine.length > 0 && (
+            <section id="twoje-dzieci" class:list={[cardClass, "mb-6 scroll-mt-4"]}>
+              <h2 class="mb-3 text-lg font-semibold">Twoje dzieci</h2>
+              {lockedError && (
+                <p
+                  class="mb-3 rounded-lg border border-red-500/30 bg-red-900/30 px-3 py-2 text-sm break-words text-red-300"
+                  role="alert"
+                >
+                  {lockedError}
+                </p>
+              )}
+              {locked && (
+                <p class="mb-3 text-sm text-blue-100/70">Termin się rozpoczął — deklaracje są tylko do odczytu.</p>
+              )}
+              <ul class="space-y-3">
+                {plan.mine.map((child) => (
+                  <li class="rounded-xl border border-white/10 bg-white/5 p-3">
+                    <p class="break-words">
+                      <span class="font-medium">{child.name}</span>
+                      <span class="text-sm text-blue-100/70"> — {statusLabels[child.status]}</span>
+                    </p>
+                    {!locked && (
+                      <div class="mt-2 grid grid-cols-2 gap-2">
+                        {[
+                          { going: "true", text: "Jedzie", on: child.status === "going" },
+                          { going: "false", text: "Nie jedzie", on: child.status === "not_going" },
+                        ].map((choice) => (
+                          <form method="POST" action="/api/groups/events/attendance" class="min-w-0">
+                            <input type="hidden" name="group_id" value={group.id} />
+                            <input type="hidden" name="event_id" value={event.id} />
+                            <input type="hidden" name="child_id" value={child.id} />
+                            <input type="hidden" name="going" value={choice.going} />
+                            <Button
+                              type="submit"
+                              aria-pressed={choice.on ? "true" : "false"}
+                              className={cn(choiceClass, choice.on ? choiceOnClass : choiceOffClass)}
+                            >
+                              {choice.text}
+                            </Button>
+                          </form>
+                        ))}
+                      </div>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
+          <section class:list={[cardClass, "mb-6"]}>
+            <h2 class="mb-3 text-lg font-semibold">Plan dzieci</h2>
+
+            <div id="plan-jada" class="mb-4">
+              <h3 class="mb-2 text-sm font-semibold text-blue-100/80">Jadą ({plan.going.length})</h3>
+              {plan.going.length === 0 ? (
+                <p class="text-sm text-blue-100/70">Żadne dziecko jeszcze nie jedzie.</p>
+              ) : (
+                <ul class="space-y-1 text-sm">
+                  {plan.going.map((child) => (
+                    <li class="break-words">
+                      <span class="font-medium">{child.name}</span>
+                      {child.parentNick && <span class="text-blue-100/70"> ({child.parentNick})</span>}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            <div id="plan-nie-jada">
+              <h3 class="mb-2 text-sm font-semibold text-blue-100/80">Nie jadą ({plan.notGoing.length})</h3>
+              {plan.notGoing.length === 0 ? (
+                <p class="text-sm text-blue-100/70">Brak dzieci na tej liście.</p>
+              ) : (
+                <ul class="space-y-1 text-sm">
+                  {plan.notGoing.map((child) => (
+                    <li class="break-words">
+                      <span class="font-medium">{child.name}</span>
+                      {child.parentNick && <span class="text-blue-100/70"> ({child.parentNick})</span>}
+                      {child.undeclared && <span class:list={badgeClass}>bez deklaracji</span>}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </section>
+        </>
+      )}
+
+      <a
+        href={`/groups/${group.id}#terminy`}
+        class="inline-flex min-h-11 items-center rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm text-white transition-colors hover:bg-white/20"
+      >
+        Wróć do grupy
+      </a>
+    </div>
+  </div>
+</Layout>
