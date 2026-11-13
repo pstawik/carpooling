@@ -1,4 +1,6 @@
 import type { PostgrestError, SupabaseClient } from "@supabase/supabase-js";
+import { warsawLocalToUtc } from "@/lib/time";
+import { START_MARGIN_MS } from "@/lib/validation/events";
 import type { GroupEvent } from "@/types";
 
 /** An event of the group as shown on the group page. */
@@ -69,6 +71,37 @@ export async function addEvent(
   // created_by is filled by the column default (auth.uid()); RLS rejects any other value.
   const { error } = await supabase.from("events").insert({ group_id: groupId, starts_at: startsAt, note });
   return writeResult(error);
+}
+
+export type EventGenerateResult =
+  { ok: true; created: number; skipped: number } | { ok: false; failure: EventWriteFailure; error?: PostgrestError };
+
+/**
+ * Creates one event per Warsaw `date` at `time`, in a single statement. Dates whose start does not
+ * exist (DST gap) or is not at least `START_MARGIN_MS` after `now` are dropped first: RLS rejects
+ * the whole batch with 42501 if any row starts in the past. Starts that already have an event in
+ * the group are skipped by ON CONFLICT DO NOTHING. `skipped` counts every date not created.
+ */
+export async function generateEvents(
+  supabase: SupabaseClient,
+  { groupId, dates, time, now }: { groupId: string; dates: string[]; time: string; now: Date },
+): Promise<EventGenerateResult> {
+  const earliestMs = now.getTime() + START_MARGIN_MS;
+  // created_by and note take their column defaults (auth.uid() and null).
+  const rows = dates
+    .map((date) => warsawLocalToUtc(date, time))
+    .filter((startsAt): startsAt is Date => startsAt !== null && startsAt.getTime() > earliestMs)
+    .map((startsAt) => ({ group_id: groupId, starts_at: startsAt.toISOString() }));
+  if (rows.length === 0) return { ok: true, created: 0, skipped: dates.length };
+
+  const { data, error } = await supabase
+    .from("events")
+    .upsert(rows, { onConflict: "group_id,starts_at", ignoreDuplicates: true })
+    .select("id");
+  const result = writeResult(error);
+  if (!result.ok) return result;
+  const created = (data ?? []).length;
+  return { ok: true, created, skipped: dates.length - created };
 }
 
 export async function updateEvent(

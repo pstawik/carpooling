@@ -24,8 +24,9 @@ const timeField = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/);
  */
 // RLS checks starts_at > now() on the database clock a moment after this runs. Demanding a minute
 // of margin here keeps a start right at the boundary from passing zod and then failing RLS with
-// 42501, which the endpoints answer with a 404 instead of a friendly error.
-const START_MARGIN_MS = 60 * 1000;
+// 42501, which the endpoints answer with a 404 instead of a friendly error. The weekly generator
+// filters its occurrences with the same margin.
+export const START_MARGIN_MS = 60 * 1000;
 
 function futureStart(date: string, time: string): Date | null {
   const startsAt = warsawLocalToUtc(date, time);
