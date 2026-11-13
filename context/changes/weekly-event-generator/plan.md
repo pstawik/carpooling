@@ -301,26 +301,26 @@ None. No schema change.
 
 #### Automated
 
-- [x] 2.1 Lint passes: `npm run lint`
-- [x] 2.2 Type check passes: `npx astro check`
-- [x] 2.3 Build passes: `npm run build`
+- [x] 2.1 Lint passes: `npm run lint` — 5f26f7b
+- [x] 2.2 Type check passes: `npx astro check` — 5f26f7b
+- [x] 2.3 Build passes: `npm run build` — 5f26f7b
 
 #### Manual
 
-- [x] 2.4 With curl or the browser devtools, a POST from a non-admin member to `/api/groups/events/generate` returns 404 and creates no events
+- [x] 2.4 With curl or the browser devtools, a POST from a non-admin member to `/api/groups/events/generate` returns 404 and creates no events — 5f26f7b
 
 ### Phase 3: Generator form and smoke
 
 #### Automated
 
-- [ ] 3.1 Lint passes: `npm run lint`
-- [ ] 3.2 Type check passes: `npx astro check`
-- [ ] 3.3 Build passes: `npm run build`
-- [ ] 3.4 Smoke passes including the generator steps: `npm run smoke`
+- [x] 3.1 Lint passes: `npm run lint`
+- [x] 3.2 Type check passes: `npx astro check`
+- [x] 3.3 Build passes: `npm run build`
+- [x] 3.4 Smoke passes including the generator steps: `npm run smoke`
 
 #### Manual
 
-- [ ] 3.5 At a 360 px viewport, the generator section opens, all fields and the button are usable without zooming, there is no horizontal scroll, and targets are at least 44 px
-- [ ] 3.6 A series spanning the last Sunday of March or October keeps the same Warsaw time on every generated event
-- [ ] 3.7 A generated event can be edited and deleted on its own with the existing Edytuj/Usuń controls
-- [ ] 3.8 A member (non-admin) sees no generator section
+- [x] 3.5 At a 360 px viewport, the generator section opens, all fields and the button are usable without zooming, there is no horizontal scroll, and targets are at least 44 px
+- [x] 3.6 A series spanning the last Sunday of March or October keeps the same Warsaw time on every generated event
+- [x] 3.7 A generated event can be edited and deleted on its own with the existing Edytuj/Usuń controls
+- [x] 3.8 A member (non-admin) sees no generator section

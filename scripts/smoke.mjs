@@ -120,6 +120,22 @@ const addEventForm =
   () =>
     request("/api/groups/events", { method: "POST", form: { group_id: group(), date, time, note } });
 
+// Weekly series: from day 60 to day 80 on the weekday of the start date gives 3 dates (60, 67, 74).
+// 18:15 is never inside a DST gap and differs from the single event's time.
+const seriesFrom = warsawDateInDays(60);
+const seriesTo = warsawDateInDays(80);
+/** ISO weekday ("1" = Monday … "7" = Sunday) of a "YYYY-MM-DD" date. */
+const isoWeekdayOf = (date) => String(((new Date(`${date}T00:00:00Z`).getUTCDay() + 6) % 7) + 1);
+const seriesWeekday = isoWeekdayOf(seriesFrom);
+
+const generateEventsForm =
+  ({ from = seriesFrom, to = seriesTo, weekday = seriesWeekday, group = groupId } = {}) =>
+  () =>
+    request("/api/groups/events/generate", {
+      method: "POST",
+      form: { group_id: group(), weekday, date_from: from, date_to: to, time: "18:15" },
+    });
+
 const addChildForm = (name) => () =>
   request("/api/groups/children", { method: "POST", form: { group_id: groupId(), name } });
 
@@ -314,6 +330,12 @@ const writeSteps = [
     { status: 200, notContains: "Dodaj termin" },
   ],
   ["member cannot add an event", addEventForm(), { status: 404 }],
+  [
+    "member sees no event generator",
+    () => request(groupPath, { readBody: true }),
+    { status: 200, notContains: "Generuj terminy cotygodniowe" },
+  ],
+  ["member cannot generate events", generateEventsForm(), { status: 404 }],
   ["stranger signs out", () => request("/api/auth/signout", { method: "POST" }), { status: 302, location: "/" }],
   [
     "designated admin signs in again",
@@ -367,6 +389,41 @@ const writeSteps = [
   [
     "adding an event with a malformed group id renders 404",
     addEventForm({ group: () => "not-a-uuid" }),
+    { status: 404 },
+  ],
+  [
+    "group admin sees the event generator",
+    () => request(groupPath, { readBody: true }),
+    { status: 200, contains: "Generuj terminy cotygodniowe" },
+  ],
+  [
+    "group admin generates weekly events",
+    generateEventsForm(),
+    { status: 302, location: () => `${groupPath}?message=events_generated&created=3&skipped=0` },
+  ],
+  [
+    "generating the same series again skips every date",
+    generateEventsForm(),
+    { status: 302, location: () => `${groupPath}?message=events_generated&created=0&skipped=3` },
+  ],
+  [
+    "group page shows the generated count",
+    () => request(`${groupPath}?message=events_generated&created=3&skipped=0`, { readBody: true }),
+    { status: 200, contains: "Dodano 3 terminy" },
+  ],
+  [
+    "a series longer than a year is rejected",
+    generateEventsForm({ to: warsawDateInDays(60 + 367) }),
+    { status: 302, location: () => `${groupPath}?error=invalid_event_series` },
+  ],
+  [
+    "a weekday outside the range is rejected",
+    generateEventsForm({ to: seriesFrom, weekday: String((Number(seriesWeekday) % 7) + 1) }),
+    { status: 302, location: () => `${groupPath}?error=invalid_event_series` },
+  ],
+  [
+    "generating with a malformed group id renders 404",
+    generateEventsForm({ group: () => "not-a-uuid" }),
     { status: 404 },
   ],
   [

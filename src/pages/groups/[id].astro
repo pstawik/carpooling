@@ -10,7 +10,12 @@ import { getGroupWithAdmins } from "@/lib/services/groups";
 import { getGroupInviteToken } from "@/lib/services/invites";
 import { listGroupChildren, type GroupChild } from "@/lib/services/children";
 import { listGroupEvents, splitEvents, type GroupEventItem } from "@/lib/services/events";
-import { feedbackSection, groupErrorMessage, groupNoticeMessage } from "@/lib/services/group-errors";
+import {
+  eventsGeneratedMessage,
+  feedbackSection,
+  groupErrorMessage,
+  groupNoticeMessage,
+} from "@/lib/services/group-errors";
 import { formatEventStart, utcToWarsawParts } from "@/lib/time";
 
 // Middleware guarantees a signed-in user on /groups/*. Non-members (including a non-member app
@@ -36,8 +41,18 @@ const message = messageSection ? null : groupNoticeMessage(messageCode);
 const error = errorSection ? null : groupErrorMessage(errorCode, null);
 const childMessage = messageSection === "dzieci" ? groupNoticeMessage(messageCode) : null;
 const childError = errorSection === "dzieci" ? groupErrorMessage(errorCode, null) : null;
-const eventMessage = messageSection === "terminy" ? groupNoticeMessage(messageCode) : null;
+const eventMessage =
+  messageSection !== "terminy"
+    ? null
+    : messageCode === "events_generated"
+      ? eventsGeneratedMessage(Astro.url.searchParams.get("created"), Astro.url.searchParams.get("skipped"))
+      : groupNoticeMessage(messageCode);
 const eventError = errorSection === "terminy" ? groupErrorMessage(errorCode, null) : null;
+// After a generator mistake, reopen its section so the admin sees the form with the message.
+const generatorOpen = errorCode === "invalid_event_series";
+const weekdays = ["Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek", "Sobota", "Niedziela"];
+const inputClass =
+  "min-h-11 w-full min-w-0 rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-white focus:ring-2 focus:ring-purple-400 focus:outline-none";
 
 // A failed events query must not take the whole group page down either. "Upcoming" is judged
 // against one `now` per request, the same moment that marks an event finished.
@@ -235,6 +250,69 @@ const submitClass =
               Dodaj termin
             </Button>
           </form>
+        )}
+
+        {isAdmin && (
+          <details class="mt-4" open={generatorOpen}>
+            <summary class="flex min-h-11 cursor-pointer items-center text-sm font-semibold text-blue-100/80">
+              Generuj terminy cotygodniowe
+            </summary>
+            <form method="POST" action="/api/groups/events/generate" class="mt-2 space-y-2">
+              <input type="hidden" name="group_id" value={group.id} />
+              <div class="grid grid-cols-2 gap-2">
+                <div class="min-w-0">
+                  <label for="series-weekday" class="block text-sm text-blue-100/80">
+                    Dzień tygodnia
+                  </label>
+                  <select id="series-weekday" name="weekday" required class:list={inputClass}>
+                    {weekdays.map((name, index) => (
+                      <option value={String(index + 1)} class="text-black">
+                        {name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div class="min-w-0">
+                  <label for="series-time" class="block text-sm text-blue-100/80">
+                    Godzina
+                  </label>
+                  <input id="series-time" name="time" type="time" required class:list={inputClass} />
+                </div>
+                <div class="min-w-0">
+                  <label for="series-from" class="block text-sm text-blue-100/80">
+                    Od dnia
+                  </label>
+                  <input
+                    id="series-from"
+                    name="date_from"
+                    type="date"
+                    required
+                    min={todayInWarsaw}
+                    class:list={inputClass}
+                  />
+                </div>
+                <div class="min-w-0">
+                  <label for="series-to" class="block text-sm text-blue-100/80">
+                    Do dnia (włącznie)
+                  </label>
+                  <input
+                    id="series-to"
+                    name="date_to"
+                    type="date"
+                    required
+                    min={todayInWarsaw}
+                    class:list={inputClass}
+                  />
+                </div>
+              </div>
+              <p class="text-xs text-blue-100/70">
+                Zakres najwyżej rok. Terminy, które już istnieją albo minęły, zostaną pominięte.
+              </p>
+              <Button type="submit" className={submitClass}>
+                Generuj terminy
+              </Button>
+            </form>
+          </details>
         )}
       </section>
 
