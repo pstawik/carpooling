@@ -45,7 +45,7 @@ Rodzice dzieci z tych samych zajęć dodatkowych ustalają wspólne dojazdy na c
 | S-02 | app-admin-creates-group         | (admin aplikacji) utworzyć grupę i wskazać jej administratora                        | S-01          | FR-004                      | done        |
 | S-03 | join-group-by-invite-link       | (admin grupy) wygenerować link zaproszeniowy; użytkownik dołącza przez link          | S-02          | FR-005, FR-006              | done |
 | S-04 | parent-adds-child               | dodać, edytować i usunąć swoje dziecko przypisane do grupy                          | S-02          | FR-010                      | done        |
-| S-05 | group-admin-manages-events      | (admin grupy) tworzyć, edytować i usuwać terminy; członek widzi listę terminów      | S-02          | FR-011, FR-012              | in-progress |
+| S-05 | group-admin-manages-events      | (admin grupy) tworzyć, edytować i usuwać terminy; członek widzi listę terminów      | S-02          | FR-011, FR-012              | done        |
 | S-06 | weekly-event-generator          | (admin grupy) wygenerować terminy cotygodniowe bez duplikatów                        | S-05          | FR-013                      | proposed |
 | S-07 | child-attendance-declaration    | zadeklarować „jedzie/nie jedzie” dziecka i zobaczyć plan dzieci terminu              | S-04, S-05    | FR-014, FR-016, US-01       | proposed |
 | S-08 | driver-declaration-seat-balance | zadeklarować się jako kierowca i zobaczyć bilans miejsc z ostrzeżeniem               | S-07          | FR-015, FR-016, US-01       | proposed |
@@ -140,7 +140,7 @@ Brak osobnych fundamentów. Jedyna brakująca warstwa to dane (schemat + RLS), a
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Ustala, jak przechowywany jest moment rozpoczęcia terminu, od którego zależą blokada deklaracji i statystyki (patrz Open Roadmap Questions #2).
-- **Status:** in-progress
+- **Status:** done
 
 ### S-06: Generator terminów cotygodniowych
 
@@ -236,3 +236,4 @@ PRD nie ma otwartych pytań (rozstrzygnięte 2026-11-06). Pytania przekrojowe ze
 - **S-02: user can (jako administrator aplikacji) utworzyć grupę i wskazać jednego lub więcej jej administratorów; użytkownik widzi tylko grupy, do których należy.** — Archived 2026-11-12 → `context/archive/2026-11-10-app-admin-creates-group/`. Lesson: —.
 - **S-03: user can (jako administrator grupy) wygenerować i zregenerować link zaproszeniowy, a zalogowany lub nowy użytkownik dołącza przez niego do grupy — nowy automatycznie po rejestracji.** — Archived 2026-11-12 → `context/archive/2026-11-12-join-group-by-invite-link/`. Lesson: —.
 - **S-04: user can dodać, edytować i usunąć swoje dziecko (imię lub nick) przypisane do jednej grupy, której jest członkiem.** — Archived 2026-11-12 → `context/archive/2026-11-12-parent-adds-child/`. Lesson: —.
+- **S-05: user can (jako administrator grupy) tworzyć, edytować i usuwać pojedyncze terminy, a każdy członek widzi listę terminów zaczynającą się od najbliższego nadchodzącego.** — Archived 2026-11-13 → `context/archive/2026-11-12-group-admin-manages-events/`. Lesson: —.
