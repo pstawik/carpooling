@@ -38,6 +38,11 @@ export const POST: APIRoute = async (context) => {
   if (!outcome.ok) {
     // Also covers an admin whose earliest start passed between the filter and the insert.
     if (outcome.failure === "forbidden") return context.rewrite("/404");
+    // Every date has passed (or falls in a DST gap): nothing to generate, the same form mistake
+    // any user gets, so RLS is never the one asked to say no.
+    if (outcome.failure === "no_future_start") {
+      return context.redirect(`/groups/${groupId}?error=invalid_event_series#terminy`);
+    }
     // eslint-disable-next-line no-console -- surfaces in Cloudflare Worker logs
     console.error("generateEvents failed:", outcome.failure, outcome.error?.code, outcome.error?.message);
     // An insert has no other expected failure (duplicates are skipped), so show the top banner.

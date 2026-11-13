@@ -118,10 +118,26 @@ const calendarDateField = dateField.refine((date) => {
 const weekdayField = z.enum(["1", "2", "3", "4", "5", "6", "7"]).transform(Number);
 
 /**
+ * Runs the series range checks only when the weekday and both dates parsed. By then the weekday
+ * has been transformed to a number, while the dates are still the original strings.
+ */
+const seriesCheckOptions = {
+  when: (payload: z.core.ParsePayload) => {
+    const value = payload.value as { weekday?: unknown; date_from?: unknown; date_to?: unknown } | null;
+    return (
+      typeof value?.weekday === "number" &&
+      calendarDateField.safeParse(value.date_from).success &&
+      calendarDateField.safeParse(value.date_to).success
+    );
+  },
+};
+
+/**
  * The weekly generator form. The range includes both ends and spans at most `MAX_SERIES_DAYS`;
  * the chosen weekday must fall in it at least once. A `date_from` in the past is allowed: its
  * dates are skipped (and counted) by `generateEvents`, which also drops starts that are not in the
- * future. Zod skips these range checks when a field is already malformed.
+ * future. Zod 4 runs an object-level refinement even when a field has failed, so the range checks
+ * are gated by `seriesCheckOptions`: they run only on well-formed weekday and dates.
  */
 export const generateEventsSchema = z
   .object({
@@ -138,7 +154,7 @@ export const generateEventsSchema = z
     } else if (weeklyDates(date_from, date_to, weekday).length === 0) {
       ctx.addIssue({ code: "custom", path: ["weekday"], message: "The weekday does not fall in the range" });
     }
-  })
+  }, seriesCheckOptions)
   .transform(({ group_id, weekday, date_from, date_to, time }) => ({
     groupId: group_id,
     dates: weeklyDates(date_from, date_to, weekday),

@@ -146,7 +146,8 @@ export function eventsGeneratedMessage(createdParam: string | null, skippedParam
   }
   const created = Number(createdParam);
   const skipped = Number(skippedParam);
-  const skippedPart = skipped > 0 ? `, pominięto ${skipped} (istniały już albo minęły)` : "";
+  const skippedPart =
+    skipped > 0 ? `, pominięto ${skipped} (istniały już, minęły albo nie istnieją z powodu zmiany czasu)` : "";
   if (created === 0) return `Nie dodano żadnego terminu${skippedPart}`;
   return `Dodano ${created} ${eventsNoun(created)}${skippedPart}`;
 }

@@ -22,11 +22,16 @@ function isoWeekday(dayMs: number): number {
 
 /**
  * Every date from `from` to `to` (both included, "YYYY-MM-DD", `from` ≤ `to`) that falls on the
- * ISO `weekday` (1 = Monday … 7 = Sunday), ascending.
+ * ISO `weekday` (1 = Monday … 7 = Sunday), ascending. An unparsable, reversed or longer than
+ * `MAX_SERIES_DAYS` range yields `[]`, so a caller that skipped validation can never make it loop
+ * for millions of days.
  */
 export function weeklyDates(from: string, to: string, weekday: number): string[] {
   const fromMs = parseDate(from);
   const toMs = parseDate(to);
+  if (!Number.isFinite(fromMs) || !Number.isFinite(toMs) || toMs < fromMs || toMs - fromMs > MAX_SERIES_DAYS * DAY_MS) {
+    return [];
+  }
   const firstMs = fromMs + ((weekday - isoWeekday(fromMs) + 7) % 7) * DAY_MS;
   const dates: string[] = [];
   for (let dayMs = firstMs; dayMs <= toMs; dayMs += 7 * DAY_MS) {

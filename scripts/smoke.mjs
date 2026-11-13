@@ -417,6 +417,12 @@ const writeSteps = [
     { status: 302, location: () => `${groupPath}?error=invalid_event_series` },
   ],
   [
+    // Tuesdays in January 2020: every date has passed, so there is nothing to generate.
+    "a series with no future date is rejected",
+    generateEventsForm({ from: "2020-01-07", to: "2020-01-28", weekday: "2" }),
+    { status: 302, location: () => `${groupPath}?error=invalid_event_series` },
+  ],
+  [
     "a weekday outside the range is rejected",
     generateEventsForm({ to: seriesFrom, weekday: String((Number(seriesWeekday) % 7) + 1) }),
     { status: 302, location: () => `${groupPath}?error=invalid_event_series` },

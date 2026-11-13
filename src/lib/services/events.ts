@@ -74,13 +74,16 @@ export async function addEvent(
 }
 
 export type EventGenerateResult =
-  { ok: true; created: number; skipped: number } | { ok: false; failure: EventWriteFailure; error?: PostgrestError };
+  | { ok: true; created: number; skipped: number }
+  | { ok: false; failure: EventWriteFailure | "no_future_start"; error?: PostgrestError };
 
 /**
  * Creates one event per Warsaw `date` at `time`, in a single statement. Dates whose start does not
  * exist (DST gap) or is not at least `START_MARGIN_MS` after `now` are dropped first: RLS rejects
  * the whole batch with 42501 if any row starts in the past. Starts that already have an event in
  * the group are skipped by ON CONFLICT DO NOTHING. `skipped` counts every date not created.
+ * When no start survives the filter there is nothing to insert, so the database (and with it RLS)
+ * is never asked; that is reported as `no_future_start`, a form mistake, rather than as success.
  */
 export async function generateEvents(
   supabase: SupabaseClient,
@@ -92,7 +95,7 @@ export async function generateEvents(
     .map((date) => warsawLocalToUtc(date, time))
     .filter((startsAt): startsAt is Date => startsAt !== null && startsAt.getTime() > earliestMs)
     .map((startsAt) => ({ group_id: groupId, starts_at: startsAt.toISOString() }));
-  if (rows.length === 0) return { ok: true, created: 0, skipped: dates.length };
+  if (rows.length === 0) return { ok: false, failure: "no_future_start" };
 
   const { data, error } = await supabase
     .from("events")

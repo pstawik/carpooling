@@ -7,7 +7,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(40);
+select plan(41);
 
 -- ---------------------------------------------------------------------------
 -- Schema and privileges
@@ -368,6 +368,16 @@ select throws_ok(
     on conflict (group_id, starts_at) do nothing
     returning id$$,
   '42501', null, 'C (admin of G2) cannot batch-insert events in G1'
+);
+
+-- RLS is checked before the ON CONFLICT arbiter: a start that collides with an existing G1 event
+-- must still be refused, not silently skipped (which would let C probe for G1 events).
+select throws_ok(
+  $$insert into public.events (group_id, starts_at)
+    values ('10000000-0000-0000-0000-000000000001', now() + interval '14 days')
+    on conflict (group_id, starts_at) do nothing
+    returning id$$,
+  '42501', null, 'C''s insert colliding with an existing G1 start is refused, not skipped'
 );
 
 reset role;
