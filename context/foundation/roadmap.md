@@ -46,7 +46,7 @@ Rodzice dzieci z tych samych zajęć dodatkowych ustalają wspólne dojazdy na c
 | S-03 | join-group-by-invite-link       | (admin grupy) wygenerować link zaproszeniowy; użytkownik dołącza przez link          | S-02          | FR-005, FR-006              | done |
 | S-04 | parent-adds-child               | dodać, edytować i usunąć swoje dziecko przypisane do grupy                          | S-02          | FR-010                      | done        |
 | S-05 | group-admin-manages-events      | (admin grupy) tworzyć, edytować i usuwać terminy; członek widzi listę terminów      | S-02          | FR-011, FR-012              | done        |
-| S-06 | weekly-event-generator          | (admin grupy) wygenerować terminy cotygodniowe bez duplikatów                        | S-05          | FR-013                      | proposed |
+| S-06 | weekly-event-generator          | (admin grupy) wygenerować terminy cotygodniowe bez duplikatów                        | S-05          | FR-013                      | in-progress |
 | S-07 | child-attendance-declaration    | zadeklarować „jedzie/nie jedzie” dziecka i zobaczyć plan dzieci terminu              | S-04, S-05    | FR-014, FR-016, US-01       | proposed |
 | S-08 | driver-declaration-seat-balance | zadeklarować się jako kierowca i zobaczyć bilans miejsc z ostrzeżeniem               | S-07          | FR-015, FR-016, US-01       | proposed |
 | S-09 | group-engagement-stats          | zobaczyć statystyki zakończonych terminów grupy                                      | S-08          | FR-017                      | proposed |
@@ -152,7 +152,7 @@ Brak osobnych fundamentów. Jedyna brakująca warstwa to dane (schemat + RLS), a
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Poza ścieżką do gwiazdy przewodniej, więc można go prowadzić równolegle; reguła duplikatu (ta sama grupa, data i godzina) jest już doprecyzowana w PRD.
-- **Status:** proposed
+- **Status:** in-progress
 
 ### S-07: Deklaracja obecności dziecka i plan dzieci terminu
 

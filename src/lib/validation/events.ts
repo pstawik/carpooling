@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { warsawLocalToUtc } from "@/lib/time";
+import { MAX_SERIES_DAYS, weeklyDates } from "@/lib/weekly-events";
 
 // Same limit as the events note check in the database.
 const EVENT_NOTE_MAX = 200;
@@ -24,8 +25,9 @@ const timeField = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/);
  */
 // RLS checks starts_at > now() on the database clock a moment after this runs. Demanding a minute
 // of margin here keeps a start right at the boundary from passing zod and then failing RLS with
-// 42501, which the endpoints answer with a 404 instead of a friendly error.
-const START_MARGIN_MS = 60 * 1000;
+// 42501, which the endpoints answer with a 404 instead of a friendly error. The weekly generator
+// filters its occurrences with the same margin.
+export const START_MARGIN_MS = 60 * 1000;
 
 function futureStart(date: string, time: string): Date | null {
   const startsAt = warsawLocalToUtc(date, time);
@@ -102,4 +104,73 @@ export function eventFieldError(
   if (!groupId.success) return null;
   const code = issues.some((issue) => START_FIELDS.has(issue.path[0])) ? "invalid_event_start" : "invalid_event_note";
   return { groupId: groupId.data, code };
+}
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/** A `dateField` that is also a real calendar day (no 2026-02-30). */
+const calendarDateField = dateField.refine((date) => {
+  const dayMs = Date.parse(`${date}T00:00:00Z`);
+  return !Number.isNaN(dayMs) && new Date(dayMs).toISOString().slice(0, 10) === date;
+});
+
+// ISO weekday as sent by the <select>: "1" = Monday … "7" = Sunday.
+const weekdayField = z.enum(["1", "2", "3", "4", "5", "6", "7"]).transform(Number);
+
+/**
+ * Runs the series range checks only when the weekday and both dates parsed. By then the weekday
+ * has been transformed to a number, while the dates are still the original strings.
+ */
+const seriesCheckOptions = {
+  when: (payload: z.core.ParsePayload) => {
+    const value = payload.value as { weekday?: unknown; date_from?: unknown; date_to?: unknown } | null;
+    return (
+      typeof value?.weekday === "number" &&
+      calendarDateField.safeParse(value.date_from).success &&
+      calendarDateField.safeParse(value.date_to).success
+    );
+  },
+};
+
+/**
+ * The weekly generator form. The range includes both ends and spans at most `MAX_SERIES_DAYS`;
+ * the chosen weekday must fall in it at least once. A `date_from` in the past is allowed: its
+ * dates are skipped (and counted) by `generateEvents`, which also drops starts that are not in the
+ * future. Zod 4 runs an object-level refinement even when a field has failed, so the range checks
+ * are gated by `seriesCheckOptions`: they run only on well-formed weekday and dates.
+ */
+export const generateEventsSchema = z
+  .object({
+    group_id: z.uuid(),
+    weekday: weekdayField,
+    date_from: calendarDateField,
+    date_to: calendarDateField,
+    time: timeField,
+  })
+  .superRefine(({ weekday, date_from, date_to }, ctx) => {
+    const spanDays = (Date.parse(date_to) - Date.parse(date_from)) / DAY_MS;
+    if (spanDays < 0 || spanDays > MAX_SERIES_DAYS) {
+      ctx.addIssue({ code: "custom", path: ["date_to"], message: "Range must end 0-366 days after it starts" });
+    } else if (weeklyDates(date_from, date_to, weekday).length === 0) {
+      ctx.addIssue({ code: "custom", path: ["weekday"], message: "The weekday does not fall in the range" });
+    }
+  }, seriesCheckOptions)
+  .transform(({ group_id, weekday, date_from, date_to, time }) => ({
+    groupId: group_id,
+    dates: weeklyDates(date_from, date_to, weekday),
+    time,
+  }));
+
+/**
+ * The form's group id when only user-editable generator fields failed, otherwise `null` (a
+ * malformed `group_id` means a tampered form and gets a 404). Every user mistake shares one code.
+ */
+export function eventSeriesFieldError(
+  raw: Record<string, unknown>,
+  issues: z.core.$ZodIssue[],
+): { groupId: string; code: "invalid_event_series" } | null {
+  if (issues.some((issue) => issue.path[0] === "group_id")) return null;
+  const groupId = z.uuid().safeParse(raw.group_id);
+  if (!groupId.success) return null;
+  return { groupId: groupId.data, code: "invalid_event_series" };
 }

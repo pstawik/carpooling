@@ -1,12 +1,13 @@
 -- RLS and privilege tests for public.events.
 -- Fixtures: A (admin of G1), B (member of G1), C (admin of G2), D (in no group);
--- a future event in G1 (added by A) and a past event in G1 (inserted as postgres).
+-- a future event in G1 (added by A) and a past event in G1 (inserted as postgres);
+-- the weekly-generator section adds a future G1 and a future G2 event (as postgres).
 -- The test runs in one transaction, so now() is constant throughout.
 begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(34);
+select plan(41);
 
 -- ---------------------------------------------------------------------------
 -- Schema and privileges
@@ -285,6 +286,98 @@ select results_eq(
 select is_empty(
   $$select * from public.events where id = 'e0000000-0000-0000-0000-000000000001'$$,
   'the deleted event is gone'
+);
+
+reset role;
+
+-- ---------------------------------------------------------------------------
+-- Weekly generator: batch insert ... on conflict do nothing (the statement
+-- generateEvents issues). Fresh fixtures as postgres: a future G1 event (the
+-- one above was deleted) and a future G2 event.
+-- ---------------------------------------------------------------------------
+
+insert into public.events (id, group_id, starts_at, note, created_by) values
+  ('e0000000-0000-0000-0000-000000000003', '10000000-0000-0000-0000-000000000001',
+   now() + interval '14 days', 'Trening', '00000000-0000-0000-0000-0000000000a1'),
+  ('e0000000-0000-0000-0000-000000000004', '20000000-0000-0000-0000-000000000002',
+   now() + interval '21 days', null, '00000000-0000-0000-0000-0000000000c1');
+
+set local role authenticated;
+set local "request.jwt.claims" to '{"sub": "00000000-0000-0000-0000-0000000000a1", "role": "authenticated"}';
+
+-- Returning the start instead of the (random) id shows which single row was created.
+select results_eq(
+  $$insert into public.events (group_id, starts_at)
+    values ('10000000-0000-0000-0000-000000000001', now() + interval '14 days'),
+           ('10000000-0000-0000-0000-000000000001', now() + interval '15 days')
+    on conflict (group_id, starts_at) do nothing
+    returning starts_at$$,
+  $$values (now() + interval '15 days')$$,
+  'A''s batch insert skips the colliding start and returns only the new row'
+);
+
+select results_eq(
+  $$select id, note, created_by from public.events
+    where group_id = '10000000-0000-0000-0000-000000000001' and starts_at = now() + interval '14 days'$$,
+  $$values ('e0000000-0000-0000-0000-000000000003'::uuid, 'Trening'::text,
+            '00000000-0000-0000-0000-0000000000a1'::uuid)$$,
+  'the colliding G1 event is left unchanged'
+);
+
+select throws_ok(
+  $$insert into public.events (group_id, starts_at)
+    values ('10000000-0000-0000-0000-000000000001', now() + interval '16 days'),
+           ('10000000-0000-0000-0000-000000000001', now() - interval '2 hours')
+    on conflict (group_id, starts_at) do nothing
+    returning id$$,
+  '42501', null, 'one past row makes RLS reject A''s whole batch'
+);
+
+select results_eq(
+  $$insert into public.events (group_id, starts_at)
+    values ('10000000-0000-0000-0000-000000000001', now() + interval '21 days')
+    on conflict (group_id, starts_at) do nothing
+    returning starts_at$$,
+  $$values (now() + interval '21 days')$$,
+  'A adds a G1 event at the same start as a G2 event (duplicates are per group)'
+);
+
+reset role;
+
+set local role authenticated;
+set local "request.jwt.claims" to '{"sub": "00000000-0000-0000-0000-0000000000b1", "role": "authenticated"}';
+
+select throws_ok(
+  $$insert into public.events (group_id, starts_at)
+    values ('10000000-0000-0000-0000-000000000001', now() + interval '22 days'),
+           ('10000000-0000-0000-0000-000000000001', now() + interval '23 days')
+    on conflict (group_id, starts_at) do nothing
+    returning id$$,
+  '42501', null, 'member B cannot batch-insert events in G1'
+);
+
+reset role;
+
+set local role authenticated;
+set local "request.jwt.claims" to '{"sub": "00000000-0000-0000-0000-0000000000c1", "role": "authenticated"}';
+
+select throws_ok(
+  $$insert into public.events (group_id, starts_at)
+    values ('10000000-0000-0000-0000-000000000001', now() + interval '22 days'),
+           ('10000000-0000-0000-0000-000000000001', now() + interval '23 days')
+    on conflict (group_id, starts_at) do nothing
+    returning id$$,
+  '42501', null, 'C (admin of G2) cannot batch-insert events in G1'
+);
+
+-- RLS is checked before the ON CONFLICT arbiter: a start that collides with an existing G1 event
+-- must still be refused, not silently skipped (which would let C probe for G1 events).
+select throws_ok(
+  $$insert into public.events (group_id, starts_at)
+    values ('10000000-0000-0000-0000-000000000001', now() + interval '14 days')
+    on conflict (group_id, starts_at) do nothing
+    returning id$$,
+  '42501', null, 'C''s insert colliding with an existing G1 start is refused, not skipped'
 );
 
 reset role;

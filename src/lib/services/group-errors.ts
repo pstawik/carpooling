@@ -19,6 +19,7 @@ const ERROR_MESSAGES = {
   invalid_event_note: "Notatka może mieć najwyżej 200 znaków",
   duplicate_event: "Termin o tej dacie i godzinie już istnieje",
   event_not_found: "Nie znaleziono terminu albo termin już się rozpoczął",
+  invalid_event_series: "Wybierz dzień tygodnia, godzinę i zakres dat (najwyżej rok), w którym ten dzień wypada",
   not_configured: "Supabase nie jest skonfigurowany",
   invalid_input: "Nieprawidłowe dane",
   unknown: "Coś poszło nie tak, spróbuj ponownie",
@@ -36,6 +37,7 @@ const NOTICE_MESSAGES = {
   event_added: "Termin dodany",
   event_updated: "Termin zmieniony",
   event_deleted: "Termin usunięty",
+  events_generated: "Terminy wygenerowane",
 } as const;
 
 export type GroupErrorCode = keyof typeof ERROR_MESSAGES;
@@ -61,6 +63,8 @@ const FEEDBACK_SECTIONS: Record<string, FeedbackSection> = {
   event_added: "terminy",
   event_updated: "terminy",
   event_deleted: "terminy",
+  invalid_event_series: "terminy",
+  events_generated: "terminy",
 };
 
 /** The group-page card that shows feedback for this code, or `null` for the top banner. */
@@ -120,6 +124,32 @@ export function groupErrorMessage(code: string | null, emailParam: string | null
     if (parsed.success) return `Nie znaleziono konta dla adresu ${parsed.data}`;
   }
   return code in ERROR_MESSAGES ? ERROR_MESSAGES[code as GroupErrorCode] : ERROR_MESSAGES.unknown;
+}
+
+/** "termin" / "terminy" / "terminów" for a count, by Polish plural rules. */
+function eventsNoun(count: number): string {
+  if (count === 1) return "termin";
+  const lastTwo = count % 100;
+  const last = count % 10;
+  return last >= 2 && last <= 4 && (lastTwo < 12 || lastTwo > 14) ? "terminy" : "terminów";
+}
+
+const COUNT_PARAM = /^\d{1,3}$/;
+
+/**
+ * Text for `?message=events_generated`. The `created` / `skipped` params are the second exception to
+ * the codes-only rule: they are read only as 1-3 digits, otherwise the plain notice is shown.
+ */
+export function eventsGeneratedMessage(createdParam: string | null, skippedParam: string | null): string {
+  if (!createdParam || !skippedParam || !COUNT_PARAM.test(createdParam) || !COUNT_PARAM.test(skippedParam)) {
+    return NOTICE_MESSAGES.events_generated;
+  }
+  const created = Number(createdParam);
+  const skipped = Number(skippedParam);
+  const skippedPart =
+    skipped > 0 ? `, pominięto ${skipped} (istniały już, minęły albo nie istnieją z powodu zmiany czasu)` : "";
+  if (created === 0) return `Nie dodano żadnego terminu${skippedPart}`;
+  return `Dodano ${created} ${eventsNoun(created)}${skippedPart}`;
 }
 
 /** Polish text for a `?message=` code; an unrecognised code shows nothing. */
