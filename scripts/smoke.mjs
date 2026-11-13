@@ -95,6 +95,31 @@ async function groupPageWithChildId() {
   return result;
 }
 
+/** Warsaw calendar date ("YYYY-MM-DD") `days` from now; en-CA formats as ISO. */
+function warsawDateInDays(days) {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Warsaw" }).format(new Date(Date.now() + days * 864e5));
+}
+
+// A Warsaw date a month ahead at 17:00 (never inside a DST gap), so zod passes and RLS decides.
+const eventDate = warsawDateInDays(30);
+const eventNote = `Termin-${childSuffix}`;
+const eventNoteEdited = `Termin-${childSuffix}-E`;
+// Filled from the group page once the group admin has added the event.
+let eventId = "missing";
+
+/** Id of the upcoming event whose note is `note`, read from the hidden `event_id` field rendered after it. */
+function eventIdAfterNote(body, note) {
+  const at = body.indexOf(`>${note}<`);
+  if (at === -1) return "missing";
+  const match = /name="event_id" value="([0-9a-f-]{36})"/.exec(body.slice(at));
+  return match ? match[1] : "missing";
+}
+
+const addEventForm =
+  ({ date = eventDate, time = "17:00", note = eventNote, group = groupId } = {}) =>
+  () =>
+    request("/api/groups/events", { method: "POST", form: { group_id: group(), date, time, note } });
+
 const addChildForm = (name) => () =>
   request("/api/groups/children", { method: "POST", form: { group_id: groupId(), name } });
 
@@ -278,11 +303,71 @@ const writeSteps = [
     () => request("/api/groups/children", { method: "POST", form: { group_id: "not-a-uuid", name: childName } }),
     { status: 404 },
   ],
+  [
+    "member sees the Terminy card",
+    () => request(groupPath, { readBody: true }),
+    { status: 200, contains: 'id="terminy"' },
+  ],
+  [
+    "member sees no event create form",
+    () => request(groupPath, { readBody: true }),
+    { status: 200, notContains: "Dodaj termin" },
+  ],
+  ["member cannot add an event", addEventForm(), { status: 404 }],
   ["stranger signs out", () => request("/api/auth/signout", { method: "POST" }), { status: 302, location: "/" }],
   [
     "designated admin signs in again",
     () => request("/api/auth/signin", { method: "POST", form: { email, password } }),
     { status: 302, location: "/dashboard" },
+  ],
+  ["group admin adds an event", addEventForm(), { status: 302, location: () => `${groupPath}?message=event_added` }],
+  [
+    "adding the same date and time again reports a duplicate",
+    addEventForm({ note: "" }),
+    { status: 302, location: () => `${groupPath}?error=duplicate_event` },
+  ],
+  [
+    "adding an event in the past is rejected",
+    addEventForm({ date: "2020-01-07" }),
+    { status: 302, location: () => `${groupPath}?error=invalid_event_start` },
+  ],
+  [
+    "group page shows the event",
+    async () => {
+      const result = await request(groupPath, { readBody: true });
+      eventId = eventIdAfterNote(result.body, eventNote);
+      return result;
+    },
+    { status: 200, contains: eventNote },
+  ],
+  [
+    "group admin edits the event",
+    () =>
+      request("/api/groups/events/update", {
+        method: "POST",
+        form: { group_id: groupId(), event_id: eventId, date: eventDate, time: "17:30", note: eventNoteEdited },
+      }),
+    { status: 302, location: () => `${groupPath}?message=event_updated` },
+  ],
+  [
+    "group page shows the edited event",
+    () => request(groupPath, { readBody: true }),
+    { status: 200, contains: eventNoteEdited },
+  ],
+  [
+    "group admin deletes the event",
+    () => request("/api/groups/events/delete", { method: "POST", form: { group_id: groupId(), event_id: eventId } }),
+    { status: 302, location: () => `${groupPath}?message=event_deleted` },
+  ],
+  [
+    "group page no longer shows the event",
+    () => request(groupPath, { readBody: true }),
+    { status: 200, notContains: eventNote },
+  ],
+  [
+    "adding an event with a malformed group id renders 404",
+    addEventForm({ group: () => "not-a-uuid" }),
+    { status: 404 },
   ],
   [
     "another member sees the child",

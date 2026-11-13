@@ -41,3 +41,18 @@ export interface Child {
   name: string;
   created_at: string;
 }
+
+/**
+ * Event (termin) row from `public.events`; readable by group members, inserted, edited and deleted
+ * only by the group's admins, and only while `starts_at` is in the future (RLS). Named `GroupEvent`
+ * so it does not shadow the DOM `Event`.
+ */
+export interface GroupEvent {
+  id: string;
+  group_id: string;
+  /** Start moment as an ISO timestamp (timestamptz); entered and shown in Europe/Warsaw. */
+  starts_at: string;
+  note: string | null;
+  created_by: string | null;
+  created_at: string;
+}
