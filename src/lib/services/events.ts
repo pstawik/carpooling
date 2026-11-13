@@ -1,4 +1,5 @@
 import type { PostgrestError, SupabaseClient } from "@supabase/supabase-js";
+import { z } from "zod";
 import { warsawLocalToUtc } from "@/lib/time";
 import { START_MARGIN_MS } from "@/lib/validation/events";
 import type { GroupEvent } from "@/types";
@@ -17,6 +18,8 @@ export type EventWriteResult = { ok: true } | { ok: false; failure: EventWriteFa
 
 // No generated DB types: query results are read through this shape via `unknown`.
 type EventRow = Pick<GroupEvent, "id" | "starts_at" | "note">;
+
+const idSchema = z.uuid();
 
 /**
  * RLS turns a refused INSERT, or an UPDATE whose new start is not in the future, into 42501. An
@@ -46,6 +49,39 @@ export async function listGroupEvents(supabase: SupabaseClient, groupId: string)
   }
   const rows = (data as unknown as EventRow[] | null) ?? [];
   return rows.map((row) => ({ id: row.id, startsAt: row.starts_at, note: row.note }));
+}
+
+/**
+ * One event of the group, or `null` when either id is malformed, the event belongs to another
+ * group, or it is not visible (RLS limits rows to members). Throws on a query error.
+ */
+export async function getGroupEvent(
+  supabase: SupabaseClient,
+  groupId: string,
+  eventId: string,
+): Promise<GroupEventItem | null> {
+  if (!idSchema.safeParse(groupId).success || !idSchema.safeParse(eventId).success) {
+    return null;
+  }
+  const { data, error } = await supabase
+    .from("events")
+    .select("id, starts_at, note")
+    .eq("id", eventId)
+    .eq("group_id", groupId)
+    .maybeSingle();
+  if (error) {
+    throw new Error(`getGroupEvent failed: ${error.message}`);
+  }
+  const row: EventRow | null = data;
+  return row ? { id: row.id, startsAt: row.starts_at, note: row.note } : null;
+}
+
+/**
+ * Whether the event has started at `now`, which locks its declarations. The complement of
+ * `splitEvents`' "upcoming": pass the same one `now` per request.
+ */
+export function hasStarted(event: GroupEventItem, now: Date): boolean {
+  return Date.parse(event.startsAt) <= now.getTime();
 }
 
 /**

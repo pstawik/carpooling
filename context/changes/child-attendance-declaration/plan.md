@@ -323,24 +323,24 @@ Nowa tabela, brak danych do migracji. Dodanie unikalnych `(id, group_id)` na ist
 
 #### Automated
 
-- [x] 1.1 Migracja aplikuje się na czystej bazie: `npx supabase db reset`
-- [x] 1.2 Wszystkie testy pgTAP przechodzą, w tym nowy plik: `npx supabase test db`
+- [x] 1.1 Migracja aplikuje się na czystej bazie: `npx supabase db reset` — a584995
+- [x] 1.2 Wszystkie testy pgTAP przechodzą, w tym nowy plik: `npx supabase test db` — a584995
 
 #### Manual
 
-- [x] 1.3 Przegląd migracji: polityki per operacja, granty kolumnowe i komentarz nagłówka zgodne ze wzorcem `create_events.sql`
+- [x] 1.3 Przegląd migracji: polityki per operacja, granty kolumnowe i komentarz nagłówka zgodne ze wzorcem `create_events.sql` — a584995
 
 ### Phase 2: Serwis i endpoint zapisu
 
 #### Automated
 
-- [ ] 2.1 Lint przechodzi: `npm run lint`
-- [ ] 2.2 Typy przechodzą: `npx astro check`
-- [ ] 2.3 Build przechodzi: `npm run build`
+- [x] 2.1 Lint przechodzi: `npm run lint`
+- [x] 2.2 Typy przechodzą: `npx astro check`
+- [x] 2.3 Build przechodzi: `npm run build`
 
 #### Manual
 
-- [ ] 2.4 Ręczny POST za własne dziecko zapisuje wiersz w `child_attendance`, a za cudze dziecko i z błędnym uuid zwraca 404
+- [x] 2.4 Ręczny POST za własne dziecko zapisuje wiersz w `child_attendance`, a za cudze dziecko i z błędnym uuid zwraca 404
 
 ### Phase 3: Strona planu terminu
 
