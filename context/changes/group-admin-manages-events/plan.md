@@ -299,28 +299,28 @@ New table only; no existing data. Rollback = drop the table (no other object dep
 
 #### Automated
 
-- [x] 2.1 Linting passes: `npm run lint`
-- [x] 2.2 Type checking passes: `npx astro check`
-- [x] 2.3 Build passes: `npm run build`
+- [x] 2.1 Linting passes: `npm run lint` — 70e3db7
+- [x] 2.2 Type checking passes: `npx astro check` — 70e3db7
+- [x] 2.3 Build passes: `npm run build` — 70e3db7
 
 #### Manual
 
-- [x] 2.4 Admin POST with a future Warsaw date/time stores the correct UTC `starts_at` (winter and summer date)
-- [x] 2.5 A spring-forward gap time redirects with `error=invalid_event_start`
+- [x] 2.4 Admin POST with a future Warsaw date/time stores the correct UTC `starts_at` (winter and summer date) — 70e3db7
+- [x] 2.5 A spring-forward gap time redirects with `error=invalid_event_start` — 70e3db7
 
 ### Phase 3: Terminy card on the group page and smoke test
 
 #### Automated
 
-- [ ] 3.1 Linting passes: `npm run lint`
-- [ ] 3.2 Type checking passes: `npx astro check`
-- [ ] 3.3 Build passes: `npm run build`
-- [ ] 3.4 Smoke test passes against a local server: `npm run smoke`
-- [ ] 3.5 Database tests still pass: `npx supabase test db`
+- [x] 3.1 Linting passes: `npm run lint`
+- [x] 3.2 Type checking passes: `npx astro check`
+- [x] 3.3 Build passes: `npm run build`
+- [x] 3.4 Smoke test passes against a local server: `npm run smoke`
+- [x] 3.5 Database tests still pass: `npx supabase test db`
 
 #### Manual
 
-- [ ] 3.6 At 360 px: no horizontal scroll, controls usable without zooming, touch targets at least 44 px
-- [ ] 3.7 As admin: create, edit, delete upcoming; past events read-only; errors appear inside the Terminy card
-- [ ] 3.8 As a plain member: list visible, no admin controls
-- [ ] 3.9 Displayed times match the Warsaw time entered (date after DST change)
+- [x] 3.6 At 360 px: no horizontal scroll, controls usable without zooming, touch targets at least 44 px
+- [x] 3.7 As admin: create, edit, delete upcoming; past events read-only; errors appear inside the Terminy card
+- [x] 3.8 As a plain member: list visible, no admin controls
+- [x] 3.9 Displayed times match the Warsaw time entered (date after DST change)

@@ -3,12 +3,15 @@ import Layout from "@/layouts/Layout.astro";
 import Topbar from "@/components/Topbar.astro";
 import InvitePanel from "@/components/groups/InvitePanel";
 import ChildItem from "@/components/groups/ChildItem";
+import EventItem from "@/components/groups/EventItem";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase";
 import { getGroupWithAdmins } from "@/lib/services/groups";
 import { getGroupInviteToken } from "@/lib/services/invites";
 import { listGroupChildren, type GroupChild } from "@/lib/services/children";
+import { listGroupEvents, splitEvents, type GroupEventItem } from "@/lib/services/events";
 import { feedbackSection, groupErrorMessage, groupNoticeMessage } from "@/lib/services/group-errors";
+import { formatEventStart, utcToWarsawParts } from "@/lib/time";
 
 // Middleware guarantees a signed-in user on /groups/*. Non-members (including a non-member app
 // admin), unknown and malformed ids all get the same 404, so group existence is not leaked.
@@ -23,16 +26,32 @@ if (!group) {
   return Astro.rewrite("/404");
 }
 
-// Feedback from the children actions lands on #dzieci, so it is shown inside that card (visible
-// after the jump on a 360 px screen) and skipped in the banner at the top of the page.
+// Feedback from the children and events actions lands on #dzieci / #terminy, so it is shown inside
+// that card (visible after the jump on a 360 px screen) and skipped in the banner at the top of the page.
 const messageCode = Astro.url.searchParams.get("message");
 const errorCode = Astro.url.searchParams.get("error");
-const childFeedbackMessage = feedbackSection(messageCode) === "dzieci";
-const childFeedbackError = feedbackSection(errorCode) === "dzieci";
-const message = childFeedbackMessage ? null : groupNoticeMessage(messageCode);
-const error = childFeedbackError ? null : groupErrorMessage(errorCode, null);
-const childMessage = childFeedbackMessage ? groupNoticeMessage(messageCode) : null;
-const childError = childFeedbackError ? groupErrorMessage(errorCode, null) : null;
+const messageSection = feedbackSection(messageCode);
+const errorSection = feedbackSection(errorCode);
+const message = messageSection ? null : groupNoticeMessage(messageCode);
+const error = errorSection ? null : groupErrorMessage(errorCode, null);
+const childMessage = messageSection === "dzieci" ? groupNoticeMessage(messageCode) : null;
+const childError = errorSection === "dzieci" ? groupErrorMessage(errorCode, null) : null;
+const eventMessage = messageSection === "terminy" ? groupNoticeMessage(messageCode) : null;
+const eventError = errorSection === "terminy" ? groupErrorMessage(errorCode, null) : null;
+
+// A failed events query must not take the whole group page down either. "Upcoming" is judged
+// against one `now` per request, the same moment that marks an event finished.
+let events: GroupEventItem[] | null;
+try {
+  events = await listGroupEvents(supabase, group.id);
+} catch (loadError) {
+  // eslint-disable-next-line no-console -- surfaces in Cloudflare Worker logs
+  console.error(loadError);
+  events = null;
+}
+const now = new Date();
+const { upcoming, past } = splitEvents(events ?? [], now);
+const todayInWarsaw = utcToWarsawParts(now.toISOString()).date;
 
 // A failed children query must not take the whole group page down.
 let children: GroupChild[] | null;
@@ -94,6 +113,128 @@ const submitClass =
               </li>
             ))}
           </ul>
+        )}
+      </section>
+
+      <section id="terminy" class:list={[cardClass, "mb-6 scroll-mt-4"]}>
+        <h2 class="mb-3 text-lg font-semibold">Terminy</h2>
+        {events === null ? (
+          <p class="mb-4 text-sm text-red-300" role="alert">
+            Nie udało się wczytać terminów.
+          </p>
+        ) : (
+          <>
+            {upcoming.length === 0 ? (
+              <p class="mb-4 text-sm text-blue-100/70">Brak nadchodzących terminów.</p>
+            ) : (
+              <ul class="mb-4 space-y-2">
+                {upcoming.map((event) => {
+                  const label = formatEventStart(event.startsAt);
+                  const { date, time } = utcToWarsawParts(event.startsAt);
+                  return (
+                    <li>
+                      {isAdmin ? (
+                        <EventItem
+                          groupId={group.id}
+                          eventId={event.id}
+                          label={label}
+                          note={event.note}
+                          date={date}
+                          time={time}
+                          client:load
+                        />
+                      ) : (
+                        <>
+                          <p class="font-medium break-words">{label}</p>
+                          {event.note && <p class="text-sm break-words text-blue-100/70">{event.note}</p>}
+                        </>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+
+            {past.length > 0 && (
+              <details class="mb-4">
+                <summary class="flex min-h-11 cursor-pointer items-center text-sm font-semibold text-blue-100/80">
+                  Minione terminy ({past.length})
+                </summary>
+                <ul class="mt-2 space-y-2">
+                  {past.map((event) => (
+                    <li class="text-blue-100/70">
+                      <p class="break-words">{formatEventStart(event.startsAt)}</p>
+                      {event.note && <p class="text-sm break-words">{event.note}</p>}
+                    </li>
+                  ))}
+                </ul>
+              </details>
+            )}
+          </>
+        )}
+
+        {eventMessage && (
+          <p
+            class="mb-3 rounded-lg border border-blue-300/30 bg-blue-900/30 px-3 py-2 text-sm text-blue-100"
+            role="status"
+          >
+            {eventMessage}
+          </p>
+        )}
+        {eventError && (
+          <p
+            class="mb-3 rounded-lg border border-red-500/30 bg-red-900/30 px-3 py-2 text-sm break-words text-red-300"
+            role="alert"
+          >
+            {eventError}
+          </p>
+        )}
+
+        {isAdmin && (
+          <form method="POST" action="/api/groups/events" class="space-y-2">
+            <input type="hidden" name="group_id" value={group.id} />
+            <div class="grid grid-cols-2 gap-2">
+              <div class="min-w-0">
+                <label for="event-date" class="block text-sm text-blue-100/80">
+                  Data
+                </label>
+                <input
+                  id="event-date"
+                  name="date"
+                  type="date"
+                  required
+                  min={todayInWarsaw}
+                  class="min-h-11 w-full min-w-0 rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-white focus:ring-2 focus:ring-purple-400 focus:outline-none"
+                />
+              </div>
+              <div class="min-w-0">
+                <label for="event-time" class="block text-sm text-blue-100/80">
+                  Godzina
+                </label>
+                <input
+                  id="event-time"
+                  name="time"
+                  type="time"
+                  required
+                  class="min-h-11 w-full min-w-0 rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-white focus:ring-2 focus:ring-purple-400 focus:outline-none"
+                />
+              </div>
+            </div>
+            <label for="event-note" class="block text-sm text-blue-100/80">
+              Notatka (opcjonalnie)
+            </label>
+            <input
+              id="event-note"
+              name="note"
+              type="text"
+              maxlength="200"
+              autocomplete="off"
+              class="min-h-11 w-full rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-white focus:ring-2 focus:ring-purple-400 focus:outline-none"
+            />
+            <Button type="submit" className={submitClass}>
+              Dodaj termin
+            </Button>
+          </form>
         )}
       </section>
 
