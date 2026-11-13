@@ -312,15 +312,15 @@ New table only; no existing data. Rollback = drop the table (no other object dep
 
 #### Automated
 
-- [x] 3.1 Linting passes: `npm run lint`
-- [x] 3.2 Type checking passes: `npx astro check`
-- [x] 3.3 Build passes: `npm run build`
-- [x] 3.4 Smoke test passes against a local server: `npm run smoke`
-- [x] 3.5 Database tests still pass: `npx supabase test db`
+- [x] 3.1 Linting passes: `npm run lint` — dbae849
+- [x] 3.2 Type checking passes: `npx astro check` — dbae849
+- [x] 3.3 Build passes: `npm run build` — dbae849
+- [x] 3.4 Smoke test passes against a local server: `npm run smoke` — dbae849
+- [x] 3.5 Database tests still pass: `npx supabase test db` — dbae849
 
 #### Manual
 
-- [x] 3.6 At 360 px: no horizontal scroll, controls usable without zooming, touch targets at least 44 px
-- [x] 3.7 As admin: create, edit, delete upcoming; past events read-only; errors appear inside the Terminy card
-- [x] 3.8 As a plain member: list visible, no admin controls
-- [x] 3.9 Displayed times match the Warsaw time entered (date after DST change)
+- [x] 3.6 At 360 px: no horizontal scroll, controls usable without zooming, touch targets at least 44 px — dbae849
+- [x] 3.7 As admin: create, edit, delete upcoming; past events read-only; errors appear inside the Terminy card — dbae849
+- [x] 3.8 As a plain member: list visible, no admin controls — dbae849
+- [x] 3.9 Displayed times match the Warsaw time entered (date after DST change) — dbae849

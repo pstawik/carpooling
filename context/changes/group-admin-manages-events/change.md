@@ -1,7 +1,7 @@
 ---
 change_id: group-admin-manages-events
 title: Group admin manages events
-status: implementing
+status: implemented
 created: 2026-11-12
 updated: 2026-11-13
 archived_at: null
