@@ -115,6 +115,42 @@ function eventIdAfterNote(body, note) {
   return match ? match[1] : "missing";
 }
 
+// A separate event for the child plan steps, kept (unlike the one above, which is deleted).
+const planEventNote = `Plan-${childSuffix}`;
+// Filled from the group page once the group admin has added the plan event.
+let planEventId = "missing";
+const planPath = () => `${groupPath}/terminy/${planEventId}`;
+// A fresh account in no group, only to prove the plan page 404s for outsiders.
+const outsiderEmail = `smoke-outsider-${Date.now()}@example.com`;
+
+/** The plan list (`plan-jada` / `plan-nie-jada`) as HTML, from its id up to the end of its wrapper. */
+function planList(body, listId) {
+  const at = body.indexOf(`id="${listId}"`);
+  return at === -1 ? "" : body.slice(at, body.indexOf("</div>", at));
+}
+
+/** The `<li>` of the child named `name` in a plan list, or "" when the child is not on it. */
+function planEntry(list, name) {
+  const at = list.indexOf(`>${name}<`);
+  if (at === -1) return "";
+  return list.slice(list.lastIndexOf("<li", at), list.indexOf("</li>", at));
+}
+
+const declareForm =
+  ({ going, event = () => planEventId, child = () => childId } = {}) =>
+  () =>
+    request("/api/groups/events/attendance", {
+      method: "POST",
+      form: { group_id: groupId(), event_id: event(), child_id: child(), going },
+    });
+
+/** Reads the plan page and narrows the body to one plan list (or one child's entry on it). */
+const planPageList = (listId, name) => async () => {
+  const result = await request(planPath(), { readBody: true });
+  const list = planList(result.body, listId);
+  return { ...result, body: name ? planEntry(list, name) : list };
+};
+
 const addEventForm =
   ({ date = eventDate, time = "17:00", note = eventNote, group = groupId } = {}) =>
   () =>
@@ -461,7 +497,61 @@ const writeSteps = [
     { status: 302, location: () => `/join/${oldInviteToken}` },
   ],
   ["old invite link renders 404", () => request(`/join/${oldInviteToken}`), { status: 404 }],
+  [
+    "group admin adds an event for the child plan",
+    addEventForm({ date: warsawDateInDays(45), note: planEventNote }),
+    { status: 302, location: () => `${groupPath}?message=event_added` },
+  ],
+  [
+    "group page links the event to its plan",
+    async () => {
+      const result = await request(groupPath, { readBody: true });
+      planEventId = eventIdAfterNote(result.body, planEventNote);
+      return result;
+    },
+    { status: 200, contains: () => `href="${planPath()}"` },
+  ],
+  ["another member cannot declare the child", declareForm({ going: "true" }), { status: 404 }],
   ["admin signs out", () => request("/api/auth/signout", { method: "POST" }), { status: 302, location: "/" }],
+  [
+    "parent signs in again",
+    () => request("/api/auth/signin", { method: "POST", form: { email: strangerEmail, password } }),
+    { status: 302, location: "/dashboard" },
+  ],
+  [
+    "plan shows the child without a declaration",
+    planPageList("plan-nie-jada", childRenamed),
+    { status: 200, contains: "bez deklaracji" },
+  ],
+  [
+    "parent declares the child going",
+    declareForm({ going: "true" }),
+    { status: 302, location: () => `${planPath()}#twoje-dzieci` },
+  ],
+  ["plan lists the child as going", planPageList("plan-jada"), { status: 200, contains: ["Jadą (1)", childRenamed] }],
+  [
+    "parent switches the child to not going",
+    declareForm({ going: "false" }),
+    { status: 302, location: () => `${planPath()}#twoje-dzieci` },
+  ],
+  [
+    "plan lists the child as not going, with a declaration",
+    planPageList("plan-nie-jada", childRenamed),
+    { status: 200, contains: childRenamed, notContains: "bez deklaracji" },
+  ],
+  [
+    "declaring for an unknown event renders 404",
+    declareForm({ going: "true", event: () => randomUUID() }),
+    { status: 404 },
+  ],
+  ["parent signs out", () => request("/api/auth/signout", { method: "POST" }), { status: 302, location: "/" }],
+  [
+    "outsider signs up",
+    () => request("/api/auth/signup", { method: "POST", form: { ...profile, email: outsiderEmail, password } }),
+    { status: 302, location: "/dashboard" },
+  ],
+  ["outsider gets 404 on the plan page", () => request(planPath()), { status: 404 }],
+  ["outsider signs out", () => request("/api/auth/signout", { method: "POST" }), { status: 302, location: "/" }],
 ];
 
 const steps = READONLY ? readonlySteps : [...readonlySteps, ...writeSteps];
@@ -470,19 +560,22 @@ console.log(`Smoke against ${BASE_URL}${READONLY ? " (read-only)" : ""}`);
 let failed = 0;
 for (const [name, run, raw] of steps) {
   const actual = await run();
-  // A location may depend on values captured by earlier steps (group id, invite token): resolve it late.
-  const expected = { ...raw, location: typeof raw.location === "function" ? raw.location() : raw.location };
+  // A location or text may depend on values captured by earlier steps (group id, invite token): resolve it late.
+  const late = (value) => (typeof value === "function" ? value() : value);
+  const expected = { ...raw, location: late(raw.location), contains: late(raw.contains) };
+  // `contains` may list several texts; every one must be present.
+  const mustContain = expected.contains === undefined ? [] : [expected.contains].flat();
   const ok =
     actual.status === expected.status &&
     (expected.location === undefined || actual.location.startsWith(expected.location)) &&
-    (expected.contains === undefined || actual.body.includes(expected.contains)) &&
+    mustContain.every((text) => actual.body.includes(text)) &&
     (expected.notContains === undefined || !actual.body.includes(expected.notContains));
   console.log(`${ok ? "PASS" : "FAIL"}  ${name}  -> ${actual.status} ${actual.location}`);
   if (!ok) {
     failed++;
     const containsNote =
       expected.contains !== undefined
-        ? ` (body containing "${expected.contains}")`
+        ? ` (body containing "${mustContain.join('", "')}")`
         : expected.notContains !== undefined
           ? ` (body without "${expected.notContains}")`
           : "";
