@@ -289,25 +289,25 @@ None. No schema change.
 
 #### Automated
 
-- [x] 1.1 pgTAP suite passes including the new ON CONFLICT cases: `npx supabase test db`
-- [x] 1.2 Lint passes: `npm run lint`
-- [x] 1.3 Type check passes: `npx astro check`
+- [x] 1.1 pgTAP suite passes including the new ON CONFLICT cases: `npx supabase test db` — 6d9fd24
+- [x] 1.2 Lint passes: `npm run lint` — 6d9fd24
+- [x] 1.3 Type check passes: `npx astro check` — 6d9fd24
 
 #### Manual
 
-- [x] 1.4 Reviewer confirms by reading `weeklyDates` that the Mon–Sun mapping is ISO (1 = Monday) and that both range ends are included
+- [x] 1.4 Reviewer confirms by reading `weeklyDates` that the Mon–Sun mapping is ISO (1 = Monday) and that both range ends are included — 6d9fd24
 
 ### Phase 2: Endpoint and messages
 
 #### Automated
 
-- [ ] 2.1 Lint passes: `npm run lint`
-- [ ] 2.2 Type check passes: `npx astro check`
-- [ ] 2.3 Build passes: `npm run build`
+- [x] 2.1 Lint passes: `npm run lint`
+- [x] 2.2 Type check passes: `npx astro check`
+- [x] 2.3 Build passes: `npm run build`
 
 #### Manual
 
-- [ ] 2.4 With curl or the browser devtools, a POST from a non-admin member to `/api/groups/events/generate` returns 404 and creates no events
+- [x] 2.4 With curl or the browser devtools, a POST from a non-admin member to `/api/groups/events/generate` returns 404 and creates no events
 
 ### Phase 3: Generator form and smoke
 
