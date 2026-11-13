@@ -13,7 +13,8 @@ export const eventNoteSchema = z
   .transform((note) => (note === undefined || note === "" ? null : note));
 
 // Warsaw wall-clock fields as sent by <input type="date"> / <input type="time">.
-const dateField = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
+// Four-digit years from 1000 (same bound as warsawLocalToUtc).
+const dateField = z.string().regex(/^[1-9]\d{3}-\d{2}-\d{2}$/);
 const timeField = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/);
 
 /**
@@ -21,17 +22,47 @@ const timeField = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/);
  * start that is not in the future fails under `starts_at`. This is a friendly pre-check only: the
  * events RLS policies compare against the database's now() and are the guarantee.
  */
-function toStartsAt(date: string, time: string, ctx: z.RefinementCtx): string {
+// RLS checks starts_at > now() on the database clock a moment after this runs. Demanding a minute
+// of margin here keeps a start right at the boundary from passing zod and then failing RLS with
+// 42501, which the endpoints answer with a 404 instead of a friendly error.
+const START_MARGIN_MS = 60 * 1000;
+
+function futureStart(date: string, time: string): Date | null {
   const startsAt = warsawLocalToUtc(date, time);
-  if (!startsAt || startsAt.getTime() <= Date.now()) {
-    ctx.addIssue({ code: "custom", path: ["starts_at"], message: "Start must be a future Warsaw date and time" });
+  return startsAt && startsAt.getTime() > Date.now() + START_MARGIN_MS ? startsAt : null;
+}
+
+function addStartIssue(ctx: z.RefinementCtx) {
+  ctx.addIssue({ code: "custom", path: ["starts_at"], message: "Start must be a future Warsaw date and time" });
+}
+
+function toStartsAt(date: string, time: string, ctx: z.RefinementCtx): string {
+  const startsAt = futureStart(date, time);
+  if (!startsAt) {
+    addStartIssue(ctx);
     return z.NEVER;
   }
   return startsAt.toISOString();
 }
 
+/**
+ * The start check also runs when another field (e.g. an over-long note) has failed, so that
+ * `eventFieldError` sees the start issue and reports it first. It only needs well-formed date and time.
+ */
+const startCheckOptions = {
+  when: (payload: z.core.ParsePayload) => {
+    const value = payload.value as { date?: unknown; time?: unknown } | null;
+    return dateField.safeParse(value?.date).success && timeField.safeParse(value?.time).success;
+  },
+};
+
+function checkStart({ date, time }: { date: string; time: string }, ctx: z.RefinementCtx) {
+  if (!futureStart(date, time)) addStartIssue(ctx);
+}
+
 export const addEventSchema = z
   .object({ group_id: z.uuid(), date: dateField, time: timeField, note: eventNoteSchema })
+  .superRefine(checkStart, startCheckOptions)
   .transform(({ group_id, date, time, note }, ctx) => ({
     groupId: group_id,
     startsAt: toStartsAt(date, time, ctx),
@@ -40,6 +71,7 @@ export const addEventSchema = z
 
 export const updateEventSchema = z
   .object({ group_id: z.uuid(), event_id: z.uuid(), date: dateField, time: timeField, note: eventNoteSchema })
+  .superRefine(checkStart, startCheckOptions)
   .transform(({ group_id, event_id, date, time, note }, ctx) => ({
     groupId: group_id,
     eventId: event_id,

@@ -50,13 +50,18 @@ function warsawOffsetMs(instantMs: number): number {
  * ambiguous autumn time (it occurs twice) resolves to the earlier instant (CEST).
  */
 export function warsawLocalToUtc(date: string, time: string): Date | null {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !/^([01]\d|2[0-3]):[0-5]\d$/.test(time)) return null;
+  // Years 1000-9999 only: Intl prints earlier years with fewer digits, which Date.parse rejects.
+  if (!/^[1-9]\d{3}-\d{2}-\d{2}$/.test(date) || !/^([01]\d|2[0-3]):[0-5]\d$/.test(time)) return null;
   const wallAsUtc = Date.parse(`${date}T${time}:00Z`);
   // Date.parse rolls 2026-02-30 over to March; a round trip catches it.
   if (Number.isNaN(wallAsUtc) || new Date(wallAsUtc).toISOString().slice(0, 10) !== date) return null;
 
   // The offsets in force a day either side cover both sides of any DST change.
-  const offsets = new Set([warsawOffsetMs(wallAsUtc - DAY_MS), warsawOffsetMs(wallAsUtc + DAY_MS)]);
+  // Near the edges of the supported range (e.g. 9999-12-31) Intl yields a year that Date.parse
+  // rejects, so an offset can be NaN; drop it rather than let new Date(NaN) throw below.
+  const offsets = new Set(
+    [warsawOffsetMs(wallAsUtc - DAY_MS), warsawOffsetMs(wallAsUtc + DAY_MS)].filter(Number.isFinite),
+  );
   const matches = [...offsets]
     .map((offset) => wallAsUtc - offset)
     .filter((candidate) => {
