@@ -346,14 +346,14 @@ Nowa tabela, brak danych do migracji. Dodanie unikalnych `(id, group_id)` na ist
 
 #### Automated
 
-- [x] 3.1 Lint przechodzi: `npm run lint`
-- [x] 3.2 Typy przechodzą: `npx astro check`
-- [x] 3.3 Build przechodzi: `npm run build`
-- [x] 3.4 Smoke przechodzi na uruchomionym serwerze: `npm run smoke`
+- [x] 3.1 Lint przechodzi: `npm run lint` — 3c0dfce
+- [x] 3.2 Typy przechodzą: `npx astro check` — 3c0dfce
+- [x] 3.3 Build przechodzi: `npm run build` — 3c0dfce
+- [x] 3.4 Smoke przechodzi na uruchomionym serwerze: `npm run smoke` — 3c0dfce
 
 #### Manual
 
-- [x] 3.5 Przy 360 px strona planu nie przewija się w poziomie, a przyciski „Jedzie” / „Nie jedzie” da się wygodnie stuknąć bez powiększania
-- [x] 3.6 Rodzic z dwójką dzieci ustawia każdemu inny status, a drugi członek po odświeżeniu widzi oba w odpowiednich listach
-- [x] 3.7 Plan terminu, który się rozpoczął, pokazuje statusy bez przycisków i informację o blokadzie
-- [x] 3.8 Linki z listy nadchodzących i minionych terminów (admin i zwykły członek) otwierają właściwy plan
+- [x] 3.5 Przy 360 px strona planu nie przewija się w poziomie, a przyciski „Jedzie” / „Nie jedzie” da się wygodnie stuknąć bez powiększania — 3c0dfce
+- [x] 3.6 Rodzic z dwójką dzieci ustawia każdemu inny status, a drugi członek po odświeżeniu widzi oba w odpowiednich listach — 3c0dfce
+- [x] 3.7 Plan terminu, który się rozpoczął, pokazuje statusy bez przycisków i informację o blokadzie — 3c0dfce
+- [x] 3.8 Linki z listy nadchodzących i minionych terminów (admin i zwykły członek) otwierają właściwy plan — 3c0dfce
