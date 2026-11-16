@@ -1,0 +1,12 @@
+---
+change_id: driver-declaration-seat-balance
+title: Driver declaration seat balance
+status: impl_reviewed
+created: 2026-11-13
+updated: 2026-11-16
+archived_at: null
+---
+
+## Notes
+
+<!-- Free-form notes for this change: links, ad-hoc context, decisions that don't belong in research/frame/plan. -->

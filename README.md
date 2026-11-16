@@ -168,8 +168,14 @@ select id from auth.users where lower(email) = lower('<e-mail>');
 delete from public.app_admins
 where user_id = (select id from auth.users where lower(email) = lower('<e-mail>'));
 
--- demote a group admin to member / remove a member
+-- demote a group admin to member
 update public.group_members set role = 'member' where group_id = '<group id>' and user_id = '<user id>';
+
+-- remove a member: first withdraw their driver declarations on upcoming events (otherwise their
+-- seats keep counting in the seat balance and nobody in the app can delete them), then the membership
+delete from public.event_drivers
+where group_id = '<group id>' and user_id = '<user id>'
+  and event_id in (select id from public.events where group_id = '<group id>' and starts_at > now());
 delete from public.group_members where group_id = '<group id>' and user_id = '<user id>';
 ```
 

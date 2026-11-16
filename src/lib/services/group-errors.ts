@@ -1,5 +1,6 @@
 import type { PostgrestError } from "@supabase/supabase-js";
 import type { z } from "zod";
+import { pluralPl } from "@/lib/plural";
 import { emailSchema } from "@/lib/validation/groups";
 
 // Redirects carry only these codes, never free text (same rule as auth-errors.ts).
@@ -21,6 +22,8 @@ const ERROR_MESSAGES = {
   event_not_found: "Nie znaleziono terminu albo termin już się rozpoczął",
   invalid_event_series: "Wybierz dzień tygodnia, godzinę i zakres dat (najwyżej rok), w którym ten dzień wypada",
   attendance_locked: "Termin już się rozpoczął — deklaracji nie można zmienić",
+  driver_locked: "Termin już się rozpoczął — deklaracji kierowcy nie można zmienić",
+  invalid_driver_seats: "Podaj liczbę miejsc od 1 do 8",
   not_configured: "Supabase nie jest skonfigurowany",
   invalid_input: "Nieprawidłowe dane",
   unknown: "Coś poszło nie tak, spróbuj ponownie",
@@ -129,10 +132,7 @@ export function groupErrorMessage(code: string | null, emailParam: string | null
 
 /** "termin" / "terminy" / "terminów" for a count, by Polish plural rules. */
 function eventsNoun(count: number): string {
-  if (count === 1) return "termin";
-  const lastTwo = count % 100;
-  const last = count % 10;
-  return last >= 2 && last <= 4 && (lastTwo < 12 || lastTwo > 14) ? "terminy" : "terminów";
+  return pluralPl(count, "termin", "terminy", "terminów");
 }
 
 const COUNT_PARAM = /^\d{1,3}$/;
