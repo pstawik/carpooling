@@ -9,7 +9,7 @@ main_goal: speed
 top_blocker: time
 milestone_id: first-end-to-end-ride-plan
 milestone_seq: 1
-milestone_status: open
+milestone_status: done
 ---
 
 # Roadmap: CarPooling
@@ -20,7 +20,7 @@ milestone_status: open
 
 ## Milestone
 
-**M-1: Pierwszy kompletny plan przejazdu** — Status: open
+**M-1: Pierwszy kompletny plan przejazdu** — Status: done
 
 - **Intent:** Główny scenariusz z PRD działa od początku do końca: administrator aplikacji zakłada grupę, rodzice dołączają przez link, dodają dzieci, administrator grupy tworzy terminy, rodzice deklarują obecność dzieci i kierowanie autem, a wszyscy widzą plan terminu z bilansem miejsc i podstawowe statystyki.
 - **Source materials:** `context/foundation/prd.md` (v1)
@@ -229,6 +229,8 @@ PRD nie ma otwartych pytań (rozstrzygnięte 2026-11-06). Pytania przekrojowe ze
 - **Edycja profilu, samodzielne opuszczanie grupy, reset hasła, UI zarządzania adminami aplikacji** — Why parked: PRD §Non-Goals (cięcia z sesji kształtowania).
 
 ## Milestone History
+
+- **M-1: Pierwszy kompletny plan przejazdu** (`first-end-to-end-ride-plan`) — closed 2026-11-16. Główny scenariusz z PRD działa od początku do końca: konta, grupy z linkiem zaproszeniowym, dzieci, terminy (także cotygodniowe), deklaracje dzieci i kierowców z bilansem miejsc oraz statystyki zaangażowania (S-01–S-09).
 
 ## Done
 
