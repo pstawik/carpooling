@@ -334,25 +334,25 @@ Nie dotyczy (brak zmian danych). Wycofanie: revert commitów fazy; faza 2 jest g
 
 #### Automated
 
-- [x] 1.1 Pliki `src/components/ui/input.tsx`, `card.tsx`, `alert.tsx` istnieją
-- [x] 1.2 `git diff --stat package.json package-lock.json` jest pusty
-- [x] 1.3 `npm run lint` przechodzi
-- [x] 1.4 `npx astro check` przechodzi bez błędów
+- [x] 1.1 Pliki `src/components/ui/input.tsx`, `card.tsx`, `alert.tsx` istnieją — ded1c27
+- [x] 1.2 `git diff --stat package.json package-lock.json` jest pusty — ded1c27
+- [x] 1.3 `npm run lint` przechodzi — ded1c27
+- [x] 1.4 `npx astro check` przechodzi bez błędów — ded1c27
 
 ### Phase 2: Tokeny i ciemny motyw
 
 #### Automated
 
-- [ ] 2.1 `npm run lint` przechodzi
-- [ ] 2.2 `npx astro check` przechodzi bez błędów
-- [ ] 2.3 `npm run build` przechodzi
-- [ ] 2.4 `grep -c 'class="dark"' src/layouts/Layout.astro` zwraca 1
-- [ ] 2.5 `grep -c 'color-scheme: dark' src/styles/global.css` zwraca 1
+- [x] 2.1 `npm run lint` przechodzi
+- [x] 2.2 `npx astro check` przechodzi bez błędów
+- [x] 2.3 `npm run build` przechodzi
+- [x] 2.4 `grep -c 'class="dark"' src/layouts/Layout.astro` zwraca 1
+- [x] 2.5 `grep -c 'color-scheme: dark' src/styles/global.css` zwraca 1
 
 #### Manual
 
-- [ ] 2.6 Strona startowa, dashboard, logowanie i plan terminu wyglądają jak przed zmianą (przyciski z nadpisaniami bez zmian, brak białych prześwitów)
-- [ ] 2.7 Pola date/time w formularzu „Dodaj termin” mają ciemny schemat i widoczną ikonę kalendarza/zegara
+- [x] 2.6 Strona startowa, dashboard, logowanie i plan terminu wyglądają jak przed zmianą (przyciski z nadpisaniami bez zmian, brak białych prześwitów)
+- [x] 2.7 Pola date/time w formularzu „Dodaj termin” mają ciemny schemat i widoczną ikonę kalendarza/zegara
 
 ### Phase 3: Widok na tokenach i komponentach
 
