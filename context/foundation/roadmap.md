@@ -3,7 +3,7 @@ project: CarPooling
 version: 1
 status: draft
 created: 2026-11-09
-updated: 2026-11-13
+updated: 2026-11-16
 prd_version: 1
 main_goal: speed
 top_blocker: time
@@ -48,7 +48,7 @@ Rodzice dzieci z tych samych zajęć dodatkowych ustalają wspólne dojazdy na c
 | S-05 | group-admin-manages-events      | (admin grupy) tworzyć, edytować i usuwać terminy; członek widzi listę terminów      | S-02          | FR-011, FR-012              | done        |
 | S-06 | weekly-event-generator          | (admin grupy) wygenerować terminy cotygodniowe bez duplikatów                        | S-05          | FR-013                      | done |
 | S-07 | child-attendance-declaration    | zadeklarować „jedzie/nie jedzie” dziecka i zobaczyć plan dzieci terminu              | S-04, S-05    | FR-014, FR-016, US-01       | done |
-| S-08 | driver-declaration-seat-balance | zadeklarować się jako kierowca i zobaczyć bilans miejsc z ostrzeżeniem               | S-07          | FR-015, FR-016, US-01       | in-progress |
+| S-08 | driver-declaration-seat-balance | zadeklarować się jako kierowca i zobaczyć bilans miejsc z ostrzeżeniem               | S-07          | FR-015, FR-016, US-01       | done |
 | S-09 | group-engagement-stats          | zobaczyć statystyki zakończonych terminów grupy                                      | S-08          | FR-017                      | proposed |
 
 ## Streams
@@ -176,7 +176,7 @@ Brak osobnych fundamentów. Jedyna brakująca warstwa to dane (schemat + RLS), a
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Gwiazda przewodnia; sam bilans jest prosty (suma miejsc vs liczba „jedzie”), ryzyko leży w poprawnym połączeniu deklaracji wielu rodziców i widoczności telefonu tylko w obrębie grupy.
-- **Status:** in-progress
+- **Status:** done
 
 ### S-09: Statystyki zaangażowania grupy
 
@@ -239,3 +239,4 @@ PRD nie ma otwartych pytań (rozstrzygnięte 2026-11-06). Pytania przekrojowe ze
 - **S-05: user can (jako administrator grupy) tworzyć, edytować i usuwać pojedyncze terminy, a każdy członek widzi listę terminów zaczynającą się od najbliższego nadchodzącego.** — Archived 2026-11-13 → `context/archive/2026-11-12-group-admin-manages-events/`. Lesson: —.
 - **S-06: user can (jako administrator grupy) wygenerować terminy w wybrany dzień tygodnia, w zakresie dat i o wskazanej godzinie, bez duplikatów; każdy termin da się potem edytować i usunąć osobno.** — Archived 2026-11-13 → `context/archive/2026-11-13-weekly-event-generator/`. Lesson: —.
 - **S-07: user can ustawić dla terminu „jedzie” lub „nie jedzie” każdemu swojemu dziecku i zobaczyć w planie terminu dzieci jadące oraz niejadące, z etykietą „bez deklaracji” przy dzieciach bez deklaracji; po rozpoczęciu terminu status jest tylko do odczytu.** — Archived 2026-11-13 → `context/archive/2026-11-13-child-attendance-declaration/`. Lesson: —.
+- **S-08: user can zadeklarować się jako kierowca z liczbą miejsc, zmienić lub wycofać deklarację do rozpoczęcia terminu i zobaczyć pełny plan terminu: kierowców z miejscami i telefonem (jeśli podany), łączną liczbę jadących dzieci i ostrzeżenie, gdy miejsc jest za mało.** — Archived 2026-11-16 → `context/archive/2026-11-13-driver-declaration-seat-balance/`. Lesson: —.
