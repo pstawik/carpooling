@@ -1,10 +1,12 @@
 -- RLS and privilege tests for public.children.
 -- Fixtures: A (member of G1), B (member of G1), C (member of G2), D (in no group).
+-- The delete-lock block adds a started and a future event in G1 with
+-- declarations, inserted as postgres.
 begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(39);
+select plan(43);
 
 -- ---------------------------------------------------------------------------
 -- Schema and privileges
@@ -276,6 +278,58 @@ select is_empty(
 reset role;
 
 -- ---------------------------------------------------------------------------
+-- Delete lock: a child with a declaration on a started event stays
+-- ---------------------------------------------------------------------------
+
+-- As postgres: a started and a future event in G1, and two more children of A:
+-- Hela has a "not going" declaration on the started event, Igor only a
+-- "going" declaration on the future one.
+insert into public.events (id, group_id, starts_at, created_by) values
+  ('e0000000-0000-0000-0000-000000000001', '10000000-0000-0000-0000-000000000001',
+   now() - interval '1 day', '00000000-0000-0000-0000-0000000000a1'),
+  ('e0000000-0000-0000-0000-000000000002', '10000000-0000-0000-0000-000000000001',
+   now() + interval '7 days', '00000000-0000-0000-0000-0000000000a1');
+
+insert into public.children (id, group_id, parent_id, name) values
+  ('c0000000-0000-0000-0000-0000000000a3', '10000000-0000-0000-0000-000000000001',
+   '00000000-0000-0000-0000-0000000000a1', 'Hela'),
+  ('c0000000-0000-0000-0000-0000000000a4', '10000000-0000-0000-0000-000000000001',
+   '00000000-0000-0000-0000-0000000000a1', 'Igor');
+
+insert into public.child_attendance (event_id, child_id, group_id, going) values
+  ('e0000000-0000-0000-0000-000000000001', 'c0000000-0000-0000-0000-0000000000a3',
+   '10000000-0000-0000-0000-000000000001', false),
+  ('e0000000-0000-0000-0000-000000000002', 'c0000000-0000-0000-0000-0000000000a4',
+   '10000000-0000-0000-0000-000000000001', true);
+
+set local role authenticated;
+set local "request.jwt.claims" to '{"sub": "00000000-0000-0000-0000-0000000000a1", "role": "authenticated"}';
+
+select is_empty(
+  $$delete from public.children
+    where id = 'c0000000-0000-0000-0000-0000000000a3' returning id$$,
+  'A cannot delete their own child with a "not going" declaration on a started event'
+);
+
+select results_eq(
+  $$select c.name, ca.going
+    from public.children c
+    join public.child_attendance ca on ca.child_id = c.id
+    where c.id = 'c0000000-0000-0000-0000-0000000000a3'$$,
+  $$values ('Hela'::text, false)$$,
+  'the child with history and its declaration stay'
+);
+
+select results_eq(
+  $$delete from public.children
+    where id = 'c0000000-0000-0000-0000-0000000000a4' returning id$$,
+  array['c0000000-0000-0000-0000-0000000000a4'::uuid],
+  'A deletes their own child whose only declaration is on a future event'
+);
+
+reset role;
+
+-- ---------------------------------------------------------------------------
 -- A removed member can no longer write their children
 -- ---------------------------------------------------------------------------
 
@@ -319,15 +373,20 @@ reset role;
 
 select is(
   (select count(*) from public.children where group_id = '10000000-0000-0000-0000-000000000001'),
-  2::bigint,
-  'G1 has two children before it is deleted'
+  3::bigint,
+  'G1 has three children, one with history, before it is deleted'
 );
 
 delete from public.groups where id = '10000000-0000-0000-0000-000000000001';
 
 select is_empty(
   $$select * from public.children where group_id = '10000000-0000-0000-0000-000000000001'$$,
-  'deleting a group deletes its children'
+  'deleting a group deletes its children, including one with history (cascade bypasses RLS)'
+);
+
+select is_empty(
+  $$select * from public.child_attendance where group_id = '10000000-0000-0000-0000-000000000001'$$,
+  'deleting a group also deletes its children''s declarations'
 );
 
 select * from finish();
