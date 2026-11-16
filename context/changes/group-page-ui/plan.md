@@ -343,33 +343,33 @@ Nie dotyczy (brak zmian danych). Wycofanie: revert commitów fazy; faza 2 jest g
 
 #### Automated
 
-- [x] 2.1 `npm run lint` przechodzi
-- [x] 2.2 `npx astro check` przechodzi bez błędów
-- [x] 2.3 `npm run build` przechodzi
-- [x] 2.4 `grep -c 'class="dark"' src/layouts/Layout.astro` zwraca 1
-- [x] 2.5 `grep -c 'color-scheme: dark' src/styles/global.css` zwraca 1
+- [x] 2.1 `npm run lint` przechodzi — 12394be
+- [x] 2.2 `npx astro check` przechodzi bez błędów — 12394be
+- [x] 2.3 `npm run build` przechodzi — 12394be
+- [x] 2.4 `grep -c 'class="dark"' src/layouts/Layout.astro` zwraca 1 — 12394be
+- [x] 2.5 `grep -c 'color-scheme: dark' src/styles/global.css` zwraca 1 — 12394be
 
 #### Manual
 
-- [x] 2.6 Strona startowa, dashboard, logowanie i plan terminu wyglądają jak przed zmianą (przyciski z nadpisaniami bez zmian, brak białych prześwitów)
-- [x] 2.7 Pola date/time w formularzu „Dodaj termin” mają ciemny schemat i widoczną ikonę kalendarza/zegara
+- [x] 2.6 Strona startowa, dashboard, logowanie i plan terminu wyglądają jak przed zmianą (przyciski z nadpisaniami bez zmian, brak białych prześwitów) — 12394be
+- [x] 2.7 Pola date/time w formularzu „Dodaj termin” mają ciemny schemat i widoczną ikonę kalendarza/zegara — 12394be
 
 ### Phase 3: Widok na tokenach i komponentach
 
 #### Automated
 
-- [ ] 3.1 Skan literałów z `/10x-ui` na 4 plikach widoku zwraca 0 trafień
-- [ ] 3.2 `npm run lint` przechodzi
-- [ ] 3.3 `npx astro check` przechodzi bez błędów
-- [ ] 3.4 `npm run build` przechodzi
-- [ ] 3.5 `npm run smoke` przechodzi na uruchomionym serwerze
+- [x] 3.1 Skan literałów z `/10x-ui` na 4 plikach widoku zwraca 0 trafień
+- [x] 3.2 `npm run lint` przechodzi
+- [x] 3.3 `npx astro check` przechodzi bez błędów
+- [x] 3.4 `npm run build` przechodzi
+- [x] 3.5 `npm run smoke` przechodzi na uruchomionym serwerze
 
 #### Manual
 
-- [ ] 3.6 Na 360 px karta „Terminy” jest pierwszą kartą pod nagłówkiem, bez poziomego przewijania
-- [ ] 3.7 Jako admin: dodanie terminu, wygenerowanie serii z błędem (`invalid_event_series`) i dodanie dziecka pokazują komunikat na górze właściwej karty po skoku do kotwicy; „Zarządzaj terminami” otwiera się przy błędzie
-- [ ] 3.8 Jako zwykły członek: brak „Zarządzaj terminami” i „Link zaproszeniowy”; link terminu otwiera plan
-- [ ] 3.9 Edycja/usuwanie dziecka i terminu oraz kopiowanie/regeneracja linku działają jak wcześniej
+- [x] 3.6 Na 360 px karta „Terminy” jest pierwszą kartą pod nagłówkiem, bez poziomego przewijania
+- [x] 3.7 Jako admin: dodanie terminu, wygenerowanie serii z błędem (`invalid_event_series`) i dodanie dziecka pokazują komunikat na górze właściwej karty po skoku do kotwicy; „Zarządzaj terminami” otwiera się przy błędzie
+- [x] 3.8 Jako zwykły członek: brak „Zarządzaj terminami” i „Link zaproszeniowy”; link terminu otwiera plan
+- [x] 3.9 Edycja/usuwanie dziecka i terminu oraz kopiowanie/regeneracja linku działają jak wcześniej
 
 ### Phase 4: Stany i kitchen sink
 

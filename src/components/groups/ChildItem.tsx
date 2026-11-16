@@ -1,5 +1,6 @@
 import { useState, type SubmitEvent } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
 interface ChildItemProps {
@@ -8,9 +9,8 @@ interface ChildItemProps {
   name: string;
 }
 
-const buttonClass = "h-auto min-h-11 rounded-lg px-4 py-2 font-medium whitespace-normal transition-colors";
-const primaryClass = "bg-purple-600 text-white hover:bg-purple-500";
-const secondaryClass = "border border-white/20 bg-white/10 text-white hover:bg-white/20";
+// Size only: the colours come from the Button variants. Touch targets stay at least 44 px.
+const buttonClass = "h-auto min-h-11 whitespace-normal";
 
 /** One of the current parent's own children: read mode with "Edytuj" / "Usuń", or an inline rename form. */
 export default function ChildItem({ groupId, childId, name }: ChildItemProps) {
@@ -31,7 +31,7 @@ export default function ChildItem({ groupId, childId, name }: ChildItemProps) {
         <label htmlFor={inputId} className="sr-only">
           Nowe imię lub nick dziecka
         </label>
-        <input
+        <Input
           id={inputId}
           name="name"
           type="text"
@@ -39,10 +39,10 @@ export default function ChildItem({ groupId, childId, name }: ChildItemProps) {
           maxLength={40}
           defaultValue={name}
           autoFocus
-          className="min-h-11 w-full rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-white focus:ring-2 focus:ring-purple-400 focus:outline-none"
+          className="h-auto min-h-11 py-2"
         />
         <div className="flex flex-wrap gap-2">
-          <Button type="submit" className={cn(buttonClass, primaryClass, "flex-1")}>
+          <Button type="submit" className={cn(buttonClass, "flex-1")}>
             Zapisz
           </Button>
           <Button
@@ -50,7 +50,8 @@ export default function ChildItem({ groupId, childId, name }: ChildItemProps) {
             onClick={() => {
               setEditing(false);
             }}
-            className={cn(buttonClass, secondaryClass, "flex-1")}
+            variant="outline"
+            className={cn(buttonClass, "flex-1")}
           >
             Anuluj
           </Button>
@@ -68,14 +69,15 @@ export default function ChildItem({ groupId, childId, name }: ChildItemProps) {
           onClick={() => {
             setEditing(true);
           }}
-          className={cn(buttonClass, secondaryClass)}
+          variant="outline"
+          className={buttonClass}
         >
           Edytuj
         </Button>
         <form method="POST" action="/api/groups/children/delete" onSubmit={confirmDelete}>
           <input type="hidden" name="group_id" value={groupId} />
           <input type="hidden" name="child_id" value={childId} />
-          <Button type="submit" className={cn(buttonClass, secondaryClass)}>
+          <Button type="submit" variant="outline" className={buttonClass}>
             Usuń
           </Button>
         </form>

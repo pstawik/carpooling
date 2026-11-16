@@ -1,10 +1,14 @@
 ---
+import { CircleAlert, Info } from "lucide-react";
 import Layout from "@/layouts/Layout.astro";
 import Topbar from "@/components/Topbar.astro";
 import InvitePanel from "@/components/groups/InvitePanel";
 import ChildItem from "@/components/groups/ChildItem";
 import EventItem from "@/components/groups/EventItem";
-import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { createClient } from "@/lib/supabase";
 import { getGroupWithAdmins } from "@/lib/services/groups";
 import { getGroupInviteToken } from "@/lib/services/invites";
@@ -17,6 +21,7 @@ import {
   groupNoticeMessage,
 } from "@/lib/services/group-errors";
 import { formatEventStart, utcToWarsawParts } from "@/lib/time";
+import { cn } from "@/lib/utils";
 
 // Middleware guarantees a signed-in user on /groups/*. Non-members (including a non-member app
 // admin), unknown and malformed ids all get the same 404, so group existence is not leaked.
@@ -47,12 +52,15 @@ const eventMessage =
     : messageCode === "events_generated"
       ? eventsGeneratedMessage(Astro.url.searchParams.get("created"), Astro.url.searchParams.get("skipped"))
       : groupNoticeMessage(messageCode);
+// After an events mistake, "Zarządzaj terminami" is reopened so the admin sees the forms with the message.
 const eventError = errorSection === "terminy" ? groupErrorMessage(errorCode, null) : null;
-// After a generator mistake, reopen its section so the admin sees the form with the message.
-const generatorOpen = errorCode === "invalid_event_series";
 const weekdays = ["Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek", "Sobota", "Niedziela"];
-const inputClass =
-  "min-h-11 w-full min-w-0 rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-white focus:ring-2 focus:ring-purple-400 focus:outline-none";
+// shadcn Input is h-9; every control on this page stays at least 44 px tall for touch.
+const inputClass = "h-auto min-h-11 py-2";
+// The native <select> has no ui/ component: it gets the same tokens as Input.
+const selectClass =
+  "border-input text-foreground focus-visible:border-ring focus-visible:ring-ring/50 dark:bg-input/30 min-h-11 w-full min-w-0 rounded-md border bg-transparent px-3 py-2 text-base shadow-xs outline-none focus-visible:ring-3 md:text-sm";
+const labelClass = "text-muted-foreground block text-sm";
 
 // A failed events query must not take the whole group page down either. "Upcoming" is judged
 // against one `now` per request, the same moment that marks an event finished.
@@ -88,9 +96,9 @@ const isAdmin = group.myRole === "admin";
 const inviteToken = isAdmin ? await getGroupInviteToken(supabase, group.id) : null;
 const inviteUrl = inviteToken ? `${Astro.url.origin}/join/${inviteToken}` : null;
 
-const cardClass = "rounded-2xl border border-white/10 bg-white/10 p-4 text-white backdrop-blur-xl sm:p-6";
-const submitClass =
-  "h-auto min-h-11 w-full rounded-lg bg-purple-600 px-4 py-2 font-medium whitespace-normal text-white transition-colors hover:bg-purple-500";
+const cardClass = "mb-6 gap-0 p-4 backdrop-blur-xl sm:p-6";
+const submitClass = "h-auto min-h-11 w-full whitespace-normal";
+const linkButtonClass = cn(buttonVariants({ variant: "outline" }), "h-auto min-h-11 whitespace-normal");
 ---
 
 <Layout title={group.name}>
@@ -98,52 +106,48 @@ const submitClass =
     <div class="mx-auto w-full max-w-xl">
       <Topbar />
 
-      <h1 class="mb-4 bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-2xl font-bold break-words text-transparent">
-        {group.name}
-      </h1>
+      <h1 class="text-foreground mb-4 text-2xl font-bold break-words">{group.name}</h1>
 
       {message && (
-        <p
-          class="mb-4 rounded-lg border border-blue-300/30 bg-blue-900/30 px-3 py-2 text-sm text-blue-100"
-          role="status"
-        >
-          {message}
-        </p>
+        <Alert role="status" className="mb-4">
+          <Info />
+          <AlertDescription className="break-words">{message}</AlertDescription>
+        </Alert>
       )}
       {error && (
-        <p
-          class="mb-4 rounded-lg border border-red-500/30 bg-red-900/30 px-3 py-2 text-sm break-words text-red-300"
-          role="alert"
-        >
-          {error}
-        </p>
+        <Alert variant="destructive" role="alert" className="mb-4">
+          <CircleAlert />
+          <AlertDescription className="break-words">{error}</AlertDescription>
+        </Alert>
       )}
 
-      <section class:list={[cardClass, "mb-6"]}>
-        <h2 class="mb-3 text-lg font-semibold">Administratorzy</h2>
-        {group.admins.length === 0 ? (
-          <p class="text-sm text-blue-100/70">Brak administratorów.</p>
-        ) : (
-          <ul class="space-y-1 text-sm">
-            {group.admins.map((admin) => (
-              <li class="break-words">
-                <span class="font-medium">{admin.first_name}</span> <span class="text-blue-100/70">({admin.nick})</span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+      <Card id="terminy" role="region" aria-labelledby="terminy-heading" className={cn(cardClass, "scroll-mt-4")}>
+        <h2 id="terminy-heading" class="mb-3 text-lg font-semibold">
+          Terminy
+        </h2>
 
-      <section id="terminy" class:list={[cardClass, "mb-6 scroll-mt-4"]}>
-        <h2 class="mb-3 text-lg font-semibold">Terminy</h2>
+        {eventMessage && (
+          <Alert role="status" className="mb-3">
+            <Info />
+            <AlertDescription className="break-words">{eventMessage}</AlertDescription>
+          </Alert>
+        )}
+        {eventError && (
+          <Alert variant="destructive" role="alert" className="mb-3">
+            <CircleAlert />
+            <AlertDescription className="break-words">{eventError}</AlertDescription>
+          </Alert>
+        )}
+
         {events === null ? (
-          <p class="mb-4 text-sm text-red-300" role="alert">
-            Nie udało się wczytać terminów.
-          </p>
+          <Alert variant="destructive" role="alert" className="mb-4">
+            <CircleAlert />
+            <AlertDescription>Nie udało się wczytać terminów.</AlertDescription>
+          </Alert>
         ) : (
           <>
             {upcoming.length === 0 ? (
-              <p class="mb-4 text-sm text-blue-100/70">Brak nadchodzących terminów.</p>
+              <p class="text-muted-foreground mb-4 text-sm">Brak nadchodzących terminów.</p>
             ) : (
               <ul class="mb-4 space-y-2">
                 {upcoming.map((event) => {
@@ -167,7 +171,7 @@ const submitClass =
                           <a href={eventPlanHref(event.id)} class:list={[planLinkClass, "font-medium"]}>
                             {label}
                           </a>
-                          {event.note && <p class="text-sm break-words text-blue-100/70">{event.note}</p>}
+                          {event.note && <p class="text-muted-foreground text-sm break-words">{event.note}</p>}
                         </>
                       )}
                     </li>
@@ -178,12 +182,12 @@ const submitClass =
 
             {past.length > 0 && (
               <details class="mb-4">
-                <summary class="flex min-h-11 cursor-pointer items-center text-sm font-semibold text-blue-100/80">
+                <summary class="text-muted-foreground flex min-h-11 cursor-pointer items-center text-sm font-semibold">
                   Minione terminy ({past.length})
                 </summary>
                 <ul class="mt-2 space-y-2">
                   {past.map((event) => (
-                    <li class="text-blue-100/70">
+                    <li class="text-muted-foreground">
                       <a href={eventPlanHref(event.id)} class:list={planLinkClass}>
                         {formatEventStart(event.startsAt)}
                       </a>
@@ -196,131 +200,97 @@ const submitClass =
           </>
         )}
 
-        <a
-          href={`/groups/${group.id}/statystyki`}
-          class="mb-4 inline-flex min-h-11 items-center rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm text-white transition-colors hover:bg-white/20"
-        >
+        <a href={`/groups/${group.id}/statystyki`} class:list={cn(linkButtonClass, "self-start")}>
           Statystyki grupy
         </a>
 
-        {eventMessage && (
-          <p
-            class="mb-3 rounded-lg border border-blue-300/30 bg-blue-900/30 px-3 py-2 text-sm text-blue-100"
-            role="status"
-          >
-            {eventMessage}
-          </p>
-        )}
-        {eventError && (
-          <p
-            class="mb-3 rounded-lg border border-red-500/30 bg-red-900/30 px-3 py-2 text-sm break-words text-red-300"
-            role="alert"
-          >
-            {eventError}
-          </p>
-        )}
-
         {isAdmin && (
-          <form method="POST" action="/api/groups/events" class="space-y-2">
-            <input type="hidden" name="group_id" value={group.id} />
-            <div class="grid grid-cols-2 gap-2">
-              <div class="min-w-0">
-                <label for="event-date" class="block text-sm text-blue-100/80">
-                  Data
-                </label>
-                <input
-                  id="event-date"
-                  name="date"
-                  type="date"
-                  required
-                  min={todayInWarsaw}
-                  class="min-h-11 w-full min-w-0 rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-white focus:ring-2 focus:ring-purple-400 focus:outline-none"
-                />
-              </div>
-              <div class="min-w-0">
-                <label for="event-time" class="block text-sm text-blue-100/80">
-                  Godzina
-                </label>
-                <input
-                  id="event-time"
-                  name="time"
-                  type="time"
-                  required
-                  class="min-h-11 w-full min-w-0 rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-white focus:ring-2 focus:ring-purple-400 focus:outline-none"
-                />
-              </div>
-            </div>
-            <label for="event-note" class="block text-sm text-blue-100/80">
-              Notatka (opcjonalnie)
-            </label>
-            <input
-              id="event-note"
-              name="note"
-              type="text"
-              maxlength="200"
-              autocomplete="off"
-              class="min-h-11 w-full rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-white focus:ring-2 focus:ring-purple-400 focus:outline-none"
-            />
-            <Button type="submit" className={submitClass}>
-              Dodaj termin
-            </Button>
-          </form>
-        )}
-
-        {isAdmin && (
-          <details class="mt-4" open={generatorOpen}>
-            <summary class="flex min-h-11 cursor-pointer items-center text-sm font-semibold text-blue-100/80">
-              Generuj terminy cotygodniowe
+          <details class="mt-4" open={Boolean(eventError)}>
+            <summary class="text-muted-foreground flex min-h-11 cursor-pointer items-center text-sm font-semibold">
+              Zarządzaj terminami
             </summary>
-            <form method="POST" action="/api/groups/events/generate" class="mt-2 space-y-2">
+
+            <form method="POST" action="/api/groups/events" class="mt-2 space-y-2">
+              <h3 class="text-sm font-semibold">Dodaj termin</h3>
               <input type="hidden" name="group_id" value={group.id} />
               <div class="grid grid-cols-2 gap-2">
                 <div class="min-w-0">
-                  <label for="series-weekday" class="block text-sm text-blue-100/80">
+                  <label for="event-date" class:list={labelClass}>
+                    Data
+                  </label>
+                  <Input id="event-date" name="date" type="date" required min={todayInWarsaw} className={inputClass} />
+                </div>
+                <div class="min-w-0">
+                  <label for="event-time" class:list={labelClass}>
+                    Godzina
+                  </label>
+                  <Input id="event-time" name="time" type="time" required className={inputClass} />
+                </div>
+              </div>
+              <label for="event-note" class:list={labelClass}>
+                Notatka (opcjonalnie)
+              </label>
+              <Input
+                id="event-note"
+                name="note"
+                type="text"
+                maxLength={200}
+                autoComplete="off"
+                className={inputClass}
+              />
+              <Button type="submit" className={submitClass}>
+                Dodaj termin
+              </Button>
+            </form>
+
+            <form method="POST" action="/api/groups/events/generate" class="mt-6 space-y-2">
+              <h3 class="text-sm font-semibold">Generuj terminy cotygodniowe</h3>
+              <input type="hidden" name="group_id" value={group.id} />
+              <div class="grid grid-cols-2 gap-2">
+                <div class="min-w-0">
+                  <label for="series-weekday" class:list={labelClass}>
                     Dzień tygodnia
                   </label>
-                  <select id="series-weekday" name="weekday" required class:list={inputClass}>
+                  <select id="series-weekday" name="weekday" required class:list={selectClass}>
                     {weekdays.map((name, index) => (
-                      <option value={String(index + 1)} class="text-black">
-                        {name}
-                      </option>
+                      <option value={String(index + 1)}>{name}</option>
                     ))}
                   </select>
                 </div>
                 <div class="min-w-0">
-                  <label for="series-time" class="block text-sm text-blue-100/80">
+                  <label for="series-time" class:list={labelClass}>
                     Godzina
                   </label>
-                  <input id="series-time" name="time" type="time" required class:list={inputClass} />
+                  <Input id="series-time" name="time" type="time" required className={inputClass} />
                 </div>
                 <div class="min-w-0">
-                  <label for="series-from" class="block text-sm text-blue-100/80">
+                  <label for="series-from" class:list={labelClass}>
                     Od dnia
                   </label>
-                  <input
+                  <Input
                     id="series-from"
                     name="date_from"
                     type="date"
                     required
                     min={todayInWarsaw}
-                    class:list={inputClass}
+                    className={inputClass}
                   />
                 </div>
                 <div class="min-w-0">
-                  <label for="series-to" class="block text-sm text-blue-100/80">
+                  <label for="series-to" class:list={labelClass}>
                     Do dnia (włącznie)
                   </label>
-                  <input
+                  <Input
                     id="series-to"
                     name="date_to"
                     type="date"
                     required
                     min={todayInWarsaw}
-                    class:list={inputClass}
+                    className={inputClass}
                   />
                 </div>
               </div>
-              <p class="text-xs text-blue-100/70">
+              <p class="text-muted-foreground text-xs">
                 Zakres najwyżej rok. Terminy, które już istnieją albo minęły, zostaną pominięte.
               </p>
               <Button type="submit" className={submitClass}>
@@ -329,19 +299,36 @@ const submitClass =
             </form>
           </details>
         )}
-      </section>
+      </Card>
 
-      <section id="dzieci" class:list={[cardClass, "mb-6 scroll-mt-4"]}>
-        <h2 class="mb-3 text-lg font-semibold">Dzieci</h2>
+      <Card id="dzieci" role="region" aria-labelledby="dzieci-heading" className={cn(cardClass, "scroll-mt-4")}>
+        <h2 id="dzieci-heading" class="mb-3 text-lg font-semibold">
+          Dzieci
+        </h2>
+
+        {childMessage && (
+          <Alert role="status" className="mb-3">
+            <Info />
+            <AlertDescription className="break-words">{childMessage}</AlertDescription>
+          </Alert>
+        )}
+        {childError && (
+          <Alert variant="destructive" role="alert" className="mb-3">
+            <CircleAlert />
+            <AlertDescription className="break-words">{childError}</AlertDescription>
+          </Alert>
+        )}
+
         {children === null ? (
-          <p class="text-sm text-red-300" role="alert">
-            Nie udało się wczytać dzieci.
-          </p>
+          <Alert variant="destructive" role="alert" className="mb-4">
+            <CircleAlert />
+            <AlertDescription>Nie udało się wczytać dzieci.</AlertDescription>
+          </Alert>
         ) : (
           <>
-            <h3 class="mb-2 text-sm font-semibold text-blue-100/80">Twoje dzieci</h3>
+            <h3 class="text-muted-foreground mb-2 text-sm font-semibold">Twoje dzieci</h3>
             {myChildren.length === 0 ? (
-              <p class="mb-4 text-sm text-blue-100/70">Nie dodałeś jeszcze dziecka.</p>
+              <p class="text-muted-foreground mb-4 text-sm">Nie dodałeś jeszcze dziecka.</p>
             ) : (
               <ul class="mb-4 space-y-2">
                 {myChildren.map((child) => (
@@ -354,12 +341,12 @@ const submitClass =
 
             {otherChildren.length > 0 && (
               <>
-                <h3 class="mb-2 text-sm font-semibold text-blue-100/80">Pozostałe dzieci w grupie</h3>
+                <h3 class="text-muted-foreground mb-2 text-sm font-semibold">Pozostałe dzieci w grupie</h3>
                 <ul class="mb-4 space-y-1 text-sm">
                   {otherChildren.map((child) => (
                     <li class="break-words">
                       <span class="font-medium">{child.name}</span>
-                      {child.parentNick && <span class="text-blue-100/70"> ({child.parentNick})</span>}
+                      {child.parentNick && <span class="text-muted-foreground"> ({child.parentNick})</span>}
                     </li>
                   ))}
                 </ul>
@@ -368,51 +355,54 @@ const submitClass =
           </>
         )}
 
-        {childMessage && (
-          <p
-            class="mb-3 rounded-lg border border-blue-300/30 bg-blue-900/30 px-3 py-2 text-sm text-blue-100"
-            role="status"
-          >
-            {childMessage}
-          </p>
-        )}
-        {childError && (
-          <p
-            class="mb-3 rounded-lg border border-red-500/30 bg-red-900/30 px-3 py-2 text-sm break-words text-red-300"
-            role="alert"
-          >
-            {childError}
-          </p>
-        )}
-
         <form method="POST" action="/api/groups/children" class="space-y-2">
           <input type="hidden" name="group_id" value={group.id} />
-          <label for="child-name" class="block text-sm text-blue-100/80">
+          <label for="child-name" class:list={labelClass}>
             Imię lub nick dziecka
           </label>
-          <input
+          <Input
             id="child-name"
             name="name"
             type="text"
             required
-            maxlength="40"
-            autocomplete="off"
-            class="min-h-11 w-full rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-white focus:ring-2 focus:ring-purple-400 focus:outline-none"
+            maxLength={40}
+            autoComplete="off"
+            className={inputClass}
           />
           <Button type="submit" className={submitClass}>
             Dodaj dziecko
           </Button>
         </form>
-      </section>
+      </Card>
+
+      <Card role="region" aria-labelledby="admins-heading" className={cardClass}>
+        <h2 id="admins-heading" class="mb-3 text-lg font-semibold">
+          Administratorzy
+        </h2>
+        {group.admins.length === 0 ? (
+          <p class="text-muted-foreground text-sm">Brak administratorów.</p>
+        ) : (
+          <ul class="space-y-1 text-sm">
+            {group.admins.map((admin) => (
+              <li class="break-words">
+                <span class="font-medium">{admin.first_name}</span>{" "}
+                <span class="text-muted-foreground">({admin.nick})</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </Card>
 
       {isAdmin && (
-        <section class:list={[cardClass, "mb-6"]}>
-          <h2 class="mb-3 text-lg font-semibold">Link zaproszeniowy</h2>
+        <Card role="region" aria-labelledby="invite-heading" className={cardClass}>
+          <h2 id="invite-heading" class="mb-3 text-lg font-semibold">
+            Link zaproszeniowy
+          </h2>
           {inviteUrl ? (
             <InvitePanel url={inviteUrl} groupId={group.id} client:load />
           ) : (
             <form method="POST" action="/api/groups/invite" class="space-y-3">
-              <p class="text-sm text-blue-100/70">
+              <p class="text-muted-foreground text-sm">
                 Grupa nie ma jeszcze linku. Każdy, kto go otrzyma, będzie mógł dołączyć do grupy.
               </p>
               <input type="hidden" name="group_id" value={group.id} />
@@ -421,13 +411,10 @@ const submitClass =
               </Button>
             </form>
           )}
-        </section>
+        </Card>
       )}
 
-      <a
-        href="/dashboard"
-        class="inline-flex min-h-11 items-center rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm text-white transition-colors hover:bg-white/20"
-      >
+      <a href="/dashboard" class:list={linkButtonClass}>
         Wróć do panelu
       </a>
     </div>
