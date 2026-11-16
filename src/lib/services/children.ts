@@ -10,7 +10,7 @@ export interface GroupChild {
   parentNick: string | null;
 }
 
-export type ChildWriteFailure = "forbidden" | "duplicate_child" | "child_not_found" | "unknown";
+export type ChildWriteFailure = "forbidden" | "duplicate_child" | "child_not_found" | "child_has_history" | "unknown";
 
 export type ChildWriteResult = { ok: true } | { ok: false; failure: ChildWriteFailure; error?: PostgrestError };
 
@@ -68,9 +68,15 @@ export async function renameChild(
   return writeResult(error, data);
 }
 
+/**
+ * Deletes one of `userId`'s children. children_delete_own also refuses a child with a declaration
+ * on a started event (its history in the statistics), and that refusal matches 0 rows just like
+ * someone else's or a missing child. So on 0 rows a follow-up read tells them apart: the child is
+ * still visible as the caller's own → `child_has_history`, otherwise `child_not_found`.
+ */
 export async function deleteChild(
   supabase: SupabaseClient,
-  { groupId, childId }: { groupId: string; childId: string },
+  { groupId, childId, userId }: { groupId: string; childId: string; userId: string },
 ): Promise<ChildWriteResult> {
   const { data, error } = await supabase
     .from("children")
@@ -78,5 +84,16 @@ export async function deleteChild(
     .eq("id", childId)
     .eq("group_id", groupId)
     .select("id");
-  return writeResult(error, data);
+  const result = writeResult(error, data);
+  if (result.ok || result.failure !== "child_not_found") return result;
+
+  const { data: own, error: readError } = await supabase
+    .from("children")
+    .select("id")
+    .eq("id", childId)
+    .eq("group_id", groupId)
+    .eq("parent_id", userId)
+    .maybeSingle();
+  if (readError) return { ok: false, failure: "unknown", error: readError };
+  return own ? { ok: false, failure: "child_has_history" } : result;
 }

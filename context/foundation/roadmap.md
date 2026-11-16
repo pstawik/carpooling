@@ -49,7 +49,7 @@ Rodzice dzieci z tych samych zajęć dodatkowych ustalają wspólne dojazdy na c
 | S-06 | weekly-event-generator          | (admin grupy) wygenerować terminy cotygodniowe bez duplikatów                        | S-05          | FR-013                      | done |
 | S-07 | child-attendance-declaration    | zadeklarować „jedzie/nie jedzie” dziecka i zobaczyć plan dzieci terminu              | S-04, S-05    | FR-014, FR-016, US-01       | done |
 | S-08 | driver-declaration-seat-balance | zadeklarować się jako kierowca i zobaczyć bilans miejsc z ostrzeżeniem               | S-07          | FR-015, FR-016, US-01       | done |
-| S-09 | group-engagement-stats          | zobaczyć statystyki zakończonych terminów grupy                                      | S-08          | FR-017                      | proposed |
+| S-09 | group-engagement-stats          | zobaczyć statystyki zakończonych terminów grupy                                      | S-08          | FR-017                      | in-progress |
 
 ## Streams
 
@@ -188,7 +188,7 @@ Brak osobnych fundamentów. Jedyna brakująca warstwa to dane (schemat + RLS), a
 - **Blockers:** —
 - **Unknowns:** Usunięcie dziecka kasuje kaskadowo jego deklaracje także z rozpoczętych terminów (kompromis S-04, impl-review child-attendance-declaration F1); przed statystykami zdecydować: miękkie usuwanie dzieci, zachowanie wierszy albo blokada usunięcia.
 - **Risk:** Ostatni, bo liczy z deklaracji obu typów; do weryfikacji potrzebuje terminów, które już się rozpoczęły.
-- **Status:** proposed
+- **Status:** in-progress
 
 ## Backlog Handoff
 

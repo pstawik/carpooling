@@ -120,6 +120,7 @@ const planEventNote = `Plan-${childSuffix}`;
 // Filled from the group page once the group admin has added the plan event.
 let planEventId = "missing";
 const planPath = () => `${groupPath}/terminy/${planEventId}`;
+const statsPath = () => `${groupPath}/statystyki`;
 // A fresh account in no group, only to prove the plan page 404s for outsiders.
 const outsiderEmail = `smoke-outsider-${Date.now()}@example.com`;
 
@@ -609,6 +610,17 @@ const writeSteps = [
     planPageSection("bilans"),
     { status: 200, contains: "Brakuje 1 miejsca", notContains: "Miejsc wystarcza" },
   ],
+  [
+    "group page links to the stats page",
+    () => request(groupPath, { readBody: true }),
+    { status: 200, contains: () => `href="${statsPath()}"` },
+  ],
+  [
+    // Smoke creates only future events, so the page shows the empty state.
+    "stats page renders for member",
+    () => request(statsPath(), { readBody: true }),
+    { status: 200, contains: ["Statystyki", "Brak zakończonych terminów"] },
+  ],
   ["parent signs out", () => request("/api/auth/signout", { method: "POST" }), { status: 302, location: "/" }],
   [
     "outsider signs up",
@@ -616,6 +628,7 @@ const writeSteps = [
     { status: 302, location: "/dashboard" },
   ],
   ["outsider gets 404 on the plan page", () => request(planPath()), { status: 404 }],
+  ["outsider gets 404 on the stats page", () => request(statsPath()), { status: 404 }],
   ["outsider cannot declare as a driver", driverForm({ seats: "2" }), { status: 404 }],
   ["outsider signs out", () => request("/api/auth/signout", { method: "POST" }), { status: 302, location: "/" }],
 ];
