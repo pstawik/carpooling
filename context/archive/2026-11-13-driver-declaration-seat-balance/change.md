@@ -1,10 +1,10 @@
 ---
 change_id: driver-declaration-seat-balance
 title: Driver declaration seat balance
-status: impl_reviewed
+status: archived
 created: 2026-11-13
 updated: 2026-11-16
-archived_at: null
+archived_at: 2026-11-16T06:35:48Z
 ---
 
 ## Notes
