@@ -347,13 +347,13 @@ Brak zmian danych. Zmiana polityki działa od razu: dzieci z historią na rozpoc
 
 #### Automated
 
-- [x] 3.1 Lint przechodzi: `npm run lint`
-- [x] 3.2 Typy przechodzą: `npx astro check`
-- [x] 3.3 Build przechodzi: `npm run build`
-- [x] 3.4 Smoke przechodzi na uruchomionym serwerze: `npm run smoke`
+- [x] 3.1 Lint przechodzi: `npm run lint` — 7b9af9a
+- [x] 3.2 Typy przechodzą: `npx astro check` — 7b9af9a
+- [x] 3.3 Build przechodzi: `npm run build` — 7b9af9a
+- [x] 3.4 Smoke przechodzi na uruchomionym serwerze: `npm run smoke` — 7b9af9a
 
 #### Manual
 
-- [x] 3.5 Przy 360 px strona statystyk nie przewija się w poziomie, długie nicki i imiona się łamią, a link powrotu i link ze strony grupy mają co najmniej 44 px
-- [x] 3.6 Po przestawieniu w bazie kilku terminów na przeszłość liczby na stronie zgadzają się z regułami (przejazd tylko z jadącym dzieckiem, zakres od dodania dziecka, nieobecność = „nie jedzie” + brak deklaracji)
-- [x] 3.7 Członek bez przejazdów jest na liście z „0 przejazdów”; pusty stan pojawia się w grupie bez zakończonych terminów
+- [x] 3.5 Przy 360 px strona statystyk nie przewija się w poziomie, długie nicki i imiona się łamią, a link powrotu i link ze strony grupy mają co najmniej 44 px — 7b9af9a
+- [x] 3.6 Po przestawieniu w bazie kilku terminów na przeszłość liczby na stronie zgadzają się z regułami (przejazd tylko z jadącym dzieckiem, zakres od dodania dziecka, nieobecność = „nie jedzie” + brak deklaracji) — 7b9af9a
+- [x] 3.7 Członek bez przejazdów jest na liście z „0 przejazdów”; pusty stan pojawia się w grupie bez zakończonych terminów — 7b9af9a
