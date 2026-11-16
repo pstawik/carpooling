@@ -65,9 +65,9 @@ try {
 }
 const myDriver = drivers.find((driver) => driver.userId === user.id) ?? null;
 
-/** "Jedzie 0 dzieci", "Jedzie 1 dziecko", "Jadą 2 dzieci", "Jadą 5 dzieci". */
+/** "Jedzie 0 dzieci", "Jedzie 1 dziecko", "Jadą 2 dzieci", "Jedzie 5 dzieci", "Jadą 22 dzieci". */
 function goingLabel(count: number): string {
-  return `${count >= 2 ? "Jadą" : "Jedzie"} ${count} ${pluralPl(count, "dziecko", "dzieci", "dzieci")}`;
+  return `${pluralPl(count, "Jedzie", "Jadą", "Jedzie")} ${count} ${pluralPl(count, "dziecko", "dzieci", "dzieci")}`;
 }
 
 /** "Brakuje 1 miejsca", "Brakuje 2 miejsc", "Brakuje 5 miejsc" (genitive). */

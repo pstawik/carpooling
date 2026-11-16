@@ -346,14 +346,14 @@ Nowa tabela, brak danych do migracji. `events_id_group_unique` już istnieje (S-
 
 #### Automated
 
-- [x] 3.1 Lint przechodzi: `npm run lint`
-- [x] 3.2 Typy przechodzą: `npx astro check`
-- [x] 3.3 Build przechodzi: `npm run build`
-- [x] 3.4 Smoke przechodzi na uruchomionym serwerze: `npm run smoke`
+- [x] 3.1 Lint przechodzi: `npm run lint` — 897c4d5
+- [x] 3.2 Typy przechodzą: `npx astro check` — 897c4d5
+- [x] 3.3 Build przechodzi: `npm run build` — 897c4d5
+- [x] 3.4 Smoke przechodzi na uruchomionym serwerze: `npm run smoke` — 897c4d5
 
 #### Manual
 
-- [x] 3.5 Przy 360 px karta bilansu jest widoczna bez przewijania, strona nie przewija się w poziomie, a pole miejsc i przyciski da się wygodnie obsłużyć bez powiększania
-- [x] 3.6 Dwóch członków deklaruje się jako kierowcy; drugi po odświeżeniu widzi obu, sumę miejsc i telefon tego, kto go podał (link `tel:` działa na telefonie)
-- [x] 3.7 Bilans przechodzi przez trzy stany: „Żadne dziecko jeszcze nie jedzie” → „Brakuje K miejsc” → „Miejsc wystarcza”
-- [x] 3.8 Plan rozpoczętego terminu pokazuje deklarację kierowcy bez formularza i informację o blokadzie
+- [x] 3.5 Przy 360 px karta bilansu jest widoczna bez przewijania, strona nie przewija się w poziomie, a pole miejsc i przyciski da się wygodnie obsłużyć bez powiększania — 897c4d5
+- [x] 3.6 Dwóch członków deklaruje się jako kierowcy; drugi po odświeżeniu widzi obu, sumę miejsc i telefon tego, kto go podał (link `tel:` działa na telefonie) — 897c4d5
+- [x] 3.7 Bilans przechodzi przez trzy stany: „Żadne dziecko jeszcze nie jedzie” → „Brakuje K miejsc” → „Miejsc wystarcza” — 897c4d5
+- [x] 3.8 Plan rozpoczętego terminu pokazuje deklarację kierowcy bez formularza i informację o blokadzie — 897c4d5
