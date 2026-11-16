@@ -324,24 +324,24 @@ Brak zmian danych. Zmiana polityki działa od razu: dzieci z historią na rozpoc
 
 #### Automated
 
-- [x] 1.1 Migracje aplikują się na czystej bazie: `npx supabase db reset`
-- [x] 1.2 Wszystkie testy pgTAP przechodzą, w tym nowy plik i rozszerzone `children_rls.test.sql`: `npx supabase test db`
+- [x] 1.1 Migracje aplikują się na czystej bazie: `npx supabase db reset` — cfd3af5
+- [x] 1.2 Wszystkie testy pgTAP przechodzą, w tym nowy plik i rozszerzone `children_rls.test.sql`: `npx supabase test db` — cfd3af5
 
 #### Manual
 
-- [x] 1.3 Przegląd migracji: kwalifikacja `children.id` w polityce, `stable security invoker set search_path = ''`, granty execute i nagłówki zgodne ze wzorcem `create_event_drivers.sql`
+- [x] 1.3 Przegląd migracji: kwalifikacja `children.id` w polityce, `stable security invoker set search_path = ''`, granty execute i nagłówki zgodne ze wzorcem `create_event_drivers.sql` — cfd3af5
 
 ### Phase 2: Serwis statystyk i komunikat blokady usuwania
 
 #### Automated
 
-- [ ] 2.1 Lint przechodzi: `npm run lint`
-- [ ] 2.2 Typy przechodzą: `npx astro check`
-- [ ] 2.3 Build przechodzi: `npm run build`
+- [x] 2.1 Lint przechodzi: `npm run lint`
+- [x] 2.2 Typy przechodzą: `npx astro check`
+- [x] 2.3 Build przechodzi: `npm run build`
 
 #### Manual
 
-- [ ] 2.4 Po przestawieniu w bazie `starts_at` terminu z deklaracją dziecka na przeszłość usunięcie tego dziecka wraca z komunikatem w karcie „Dzieci”, a dziecko zostaje; dziecko bez historii usuwa się jak dotąd
+- [x] 2.4 Po przestawieniu w bazie `starts_at` terminu z deklaracją dziecka na przeszłość usunięcie tego dziecka wraca z komunikatem w karcie „Dzieci”, a dziecko zostaje; dziecko bez historii usuwa się jak dotąd
 
 ### Phase 3: Strona statystyk, link i smoke
 

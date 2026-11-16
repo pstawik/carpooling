@@ -5,7 +5,8 @@ import { deleteChildSchema } from "@/lib/validation/children";
 
 // Deletes one of the signed-in parent's children for good. Authorization lives in the
 // children_delete_own RLS policy: someone else's child matches 0 rows and is reported as
-// child_not_found.
+// child_not_found. The policy also locks a child with a declaration on a started event (its
+// history in the statistics); that refusal is reported as child_has_history.
 export const POST: APIRoute = async (context) => {
   if (!context.locals.user) {
     return context.redirect("/auth/signin");
@@ -30,7 +31,7 @@ export const POST: APIRoute = async (context) => {
     return context.redirect(`/groups/${groupId}?error=not_configured`);
   }
 
-  const outcome = await deleteChild(supabase, { groupId, childId });
+  const outcome = await deleteChild(supabase, { groupId, childId, userId: context.locals.user.id });
   if (!outcome.ok) {
     if (outcome.failure === "forbidden") return context.rewrite("/404");
     if (outcome.failure === "unknown") {
