@@ -29,6 +29,14 @@ CarPooling is a mobile-first web app for parents coordinating rides to kids' act
 
 Merge Tailwind classes with `cn()` from `@/lib/utils`, never by string concatenation; import via the `@/*` alias. No `"use client"` or other Next.js directives in React files. At a 360 px viewport: no horizontal scroll, touch targets at least 44 px, and every PRD action (child declaration, driver declaration, event plan) usable without zooming.
 
+### UI
+
+- Tokens live in `src/styles/global.css`; their values are in `.dark`, which is always on (`<html class="dark">` in `src/layouts/Layout.astro`).
+- Check `src/components/ui/` before creating a component; add missing ones via `npx shadcn@latest add <name>` and re-point the generated `cn` import to `@/lib/utils` (the CLI resolves it to the npm package `cn` here).
+- No palette classes (`bg-purple-600`, `text-white`), hex/rgb/oklch literals or arbitrary values (`p-[13px]`) in views; use role tokens (`bg-primary`, `text-muted-foreground`, `border-input`, …).
+- Kitchen sink with the 7 component states: `/dev/ui-group` (dev only).
+- `scripts/check-ui-literals.mjs` runs in `npm run lint`; append every newly cleaned view to its `CLEANED_VIEWS` list.
+
 ## Testing
 
 There is no unit-test framework yet. Verification is lint, `astro check`, build, and `npm run smoke`, matching CI (`@.github/workflows/ci.yml`).

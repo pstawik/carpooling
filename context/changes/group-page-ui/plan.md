@@ -375,27 +375,27 @@ Nie dotyczy (brak zmian danych). Wycofanie: revert commitów fazy; faza 2 jest g
 
 #### Automated
 
-- [x] 4.1 Skan literałów na 4 plikach widoku i `src/pages/dev/ui-group.astro` zwraca 0 trafień
-- [x] 4.2 `npm run lint` przechodzi
-- [x] 4.3 `npx astro check` przechodzi bez błędów
-- [x] 4.4 `npm run build` przechodzi, a `/dev/ui-group` w buildzie produkcyjnym zwraca 404
+- [x] 4.1 Skan literałów na 4 plikach widoku i `src/pages/dev/ui-group.astro` zwraca 0 trafień — c27d5cd
+- [x] 4.2 `npm run lint` przechodzi — c27d5cd
+- [x] 4.3 `npx astro check` przechodzi bez błędów — c27d5cd
+- [x] 4.4 `npm run build` przechodzi, a `/dev/ui-group` w buildzie produkcyjnym zwraca 404 — c27d5cd
 
 #### Manual
 
-- [x] 4.5 Kitchen sink pokazuje każdą z 7 komórek macierzy (lub N/A z powodem) na desktopie i 360 px
-- [x] 4.6 Nawigacja Tab po stronie grupy pokazuje fokus w kolorze `--ring` na każdym linku, `summary`, polu i przycisku
-- [x] 4.7 Zrzuty zapisane w `context/changes/group-page-ui/screenshots/`
+- [x] 4.5 Kitchen sink pokazuje każdą z 7 komórek macierzy (lub N/A z powodem) na desktopie i 360 px — c27d5cd
+- [x] 4.6 Nawigacja Tab po stronie grupy pokazuje fokus w kolorze `--ring` na każdym linku, `summary`, polu i przycisku — c27d5cd
+- [x] 4.7 Zrzuty zapisane w `context/changes/group-page-ui/screenshots/` — c27d5cd
 
 ### Phase 5: Strażnik kontraktu
 
 #### Automated
 
-- [ ] 5.1 `npm run lint` przechodzi i uruchamia `check-ui-literals`
-- [ ] 5.2 Dodanie testowo `text-purple-200` do `[id].astro` powoduje błąd `npm run lint` (sprawdzić i cofnąć)
-- [ ] 5.3 `npx astro check` przechodzi bez błędów
-- [ ] 5.4 `npm run build` przechodzi
+- [x] 5.1 `npm run lint` przechodzi i uruchamia `check-ui-literals`
+- [x] 5.2 Dodanie testowo `text-purple-200` do `[id].astro` powoduje błąd `npm run lint` (sprawdzić i cofnąć)
+- [x] 5.3 `npx astro check` przechodzi bez błędów
+- [x] 5.4 `npm run build` przechodzi
 
 #### Manual
 
-- [ ] 5.5 Blok UI w `AGENTS.md` jest zrozumiały i wskazuje poprawne ścieżki
+- [x] 5.5 Blok UI w `AGENTS.md` jest zrozumiały i wskazuje poprawne ścieżki
 - [ ] 5.6 CI na PR przechodzi (`ci` i `smoke`)

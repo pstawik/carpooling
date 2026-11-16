@@ -9,6 +9,7 @@ tags: [research, ui, design-tokens, shadcn, groups, 10x-ui]
 status: complete
 last_updated: 2026-11-16
 last_updated_by: Claude Code (claude-opus-5-5)
+last_updated_note: "Faza 5: oznaczono odroczone zarzuty"
 ---
 
 # Research: Audyt UI widoku /groups/[id]
@@ -94,6 +95,15 @@ Każdy zarzut: dowód (`plik:linia`) → co powinno go pokryć → skutek dla u�
   - pusta grupa: komunikaty puste istnieją — `:125` (brak adminów), `:146` (brak terminów), `:344` (brak dzieci).
 - **Skutek dla użytkownika:** na 360 px rodzic, który przychodzi sprawdzić najbliższy termin, najpierw przewija listę adminów; admin widzi listę terminów, link do statystyk i dwa formularze jako jedną kartę bez podziału. Rodzic otwierający link do grupy z czatu bez aktywnej sesji ląduje po zalogowaniu na panelu, a nie w grupie.
 - **Kandydat do odroczenia:** adres powrotu po logowaniu dotyczy `middleware.ts` i `api/auth/signin.ts`, nie wyglądu widoku — do decyzji w `/10x-plan` (może trafić do osobnej zmiany).
+- **Status: deferred** (decyzja w `/10x-plan`):
+  - adres powrotu po logowaniu (`middleware.ts:53`, `api/auth/signin.ts:45`) — powód: dotyczy auth i walidacji przekierowań, poza zakresem zmiany UI;
+  - `/groups` bez id → 404 — powód: poza zakresem tego widoku (osobna trasa).
+
+### Deferred (found during implementation)
+
+- `src/components/Topbar.astro` nadal używa literałów palety — poza zakresem: inny widok (wspólny nagłówek).
+- `<summary>` z `display:flex` ukrywa natywny trójkąt rozwijania przy „Zarządzaj terminami” / „Minione terminy” — istniało wcześniej; słaba afordancja.
+- Kitchen sink (`src/pages/dev/ui-group.astro`) kopiuje stałe klas z `[id].astro` — ryzyko rozjazdu.
 
 ## Detailed Findings
 
@@ -113,7 +123,7 @@ Każdy zarzut: dowód (`plik:linia`) → co powinno go pokryć → skutek dla u�
 | disabled | brak w 4 plikach widoku (grep 0) |
 | error | komunikaty z query param (`group-errors` → `:113-120`, `:214-221`, `:379-386`), tylko kolor (C4); brak `aria-invalid` przy polach |
 | empty | jest: `:125`, `:146`, `:344` |
-| loading | SSR, formularze `method="POST"` z pełnym przeładowaniem; brak stanu „wysyłanie” na przyciskach (grep `pending|aria-busy|disabled` 0) — możliwe podwójne wysłanie |
+| loading | SSR, formularze `method="POST"` z pełnym przeładowaniem; brak stanu „wysyłanie” na przyciskach (grep `pending|aria-busy|disabled` 0) — możliwe podwójne wysłanie; **deferred / N/A** — SSR, pełne przeładowanie; ryzyko podwójnego wysłania zaakceptowane w /10x-plan |
 
 ## Code References
 
