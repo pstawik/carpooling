@@ -1,7 +1,7 @@
 ---
 change_id: group-engagement-stats
 title: Group engagement stats
-status: implemented
+status: impl_reviewed
 created: 2026-11-16
 updated: 2026-11-16
 archived_at: null

@@ -40,6 +40,22 @@ interface ChildStatRow {
 }
 
 /**
+ * Number of the group's events that started at or before `now` (count only, no rows fetched).
+ * RLS limits it to members, like the stats functions.
+ */
+export async function countFinishedEvents(supabase: SupabaseClient, groupId: string, now: Date): Promise<number> {
+  const { count, error } = await supabase
+    .from("events")
+    .select("id", { count: "exact", head: true })
+    .eq("group_id", groupId)
+    .lte("starts_at", now.toISOString());
+  if (error) {
+    throw new Error(`countFinishedEvents failed: ${error.message}`);
+  }
+  return count ?? 0;
+}
+
+/**
  * The group's engagement statistics, counted in the database by `group_driver_stats` and
  * `group_child_stats` (security invoker, so RLS limits them to members: a non-member gets empty
  * lists). Drivers are ordered by nick, children by name.

@@ -1,7 +1,7 @@
 -- Tests for public.group_driver_stats() and public.group_child_stats().
 -- Fixtures: A (admin of G1, parent of Ola), B (member of G1, parent of Zosia),
 -- D (member of G1, no children and no declarations), C (admin of G2, parent
--- of Kuba in G2, not in G1).
+-- of Kuba in G2, not in G1; made an app admin before its own block).
 -- G1 events: T1 (finished, before Zosia was added), T2, T3, T5 (finished,
 -- after both children were added), T4 (future). G2 event TG (finished).
 -- Everything is inserted as postgres; the test runs in one transaction, so
@@ -10,7 +10,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(14);
+select plan(15);
 
 -- ---------------------------------------------------------------------------
 -- Schema and privileges
@@ -173,6 +173,11 @@ select is_empty(
   'A (not in G2) gets no driver stats for G2'
 );
 
+select is_empty(
+  $$select * from public.group_child_stats('20000000-0000-0000-0000-000000000002')$$,
+  'A (not in G2) gets no child stats for G2'
+);
+
 reset role;
 
 -- ---------------------------------------------------------------------------
@@ -195,20 +200,24 @@ select results_eq(
 reset role;
 
 -- ---------------------------------------------------------------------------
--- As user C (admin of G2, not in G1) — nothing from G1, own group intact
+-- As user C (admin of G2 and app admin, not in G1) — nothing from G1, own
+-- group intact. As app admin C can read G1's group_members, which must not
+-- turn into a list of G1 members with 0 drives.
 -- ---------------------------------------------------------------------------
+
+insert into public.app_admins (user_id) values ('00000000-0000-0000-0000-0000000000c1');
 
 set local role authenticated;
 set local "request.jwt.claims" to '{"sub": "00000000-0000-0000-0000-0000000000c1", "role": "authenticated"}';
 
 select is_empty(
   $$select * from public.group_driver_stats('10000000-0000-0000-0000-000000000001')$$,
-  'C (not in G1) gets no driver stats for G1'
+  'C (app admin, not in G1) gets no driver stats for G1'
 );
 
 select is_empty(
   $$select * from public.group_child_stats('10000000-0000-0000-0000-000000000001')$$,
-  'C (not in G1) gets no child stats for G1'
+  'C (app admin, not in G1) gets no child stats for G1'
 );
 
 select results_eq(

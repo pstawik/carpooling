@@ -22,9 +22,10 @@
 -- Drives per member
 -- ---------------------------------------------------------------------------
 
--- One row per current member (members with no drives get 0). nick comes from
--- profiles through profiles_select_group_peers; the left join keeps the member
--- even if the profile is not visible.
+-- One row per current member (members with no drives get 0), returned only to
+-- members of the group. nick comes from profiles through
+-- profiles_select_group_peers; the left join keeps the member even if the
+-- profile is not visible.
 create function public.group_driver_stats(p_group_id uuid)
 returns table (user_id uuid, nick text, drives integer)
 language sql
@@ -53,7 +54,10 @@ as $$
     )::integer as drives
   from public.group_members gm
   left join public.profiles p on p.id = gm.user_id
-  where gm.group_id = p_group_id;
+  where gm.group_id = p_group_id
+    -- An app admin outside the group can read its group_members but not its
+    -- events, so without this check they would get every member with 0 drives.
+    and (select public.is_group_member(p_group_id));
 $$;
 
 revoke execute on function public.group_driver_stats(uuid) from public, anon;

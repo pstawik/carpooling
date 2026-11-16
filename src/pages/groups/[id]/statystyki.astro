@@ -3,8 +3,7 @@ import Layout from "@/layouts/Layout.astro";
 import Topbar from "@/components/Topbar.astro";
 import { createClient } from "@/lib/supabase";
 import { getGroupWithAdmins } from "@/lib/services/groups";
-import { listGroupEvents, splitEvents } from "@/lib/services/events";
-import { getGroupStats, type GroupStats } from "@/lib/services/stats";
+import { countFinishedEvents, getGroupStats, type GroupStats } from "@/lib/services/stats";
 import { drivesLabel } from "@/lib/plural";
 
 // Engagement statistics of the group (FR-017): drives per member and presence / absence per child
@@ -26,11 +25,11 @@ if (!group) {
 let finishedCount = 0;
 let stats: GroupStats | null;
 try {
-  const [events, groupStats] = await Promise.all([
-    listGroupEvents(supabase, group.id),
+  const [count, groupStats] = await Promise.all([
+    countFinishedEvents(supabase, group.id, new Date()),
     getGroupStats(supabase, group.id),
   ]);
-  finishedCount = splitEvents(events, new Date()).past.length;
+  finishedCount = count;
   stats = groupStats;
 } catch (loadError) {
   // eslint-disable-next-line no-console -- surfaces in Cloudflare Worker logs
