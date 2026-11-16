@@ -1,0 +1,125 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Topbar from "@/components/Topbar.astro";
+import { createClient } from "@/lib/supabase";
+import { getGroupWithAdmins } from "@/lib/services/groups";
+import { listGroupEvents, splitEvents } from "@/lib/services/events";
+import { getGroupStats, type GroupStats } from "@/lib/services/stats";
+import { drivesLabel } from "@/lib/plural";
+
+// Engagement statistics of the group (FR-017): drives per member and presence / absence per child
+// over finished events. Raw counts, alphabetical, no ranking. Middleware guarantees a signed-in
+// user on /groups/*. Non-members, unknown and malformed ids all get the same 404.
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+const { user } = Astro.locals;
+if (!supabase || !user) {
+  return Astro.rewrite("/404");
+}
+
+const group = await getGroupWithAdmins(supabase, Astro.params.id ?? "", user.id);
+if (!group) {
+  return Astro.rewrite("/404");
+}
+
+// The finished-events count uses the Worker's clock, the lists use now() in the database. They can
+// disagree only for an event starting within the same instant, and agree again on the next load.
+let finishedCount = 0;
+let stats: GroupStats | null;
+try {
+  const [events, groupStats] = await Promise.all([
+    listGroupEvents(supabase, group.id),
+    getGroupStats(supabase, group.id),
+  ]);
+  finishedCount = splitEvents(events, new Date()).past.length;
+  stats = groupStats;
+} catch (loadError) {
+  // eslint-disable-next-line no-console -- surfaces in Cloudflare Worker logs
+  console.error(loadError);
+  stats = null;
+}
+
+const cardClass = "rounded-2xl border border-white/10 bg-white/10 p-4 text-white backdrop-blur-xl sm:p-6";
+const rowClass = "rounded-xl border border-white/10 bg-white/5 p-3";
+---
+
+<Layout title={`Statystyki · ${group.name}`}>
+  <div class="bg-cosmic min-h-screen p-4">
+    <div class="mx-auto w-full max-w-xl">
+      <Topbar />
+
+      <header class="mb-4">
+        <h1 class="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-2xl font-bold break-words text-transparent">
+          Statystyki — {group.name}
+        </h1>
+      </header>
+
+      {stats === null ? (
+        <section class:list={[cardClass, "mb-6"]}>
+          <p class="text-sm text-red-300" role="alert">
+            Nie udało się wczytać statystyk.
+          </p>
+        </section>
+      ) : (
+        <>
+          <section class:list={[cardClass, "mb-6"]}>
+            <p class="mb-2 font-semibold">Zakończone terminy: {finishedCount}</p>
+            <p class="text-sm text-blue-100/70">
+              Przejazd liczy się, gdy na termin jechało co najmniej jedno dziecko. Nieobecność to „nie jedzie” albo brak
+              deklaracji, liczone od dodania dziecka.
+            </p>
+          </section>
+
+          {finishedCount === 0 ? (
+            <section class:list={[cardClass, "mb-6"]}>
+              <p class="text-sm text-blue-100/70">
+                Brak zakończonych terminów — statystyki pojawią się po pierwszym terminie.
+              </p>
+            </section>
+          ) : (
+            <>
+              <section id="kierowcy" class:list={[cardClass, "mb-6"]}>
+                <h2 class="mb-3 text-lg font-semibold">Kierowcy</h2>
+                <ul class="space-y-2 text-sm">
+                  {stats.drivers.map((driver) => (
+                    <li class:list={rowClass}>
+                      <p class="font-medium break-words">{driver.nick ?? "Członek grupy"}</p>
+                      <p class="text-blue-100/70">{drivesLabel(driver.drives)}</p>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+
+              <section id="dzieci" class:list={[cardClass, "mb-6"]}>
+                <h2 class="mb-3 text-lg font-semibold">Dzieci</h2>
+                {stats.children.length === 0 ? (
+                  <p class="text-sm text-blue-100/70">W grupie nie ma jeszcze dzieci.</p>
+                ) : (
+                  <ul class="space-y-2 text-sm">
+                    {stats.children.map((child) => (
+                      <li class:list={rowClass}>
+                        <p class="break-words">
+                          <span class="font-medium">{child.name}</span>
+                          {child.parentNick && <span class="text-blue-100/70"> ({child.parentNick})</span>}
+                        </p>
+                        <p class="text-blue-100/70">
+                          Obecności: {child.present} · Nieobecności: {child.absent}
+                        </p>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </section>
+            </>
+          )}
+        </>
+      )}
+
+      <a
+        href={`/groups/${group.id}`}
+        class="inline-flex min-h-11 items-center rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm text-white transition-colors hover:bg-white/20"
+      >
+        Wróć do grupy
+      </a>
+    </div>
+  </div>
+</Layout>

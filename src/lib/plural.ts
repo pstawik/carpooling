@@ -13,3 +13,8 @@ export function pluralPl(count: number, one: string, few: string, many: string):
 export function seatsLabel(count: number): string {
   return `${count} ${pluralPl(count, "miejsce", "miejsca", "miejsc")}`;
 }
+
+/** "0 przejazdów", "1 przejazd", "2 przejazdy", "5 przejazdów", "22 przejazdy". */
+export function drivesLabel(count: number): string {
+  return `${count} ${pluralPl(count, "przejazd", "przejazdy", "przejazdów")}`;
+}

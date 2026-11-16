@@ -335,25 +335,25 @@ Brak zmian danych. Zmiana polityki działa od razu: dzieci z historią na rozpoc
 
 #### Automated
 
-- [x] 2.1 Lint przechodzi: `npm run lint`
-- [x] 2.2 Typy przechodzą: `npx astro check`
-- [x] 2.3 Build przechodzi: `npm run build`
+- [x] 2.1 Lint przechodzi: `npm run lint` — 4a3764f
+- [x] 2.2 Typy przechodzą: `npx astro check` — 4a3764f
+- [x] 2.3 Build przechodzi: `npm run build` — 4a3764f
 
 #### Manual
 
-- [x] 2.4 Po przestawieniu w bazie `starts_at` terminu z deklaracją dziecka na przeszłość usunięcie tego dziecka wraca z komunikatem w karcie „Dzieci”, a dziecko zostaje; dziecko bez historii usuwa się jak dotąd
+- [x] 2.4 Po przestawieniu w bazie `starts_at` terminu z deklaracją dziecka na przeszłość usunięcie tego dziecka wraca z komunikatem w karcie „Dzieci”, a dziecko zostaje; dziecko bez historii usuwa się jak dotąd — 4a3764f
 
 ### Phase 3: Strona statystyk, link i smoke
 
 #### Automated
 
-- [ ] 3.1 Lint przechodzi: `npm run lint`
-- [ ] 3.2 Typy przechodzą: `npx astro check`
-- [ ] 3.3 Build przechodzi: `npm run build`
-- [ ] 3.4 Smoke przechodzi na uruchomionym serwerze: `npm run smoke`
+- [x] 3.1 Lint przechodzi: `npm run lint`
+- [x] 3.2 Typy przechodzą: `npx astro check`
+- [x] 3.3 Build przechodzi: `npm run build`
+- [x] 3.4 Smoke przechodzi na uruchomionym serwerze: `npm run smoke`
 
 #### Manual
 
-- [ ] 3.5 Przy 360 px strona statystyk nie przewija się w poziomie, długie nicki i imiona się łamią, a link powrotu i link ze strony grupy mają co najmniej 44 px
-- [ ] 3.6 Po przestawieniu w bazie kilku terminów na przeszłość liczby na stronie zgadzają się z regułami (przejazd tylko z jadącym dzieckiem, zakres od dodania dziecka, nieobecność = „nie jedzie” + brak deklaracji)
-- [ ] 3.7 Członek bez przejazdów jest na liście z „0 przejazdów”; pusty stan pojawia się w grupie bez zakończonych terminów
+- [x] 3.5 Przy 360 px strona statystyk nie przewija się w poziomie, długie nicki i imiona się łamią, a link powrotu i link ze strony grupy mają co najmniej 44 px
+- [x] 3.6 Po przestawieniu w bazie kilku terminów na przeszłość liczby na stronie zgadzają się z regułami (przejazd tylko z jadącym dzieckiem, zakres od dodania dziecka, nieobecność = „nie jedzie” + brak deklaracji)
+- [x] 3.7 Członek bez przejazdów jest na liście z „0 przejazdów”; pusty stan pojawia się w grupie bez zakończonych terminów
