@@ -390,12 +390,12 @@ Nie dotyczy (brak zmian danych). Wycofanie: revert commitów fazy; faza 2 jest g
 
 #### Automated
 
-- [x] 5.1 `npm run lint` przechodzi i uruchamia `check-ui-literals`
-- [x] 5.2 Dodanie testowo `text-purple-200` do `[id].astro` powoduje błąd `npm run lint` (sprawdzić i cofnąć)
-- [x] 5.3 `npx astro check` przechodzi bez błędów
-- [x] 5.4 `npm run build` przechodzi
+- [x] 5.1 `npm run lint` przechodzi i uruchamia `check-ui-literals` — 0e1ea18
+- [x] 5.2 Dodanie testowo `text-purple-200` do `[id].astro` powoduje błąd `npm run lint` (sprawdzić i cofnąć) — 0e1ea18
+- [x] 5.3 `npx astro check` przechodzi bez błędów — 0e1ea18
+- [x] 5.4 `npm run build` przechodzi — 0e1ea18
 
 #### Manual
 
-- [x] 5.5 Blok UI w `AGENTS.md` jest zrozumiały i wskazuje poprawne ścieżki
-- [ ] 5.6 CI na PR przechodzi (`ci` i `smoke`)
+- [x] 5.5 Blok UI w `AGENTS.md` jest zrozumiały i wskazuje poprawne ścieżki — 0e1ea18
+- [x] 5.6 CI na PR przechodzi (`ci` i `smoke`) — 0e1ea18
