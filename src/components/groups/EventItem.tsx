@@ -21,7 +21,11 @@ const buttonClass = "h-auto min-h-11 whitespace-normal";
 // shadcn Input is h-9; the edit form keeps 44 px touch targets.
 const inputClass = "h-auto min-h-11 py-2";
 const labelClass = "text-muted-foreground block text-sm";
-const planLinkClass = "flex min-h-11 items-center font-medium break-words underline-offset-4 hover:underline";
+// Keyboard focus uses the --ring token (focus-visible only, so a mouse click shows no outline).
+const planLinkClass = cn(
+  "flex min-h-11 items-center font-medium break-words underline-offset-4 hover:underline",
+  "focus-visible:outline-ring rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2",
+);
 
 /** An upcoming event as the group admin sees it: read mode with "Edytuj" / "Usuń", or an inline edit form. */
 export default function EventItem({ groupId, eventId, label, note, date, time, planHref }: EventItemProps) {

@@ -358,33 +358,33 @@ Nie dotyczy (brak zmian danych). Wycofanie: revert commitów fazy; faza 2 jest g
 
 #### Automated
 
-- [x] 3.1 Skan literałów z `/10x-ui` na 4 plikach widoku zwraca 0 trafień
-- [x] 3.2 `npm run lint` przechodzi
-- [x] 3.3 `npx astro check` przechodzi bez błędów
-- [x] 3.4 `npm run build` przechodzi
-- [x] 3.5 `npm run smoke` przechodzi na uruchomionym serwerze
+- [x] 3.1 Skan literałów z `/10x-ui` na 4 plikach widoku zwraca 0 trafień — 76f2f15
+- [x] 3.2 `npm run lint` przechodzi — 76f2f15
+- [x] 3.3 `npx astro check` przechodzi bez błędów — 76f2f15
+- [x] 3.4 `npm run build` przechodzi — 76f2f15
+- [x] 3.5 `npm run smoke` przechodzi na uruchomionym serwerze — 76f2f15
 
 #### Manual
 
-- [x] 3.6 Na 360 px karta „Terminy” jest pierwszą kartą pod nagłówkiem, bez poziomego przewijania
-- [x] 3.7 Jako admin: dodanie terminu, wygenerowanie serii z błędem (`invalid_event_series`) i dodanie dziecka pokazują komunikat na górze właściwej karty po skoku do kotwicy; „Zarządzaj terminami” otwiera się przy błędzie
-- [x] 3.8 Jako zwykły członek: brak „Zarządzaj terminami” i „Link zaproszeniowy”; link terminu otwiera plan
-- [x] 3.9 Edycja/usuwanie dziecka i terminu oraz kopiowanie/regeneracja linku działają jak wcześniej
+- [x] 3.6 Na 360 px karta „Terminy” jest pierwszą kartą pod nagłówkiem, bez poziomego przewijania — 76f2f15
+- [x] 3.7 Jako admin: dodanie terminu, wygenerowanie serii z błędem (`invalid_event_series`) i dodanie dziecka pokazują komunikat na górze właściwej karty po skoku do kotwicy; „Zarządzaj terminami” otwiera się przy błędzie — 76f2f15
+- [x] 3.8 Jako zwykły członek: brak „Zarządzaj terminami” i „Link zaproszeniowy”; link terminu otwiera plan — 76f2f15
+- [x] 3.9 Edycja/usuwanie dziecka i terminu oraz kopiowanie/regeneracja linku działają jak wcześniej — 76f2f15
 
 ### Phase 4: Stany i kitchen sink
 
 #### Automated
 
-- [ ] 4.1 Skan literałów na 4 plikach widoku i `src/pages/dev/ui-group.astro` zwraca 0 trafień
-- [ ] 4.2 `npm run lint` przechodzi
-- [ ] 4.3 `npx astro check` przechodzi bez błędów
-- [ ] 4.4 `npm run build` przechodzi, a `/dev/ui-group` w buildzie produkcyjnym zwraca 404
+- [x] 4.1 Skan literałów na 4 plikach widoku i `src/pages/dev/ui-group.astro` zwraca 0 trafień
+- [x] 4.2 `npm run lint` przechodzi
+- [x] 4.3 `npx astro check` przechodzi bez błędów
+- [x] 4.4 `npm run build` przechodzi, a `/dev/ui-group` w buildzie produkcyjnym zwraca 404
 
 #### Manual
 
-- [ ] 4.5 Kitchen sink pokazuje każdą z 7 komórek macierzy (lub N/A z powodem) na desktopie i 360 px
-- [ ] 4.6 Nawigacja Tab po stronie grupy pokazuje fokus w kolorze `--ring` na każdym linku, `summary`, polu i przycisku
-- [ ] 4.7 Zrzuty zapisane w `context/changes/group-page-ui/screenshots/`
+- [x] 4.5 Kitchen sink pokazuje każdą z 7 komórek macierzy (lub N/A z powodem) na desktopie i 360 px
+- [x] 4.6 Nawigacja Tab po stronie grupy pokazuje fokus w kolorze `--ring` na każdym linku, `summary`, polu i przycisku
+- [x] 4.7 Zrzuty zapisane w `context/changes/group-page-ui/screenshots/`
 
 ### Phase 5: Strażnik kontraktu
 

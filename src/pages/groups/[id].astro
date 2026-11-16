@@ -77,7 +77,13 @@ const { upcoming, past } = splitEvents(events ?? [], now);
 const todayInWarsaw = utcToWarsawParts(now.toISOString()).date;
 const eventPlanHref = (eventId: string) => `/groups/${group.id}/terminy/${eventId}`;
 // The date label of every event, upcoming or past, opens its child plan.
-const planLinkClass = "flex min-h-11 items-center break-words underline-offset-4 hover:underline";
+// Keyboard focus uses the --ring token (focus-visible only, so a mouse click shows no outline).
+const focusRingClass = "focus-visible:outline-ring rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2";
+const planLinkClass = cn("flex min-h-11 items-center break-words underline-offset-4 hover:underline", focusRingClass);
+const summaryClass = cn(
+  "text-muted-foreground flex min-h-11 cursor-pointer items-center text-sm font-semibold",
+  focusRingClass,
+);
 
 // A failed children query must not take the whole group page down.
 let children: GroupChild[] | null;
@@ -182,9 +188,7 @@ const linkButtonClass = cn(buttonVariants({ variant: "outline" }), "h-auto min-h
 
             {past.length > 0 && (
               <details class="mb-4">
-                <summary class="text-muted-foreground flex min-h-11 cursor-pointer items-center text-sm font-semibold">
-                  Minione terminy ({past.length})
-                </summary>
+                <summary class:list={summaryClass}>Minione terminy ({past.length})</summary>
                 <ul class="mt-2 space-y-2">
                   {past.map((event) => (
                     <li class="text-muted-foreground">
@@ -206,9 +210,7 @@ const linkButtonClass = cn(buttonVariants({ variant: "outline" }), "h-auto min-h
 
         {isAdmin && (
           <details class="mt-4" open={Boolean(eventError)}>
-            <summary class="text-muted-foreground flex min-h-11 cursor-pointer items-center text-sm font-semibold">
-              Zarządzaj terminami
-            </summary>
+            <summary class:list={summaryClass}>Zarządzaj terminami</summary>
 
             <form method="POST" action="/api/groups/events" class="mt-2 space-y-2">
               <h3 class="text-sm font-semibold">Dodaj termin</h3>
