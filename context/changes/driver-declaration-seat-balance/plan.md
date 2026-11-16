@@ -323,24 +323,24 @@ Nowa tabela, brak danych do migracji. `events_id_group_unique` już istnieje (S-
 
 #### Automated
 
-- [x] 1.1 Migracja aplikuje się na czystej bazie: `npx supabase db reset`
-- [x] 1.2 Wszystkie testy pgTAP przechodzą, w tym nowy plik: `npx supabase test db`
+- [x] 1.1 Migracja aplikuje się na czystej bazie: `npx supabase db reset` — b5e8837
+- [x] 1.2 Wszystkie testy pgTAP przechodzą, w tym nowy plik: `npx supabase test db` — b5e8837
 
 #### Manual
 
-- [x] 1.3 Przegląd migracji: cztery polityki per operacja, granty kolumnowe, CHECK 1–8 i komentarz nagłówka zgodne ze wzorcem `create_child_attendance.sql`
+- [x] 1.3 Przegląd migracji: cztery polityki per operacja, granty kolumnowe, CHECK 1–8 i komentarz nagłówka zgodne ze wzorcem `create_child_attendance.sql` — b5e8837
 
 ### Phase 2: Serwis i endpoint
 
 #### Automated
 
-- [ ] 2.1 Lint przechodzi: `npm run lint`
-- [ ] 2.2 Typy przechodzą: `npx astro check`
-- [ ] 2.3 Build przechodzi: `npm run build`
+- [x] 2.1 Lint przechodzi: `npm run lint`
+- [x] 2.2 Typy przechodzą: `npx astro check`
+- [x] 2.3 Build przechodzi: `npm run build`
 
 #### Manual
 
-- [ ] 2.4 Ręczny POST `set` zapisuje wiersz w `event_drivers`, `withdraw` go usuwa, `seats=9` wraca z komunikatem, a błędny uuid daje 404
+- [x] 2.4 Ręczny POST `set` zapisuje wiersz w `event_drivers`, `withdraw` go usuwa, `seats=9` wraca z komunikatem, a błędny uuid daje 404
 
 ### Phase 3: Plan terminu z kierowcami i bilansem
 

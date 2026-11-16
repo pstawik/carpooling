@@ -70,3 +70,18 @@ export interface ChildAttendance {
   created_at: string;
   updated_at: string;
 }
+
+/**
+ * Driver declaration row from `public.event_drivers`; readable by group members, written only by
+ * the member themself through the `set_event_driver` RPC and withdrawn by DELETE, both only until
+ * the event starts. A missing row means the member is not driving.
+ */
+export interface EventDriver {
+  event_id: string;
+  user_id: string;
+  group_id: string;
+  /** Seats for children, 1-8 (check constraint). */
+  seats: number;
+  created_at: string;
+  updated_at: string;
+}

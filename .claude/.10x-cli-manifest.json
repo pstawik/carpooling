@@ -1293,15 +1293,7 @@
         "m1l5-3-extend-prerequisites.md",
         "m1l5-4-store-plan.md"
       ],
-      "configs": [],
-      "representation": {
-        "lang": "en",
-        "tool": "claude-code",
-        "courseRules": true,
-        "rules": true
-      },
-      "installedReleaseId": "r-91ceecd4157060c709900ea5178aba955bb1206a3391aab510923fd9765c187a",
-      "installedManifestHash": "2615d6b1f1d60205eec111215d5853ebc7d0024f4e30a3f8542da0be779f1f0f"
+      "configs": []
     },
     "m2l5": {
       "appliedAt": "2026-11-10T10:27:20.080Z",
