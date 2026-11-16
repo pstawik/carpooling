@@ -1,0 +1,279 @@
+---
+import { CircleAlert, Info } from "lucide-react";
+import Layout from "@/layouts/Layout.astro";
+import InvitePanel from "@/components/groups/InvitePanel";
+import ChildItem from "@/components/groups/ChildItem";
+import EventItem from "@/components/groups/EventItem";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
+
+// Kitchen sink for the group view: every cell of the 7-state matrix on one page, for the visual gate.
+// Dev only; a production build answers 404. No Supabase queries: all data is written in the page.
+if (!import.meta.env.DEV) {
+  return Astro.rewrite("/404");
+}
+
+const groupId = "00000000-0000-4000-8000-000000000001";
+const sampleEvent = {
+  id: "00000000-0000-4000-8000-000000000101",
+  label: "wtorek, 17 listopada 2026, 17:00",
+  note: "Trening na hali, zabrać obuwie zmienne",
+  date: "2026-11-17",
+  time: "17:00",
+};
+const sampleChild = { id: "00000000-0000-4000-8000-000000000201", name: "Zosia" };
+const inviteUrl = "https://example.com/join/abc123";
+
+// The same class constants as src/pages/groups/[id].astro, so the sink shows what the view shows.
+const inputClass = "h-auto min-h-11 py-2";
+const selectClass =
+  "border-input text-foreground focus-visible:border-ring focus-visible:ring-ring/50 dark:bg-input/30 min-h-11 w-full min-w-0 rounded-md border bg-transparent px-3 py-2 text-base shadow-xs outline-none focus-visible:ring-3 md:text-sm";
+const labelClass = "text-muted-foreground block text-sm";
+const focusRingClass = "focus-visible:outline-ring rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2";
+const planLinkClass = cn("flex min-h-11 items-center break-words underline-offset-4 hover:underline", focusRingClass);
+const summaryClass = cn(
+  "text-muted-foreground flex min-h-11 cursor-pointer items-center text-sm font-semibold",
+  focusRingClass,
+);
+const cardClass = "mb-6 gap-0 p-4 backdrop-blur-xl sm:p-6";
+const submitClass = "h-auto min-h-11 w-full whitespace-normal";
+const buttonClass = "h-auto min-h-11 whitespace-normal";
+const linkButtonClass = cn(buttonVariants({ variant: "outline" }), "h-auto min-h-11 whitespace-normal");
+const stateHeadingClass = "mb-1 text-lg font-semibold";
+const stateNoteClass = "text-muted-foreground mb-4 text-sm";
+const subHeadingClass = "text-muted-foreground mb-2 text-sm font-semibold";
+---
+
+<Layout title="Kitchen sink: widok grupy">
+  <div class="bg-cosmic min-h-screen p-4">
+    <div class="mx-auto w-full max-w-xl">
+      <h1 class="text-foreground mb-2 text-2xl font-bold break-words">Kitchen sink: widok grupy</h1>
+      <p class="text-muted-foreground mb-6 text-sm">
+        Strona deweloperska: elementy widoku grupy w 7 stanach. Dane są przykładowe, a formularze nie działają (wysyłają
+        żądania do prawdziwych endpointów, które odrzucą nieistniejącą grupę).
+      </p>
+
+      <Card role="region" aria-labelledby="state-default" className={cardClass}>
+        <h2 id="state-default" class:list={stateHeadingClass}>
+          default
+        </h2>
+        <p class:list={stateNoteClass}>Tylko tokeny i komponenty z ui/ oraz groups/.</p>
+
+        <h3 class:list={subHeadingClass}>Przyciski</h3>
+        <div class="mb-4 flex flex-wrap gap-2">
+          <Button type="button" className={buttonClass}>
+            Dodaj termin
+          </Button>
+          <Button type="button" variant="outline" className={buttonClass}>
+            Edytuj
+          </Button>
+          <a href="#state-default" class:list={linkButtonClass}>
+            Statystyki grupy
+          </a>
+        </div>
+
+        <h3 class:list={subHeadingClass}>Komunikat</h3>
+        <Alert role="status" className="mb-4">
+          <Info />
+          <AlertDescription className="break-words">Termin został dodany.</AlertDescription>
+        </Alert>
+
+        <h3 class:list={subHeadingClass}>Termin (rodzic) i link planu</h3>
+        <a href="#state-default" class:list={[planLinkClass, "font-medium"]}>
+          {sampleEvent.label}
+        </a>
+        <p class="text-muted-foreground mb-4 text-sm break-words">{sampleEvent.note}</p>
+
+        <h3 class:list={subHeadingClass}>Termin (administrator)</h3>
+        <div class="mb-4">
+          <EventItem
+            groupId={groupId}
+            eventId={sampleEvent.id}
+            label={sampleEvent.label}
+            note={sampleEvent.note}
+            date={sampleEvent.date}
+            time={sampleEvent.time}
+            planHref="#state-default"
+            client:load
+          />
+        </div>
+
+        <h3 class:list={subHeadingClass}>Dziecko</h3>
+        <div class="mb-4">
+          <ChildItem groupId={groupId} childId={sampleChild.id} name={sampleChild.name} client:load />
+        </div>
+
+        <h3 class:list={subHeadingClass}>Link zaproszeniowy</h3>
+        <div class="mb-4">
+          <InvitePanel url={inviteUrl} groupId={groupId} client:load />
+        </div>
+
+        <h3 class:list={subHeadingClass}>Pole i lista</h3>
+        <div class="space-y-2">
+          <label for="sink-default-input" class:list={labelClass}>
+            Imię lub nick dziecka
+          </label>
+          <Input id="sink-default-input" type="text" autoComplete="off" className={inputClass} />
+          <label for="sink-default-select" class:list={labelClass}>
+            Dzień tygodnia
+          </label>
+          <select id="sink-default-select" class:list={selectClass}>
+            <option value="1">Poniedziałek</option>
+            <option value="2">Wtorek</option>
+          </select>
+        </div>
+      </Card>
+
+      <Card role="region" aria-labelledby="state-hover" className={cardClass}>
+        <h2 id="state-hover" class:list={stateHeadingClass}>
+          hover
+        </h2>
+        <p class:list={stateNoteClass}>
+          Najedź kursorem: przyciski zmieniają tło (primary/90, accent), link planu dostaje podkreślenie.
+        </p>
+        <div class="mb-4 flex flex-wrap gap-2">
+          <Button type="button" className={buttonClass}>
+            Dodaj dziecko
+          </Button>
+          <Button type="button" variant="outline" className={buttonClass}>
+            Usuń
+          </Button>
+        </div>
+        <a href="#state-hover" class:list={[planLinkClass, "font-medium"]}>
+          {sampleEvent.label}
+        </a>
+        <details>
+          <summary class:list={summaryClass}>Minione terminy (2)</summary>
+          <p class="text-muted-foreground text-sm">Rozwinięta lista minionych terminów.</p>
+        </details>
+      </Card>
+
+      <Card role="region" aria-labelledby="state-focus" className={cardClass}>
+        <h2 id="state-focus" class:list={stateHeadingClass}>
+          focus-visible
+        </h2>
+        <p class:list={stateNoteClass}>
+          Przejdź klawiszem Tab: każdy link, summary, pole i przycisk pokazuje obwódkę w kolorze tokenu --ring.
+          Kliknięcie myszą nie pokazuje obwódki.
+        </p>
+        <div class="space-y-2">
+          <a href="#state-focus" class:list={[planLinkClass, "font-medium"]}>
+            {sampleEvent.label}
+          </a>
+          <details>
+            <summary class:list={summaryClass}>Zarządzaj terminami</summary>
+            <p class="text-muted-foreground text-sm">Formularze dodawania i generowania terminów.</p>
+          </details>
+          <label for="sink-focus-input" class:list={labelClass}>
+            Notatka (opcjonalnie)
+          </label>
+          <Input id="sink-focus-input" type="text" autoComplete="off" className={inputClass} />
+          <label for="sink-focus-select" class:list={labelClass}>
+            Dzień tygodnia
+          </label>
+          <select id="sink-focus-select" class:list={selectClass}>
+            <option value="1">Poniedziałek</option>
+            <option value="2">Wtorek</option>
+          </select>
+          <Button type="button" className={submitClass}>
+            Zapisz
+          </Button>
+          <Button type="button" variant="outline" className={submitClass}>
+            Anuluj
+          </Button>
+          <a href="#state-focus" class:list={linkButtonClass}>
+            Wróć do panelu
+          </a>
+        </div>
+      </Card>
+
+      <Card role="region" aria-labelledby="state-disabled" className={cardClass}>
+        <h2 id="state-disabled" class:list={stateHeadingClass}>
+          disabled
+        </h2>
+        <p class:list={stateNoteClass}>Wygaszone, ale czytelne; nie reagują na kliknięcie ani Tab.</p>
+        <div class="space-y-2">
+          <label for="sink-disabled-input" class:list={labelClass}>
+            Imię lub nick dziecka
+          </label>
+          <Input id="sink-disabled-input" type="text" value="Zosia" disabled className={inputClass} />
+          <div class="flex flex-wrap gap-2">
+            <Button type="button" disabled className={cn(buttonClass, "flex-1")}>
+              Zapisz
+            </Button>
+            <Button type="button" variant="outline" disabled className={cn(buttonClass, "flex-1")}>
+              Anuluj
+            </Button>
+          </div>
+        </div>
+      </Card>
+
+      <Card role="region" aria-labelledby="state-error" className={cardClass}>
+        <h2 id="state-error" class:list={stateHeadingClass}>
+          error
+        </h2>
+        <p class:list={stateNoteClass}>
+          Komunikat przy polu i akcji, token destructive, ikona i tekst (nie tylko kolor).
+        </p>
+        <Alert variant="destructive" role="alert" className="mb-3">
+          <CircleAlert />
+          <AlertDescription className="break-words">Podaj imię lub nick dziecka (najwyżej 40 znaków).</AlertDescription>
+        </Alert>
+        <div class="space-y-2">
+          <label for="sink-error-input" class:list={labelClass}>
+            Imię lub nick dziecka
+          </label>
+          <Input
+            id="sink-error-input"
+            type="text"
+            aria-invalid="true"
+            aria-describedby="sink-error-hint"
+            autoComplete="off"
+            className={inputClass}
+          />
+          <p id="sink-error-hint" class="text-destructive text-sm">
+            To pole jest wymagane.
+          </p>
+          <Button type="button" className={submitClass}>
+            Dodaj dziecko
+          </Button>
+        </div>
+        <Alert variant="destructive" role="alert" className="mt-4">
+          <CircleAlert />
+          <AlertDescription>Nie udało się wczytać terminów.</AlertDescription>
+        </Alert>
+      </Card>
+
+      <Card role="region" aria-labelledby="state-empty" className={cardClass}>
+        <h2 id="state-empty" class:list={stateHeadingClass}>
+          empty
+        </h2>
+        <p class:list={stateNoteClass}>Brak danych: prawdziwy pusty stan, nie pusta ramka.</p>
+        <h3 class="mb-3 text-lg font-semibold">Terminy</h3>
+        <p class="text-muted-foreground mb-4 text-sm">Brak nadchodzących terminów.</p>
+        <h3 class:list={subHeadingClass}>Twoje dzieci</h3>
+        <p class="text-muted-foreground mb-4 text-sm">Nie dodałeś jeszcze dziecka.</p>
+        <h3 class="mb-3 text-lg font-semibold">Link zaproszeniowy</h3>
+        <p class="text-muted-foreground mb-3 text-sm">
+          Grupa nie ma jeszcze linku. Każdy, kto go otrzyma, będzie mógł dołączyć do grupy.
+        </p>
+        <Button type="button" className={submitClass}>
+          Wygeneruj link
+        </Button>
+      </Card>
+
+      <Card role="region" aria-labelledby="state-loading" className={cardClass}>
+        <h2 id="state-loading" class:list={stateHeadingClass}>
+          loading
+        </h2>
+        <p class="text-muted-foreground text-sm">
+          N/A — SSR, brak doczytywania danych. Widok grupy dostaje wszystkie dane na serwerze przed wysłaniem HTML, więc
+          nie ma stanu ładowania ani przeskoku układu.
+        </p>
+      </Card>
+    </div>
+  </div>
+</Layout>

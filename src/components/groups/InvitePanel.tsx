@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState, type SubmitEvent } from "react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 
 interface InvitePanelProps {
   /** Full invite URL, built on the server from the request origin. */
@@ -10,7 +9,8 @@ interface InvitePanelProps {
 
 const COPIED_RESET_MS = 2000;
 
-const buttonClass = "h-auto min-h-11 w-full rounded-lg px-4 py-2 font-medium whitespace-normal transition-colors";
+// Size only: the colours come from the Button variants. Touch targets stay at least 44 px.
+const buttonClass = "h-auto min-h-11 w-full whitespace-normal";
 
 export default function InvitePanel({ url, groupId }: InvitePanelProps) {
   const fieldRef = useRef<HTMLTextAreaElement>(null);
@@ -45,7 +45,7 @@ export default function InvitePanel({ url, groupId }: InvitePanelProps) {
 
   return (
     <div className="space-y-3">
-      <label htmlFor="invite-url" className="block text-sm text-blue-100/80">
+      <label htmlFor="invite-url" className="text-muted-foreground block text-sm">
         Wyślij ten link rodzicom z grupy
       </label>
       <textarea
@@ -57,22 +57,14 @@ export default function InvitePanel({ url, groupId }: InvitePanelProps) {
         onFocus={(event) => {
           event.currentTarget.select();
         }}
-        className="w-full resize-none rounded-lg border border-white/20 bg-white/10 px-3 py-2 font-mono text-sm break-all text-white focus:ring-2 focus:ring-purple-400 focus:outline-none"
+        className="border-input text-foreground focus-visible:border-ring focus-visible:ring-ring/50 dark:bg-input/30 w-full resize-none rounded-md border bg-transparent px-3 py-2 font-mono text-sm break-all shadow-xs outline-none focus-visible:ring-3"
       />
-      <Button
-        type="button"
-        onClick={copy}
-        aria-live="polite"
-        className={cn(buttonClass, "bg-purple-600 text-white hover:bg-purple-500")}
-      >
+      <Button type="button" onClick={copy} aria-live="polite" className={buttonClass}>
         {copied ? "Skopiowano" : "Kopiuj"}
       </Button>
       <form method="POST" action="/api/groups/invite" onSubmit={confirmRegenerate}>
         <input type="hidden" name="group_id" value={groupId} />
-        <Button
-          type="submit"
-          className={cn(buttonClass, "border border-white/20 bg-white/10 text-white hover:bg-white/20")}
-        >
+        <Button type="submit" variant="outline" className={buttonClass}>
           Wygeneruj nowy link
         </Button>
       </form>
