@@ -8,11 +8,14 @@ import { getGroupWithAdmins } from "@/lib/services/groups";
 import { getGroupEvent, hasStarted } from "@/lib/services/events";
 import { listGroupChildren } from "@/lib/services/children";
 import { buildChildPlan, listEventAttendance, type AttendanceStatus, type ChildPlan } from "@/lib/services/attendance";
+import { buildSeatBalance, listEventDrivers, type EventDriverEntry, type SeatBalance } from "@/lib/services/drivers";
 import { groupErrorMessage } from "@/lib/services/group-errors";
+import { pluralPl, seatsLabel } from "@/lib/plural";
 import { formatEventStart } from "@/lib/time";
 
-// The child plan of one event (US-01 without drivers). Middleware guarantees a signed-in user on
-// /groups/*. Non-members, an event of another group, unknown and malformed ids all get the same 404.
+// The full plan of one event (US-01): seat balance, the member's own driver declaration, their
+// children, the drivers and the child plan. Middleware guarantees a signed-in user on /groups/*.
+// Non-members, an event of another group, unknown and malformed ids all get the same 404.
 const supabase = createClient(Astro.request.headers, Astro.cookies);
 const { user } = Astro.locals;
 if (!supabase || !user) {
@@ -32,24 +35,49 @@ if (!event) {
 // enforces the lock anyway; this only decides whether the buttons are shown.
 const locked = hasStarted(event, new Date());
 
-// Only the attendance endpoint's codes are shown here. `attendance_locked` lands on #twoje-dzieci,
-// so it is shown in that card; the others are shown at the top of the page.
+// Only the attendance and driver endpoints' codes are shown here, each in the card its redirect
+// lands on: `attendance_locked` in #twoje-dzieci, the driver codes in #twoj-przejazd. The generic
+// ones are shown at the top of the page.
 const errorCode = Astro.url.searchParams.get("error");
 const lockedError = errorCode === "attendance_locked" ? groupErrorMessage(errorCode, null) : null;
+const driverError =
+  errorCode === "driver_locked" || errorCode === "invalid_driver_seats" ? groupErrorMessage(errorCode, null) : null;
 const error = errorCode === "not_configured" || errorCode === "unknown" ? groupErrorMessage(errorCode, null) : null;
 
-// A failed children or attendance query must not take the whole page down.
+// A failed children, attendance or drivers query must not take the whole page down.
 let plan: ChildPlan | null;
+let drivers: EventDriverEntry[] = [];
+let balance: SeatBalance | null = null;
 try {
-  const [children, attendance] = await Promise.all([
+  const [children, attendance, eventDrivers] = await Promise.all([
     listGroupChildren(supabase, group.id),
     listEventAttendance(supabase, event.id),
+    listEventDrivers(supabase, event.id),
   ]);
   plan = buildChildPlan(children, attendance, user.id);
+  drivers = eventDrivers;
+  // Only children declared as going count; "bez deklaracji" does not add to the demand.
+  balance = buildSeatBalance(drivers, plan.going.length);
 } catch (loadError) {
   // eslint-disable-next-line no-console -- surfaces in Cloudflare Worker logs
   console.error(loadError);
   plan = null;
+}
+const myDriver = drivers.find((driver) => driver.userId === user.id) ?? null;
+
+/** "Jedzie 0 dzieci", "Jedzie 1 dziecko", "Jadą 2 dzieci", "Jadą 5 dzieci". */
+function goingLabel(count: number): string {
+  return `${count >= 2 ? "Jadą" : "Jedzie"} ${count} ${pluralPl(count, "dziecko", "dzieci", "dzieci")}`;
+}
+
+/** "Brakuje 1 miejsca", "Brakuje 2 miejsc", "Brakuje 5 miejsc" (genitive). */
+function missingLabel(count: number): string {
+  return `Brakuje ${count} ${count === 1 ? "miejsca" : "miejsc"}`;
+}
+
+/** A dialable `tel:` target: digits and a leading plus only. */
+function telHref(phone: string): string {
+  return `tel:${phone.replace(/[^\d+]/g, "")}`;
 }
 
 const label = formatEventStart(event.startsAt);
@@ -65,6 +93,9 @@ const choiceClass =
 const choiceOnClass = "bg-purple-600 hover:bg-purple-500";
 const choiceOffClass = "border border-white/20 bg-white/10 hover:bg-white/20";
 const badgeClass = "ml-1 inline-block rounded bg-white/10 px-1.5 py-0.5 text-xs text-blue-100/80";
+const alertClass = "rounded-lg border border-red-500/30 bg-red-900/30 px-3 py-2 text-sm break-words text-red-300";
+const inputClass =
+  "min-h-11 w-full min-w-0 rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-white focus:ring-2 focus:ring-purple-400 focus:outline-none";
 ---
 
 <Layout title={`${label} · ${group.name}`}>
@@ -89,22 +120,97 @@ const badgeClass = "ml-1 inline-block rounded bg-white/10 px-1.5 py-0.5 text-xs 
         </p>
       )}
 
-      {plan === null ? (
+      {plan === null || balance === null ? (
         <section class:list={[cardClass, "mb-6"]}>
           <p class="text-sm text-red-300" role="alert">
-            Nie udało się wczytać planu dzieci.
+            Nie udało się wczytać planu.
           </p>
         </section>
       ) : (
         <>
+          <section id="bilans" class:list={[cardClass, "mb-6"]}>
+            <h2 class="mb-2 text-lg font-semibold">Bilans miejsc</h2>
+            <p class="mb-3 break-words">{`${goingLabel(balance.going)} · ${seatsLabel(balance.seats)}`}</p>
+            {balance.status === "shortage" && (
+              <p
+                class="rounded-lg border border-red-500/30 bg-red-900/30 px-3 py-2 font-semibold break-words text-red-300"
+                role="alert"
+              >
+                {missingLabel(balance.missing)}
+              </p>
+            )}
+            {balance.status === "enough" && (
+              <p class="rounded-lg border border-green-500/30 bg-green-900/30 px-3 py-2 font-semibold break-words text-green-300">
+                Miejsc wystarcza
+              </p>
+            )}
+            {balance.status === "none_going" && (
+              <p class="text-sm text-blue-100/70">Żadne dziecko jeszcze nie jedzie</p>
+            )}
+          </section>
+
+          <section id="twoj-przejazd" class:list={[cardClass, "mb-6 scroll-mt-4"]}>
+            <h2 class="mb-3 text-lg font-semibold">Twój przejazd</h2>
+            {driverError && (
+              <p class:list={[alertClass, "mb-3"]} role="alert">
+                {driverError}
+              </p>
+            )}
+            {locked ? (
+              <>
+                <p class="mb-2 break-words">
+                  {myDriver ? `Jedziesz jako kierowca: ${seatsLabel(myDriver.seats)}` : "Nie jedziesz jako kierowca"}
+                </p>
+                <p class="text-sm text-blue-100/70">
+                  Termin się rozpoczął — deklaracja kierowcy jest tylko do odczytu.
+                </p>
+              </>
+            ) : (
+              <>
+                {myDriver && <p class="mb-3 break-words">Jedziesz jako kierowca: {seatsLabel(myDriver.seats)}</p>}
+                <form method="POST" action="/api/groups/events/driver" class="space-y-2">
+                  <input type="hidden" name="group_id" value={group.id} />
+                  <input type="hidden" name="event_id" value={event.id} />
+                  <input type="hidden" name="action" value="set" />
+                  <label for="driver-seats" class="block text-sm text-blue-100/80">
+                    Wolne miejsca dla dzieci (1–8)
+                  </label>
+                  <input
+                    id="driver-seats"
+                    name="seats"
+                    type="number"
+                    inputmode="numeric"
+                    min="1"
+                    max="8"
+                    step="1"
+                    required
+                    placeholder="np. 3"
+                    value={myDriver ? String(myDriver.seats) : undefined}
+                    class:list={inputClass}
+                  />
+                  <Button type="submit" className={cn(choiceClass, choiceOnClass)}>
+                    {myDriver ? "Zapisz miejsca" : "Jadę jako kierowca"}
+                  </Button>
+                </form>
+                {myDriver && (
+                  <form method="POST" action="/api/groups/events/driver" class="mt-2">
+                    <input type="hidden" name="group_id" value={group.id} />
+                    <input type="hidden" name="event_id" value={event.id} />
+                    <input type="hidden" name="action" value="withdraw" />
+                    <Button type="submit" className={cn(choiceClass, choiceOffClass)}>
+                      Wycofaj
+                    </Button>
+                  </form>
+                )}
+              </>
+            )}
+          </section>
+
           {plan.mine.length > 0 && (
             <section id="twoje-dzieci" class:list={[cardClass, "mb-6 scroll-mt-4"]}>
               <h2 class="mb-3 text-lg font-semibold">Twoje dzieci</h2>
               {lockedError && (
-                <p
-                  class="mb-3 rounded-lg border border-red-500/30 bg-red-900/30 px-3 py-2 text-sm break-words text-red-300"
-                  role="alert"
-                >
+                <p class:list={[alertClass, "mb-3"]} role="alert">
                   {lockedError}
                 </p>
               )}
@@ -145,6 +251,32 @@ const badgeClass = "ml-1 inline-block rounded bg-white/10 px-1.5 py-0.5 text-xs 
               </ul>
             </section>
           )}
+
+          <section id="kierowcy" class:list={[cardClass, "mb-6"]}>
+            <h2 class="mb-3 text-lg font-semibold">Kierowcy ({drivers.length})</h2>
+            {drivers.length === 0 ? (
+              <p class="text-sm text-blue-100/70">Nikt jeszcze nie zadeklarował się jako kierowca</p>
+            ) : (
+              <ul class="space-y-2 text-sm">
+                {drivers.map((driver) => (
+                  <li class="rounded-xl border border-white/10 bg-white/5 p-3">
+                    <p class="break-words">
+                      <span class="font-medium">{driver.nick ?? "Członek grupy"}</span>
+                      <span class="text-blue-100/70"> — {seatsLabel(driver.seats)}</span>
+                    </p>
+                    {driver.phone && (
+                      <a
+                        href={telHref(driver.phone)}
+                        class="inline-flex min-h-11 items-center break-all text-blue-200 underline-offset-4 hover:underline"
+                      >
+                        {driver.phone}
+                      </a>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
 
           <section class:list={[cardClass, "mb-6"]}>
             <h2 class="mb-3 text-lg font-semibold">Plan dzieci</h2>

@@ -151,6 +151,21 @@ const planPageList = (listId, name) => async () => {
   return { ...result, body: name ? planEntry(list, name) : list };
 };
 
+const driverForm =
+  ({ action = "set", seats, event = () => planEventId } = {}) =>
+  () =>
+    request("/api/groups/events/driver", {
+      method: "POST",
+      form: { group_id: groupId(), event_id: event(), action, ...(seats === undefined ? {} : { seats }) },
+    });
+
+/** Reads the plan page and narrows the body to one card (`bilans` / `kierowcy`), up to its end. */
+const planPageSection = (sectionId) => async () => {
+  const result = await request(planPath(), { readBody: true });
+  const at = result.body.indexOf(`id="${sectionId}"`);
+  return { ...result, body: at === -1 ? "" : result.body.slice(at, result.body.indexOf("</section>", at)) };
+};
+
 const addEventForm =
   ({ date = eventDate, time = "17:00", note = eventNote, group = groupId } = {}) =>
   () =>
@@ -544,6 +559,56 @@ const writeSteps = [
     declareForm({ going: "true", event: () => randomUUID() }),
     { status: 404 },
   ],
+  [
+    "parent declares the child going again",
+    declareForm({ going: "true" }),
+    { status: 302, location: () => `${planPath()}#twoje-dzieci` },
+  ],
+  [
+    "balance warns about a missing seat",
+    planPageSection("bilans"),
+    { status: 200, contains: ["Jedzie 1 dziecko · 0 miejsc", "Brakuje 1 miejsca"] },
+  ],
+  [
+    "plan has no drivers yet",
+    planPageSection("kierowcy"),
+    { status: 200, contains: "Nikt jeszcze nie zadeklarował się jako kierowca" },
+  ],
+  [
+    "parent declares as a driver with 2 seats",
+    driverForm({ seats: "2" }),
+    { status: 302, location: () => `${planPath()}#twoj-przejazd` },
+  ],
+  [
+    "balance shows enough seats",
+    planPageSection("bilans"),
+    { status: 200, contains: ["Jedzie 1 dziecko · 2 miejsca", "Miejsc wystarcza"], notContains: "Brakuje" },
+  ],
+  [
+    "drivers list shows the parent with 2 seats",
+    planPageSection("kierowcy"),
+    { status: 200, contains: ["Kierowcy (1)", profile.nick, "2 miejsca", 'href="tel:600123456"'] },
+  ],
+  [
+    "9 seats are rejected with a message",
+    driverForm({ seats: "9" }),
+    { status: 302, location: () => `${planPath()}?error=invalid_driver_seats#twoj-przejazd` },
+  ],
+  [
+    "declaring as a driver for an unknown event renders 404",
+    driverForm({ seats: "2", event: () => randomUUID() }),
+    { status: 404 },
+  ],
+  [
+    "parent withdraws as a driver",
+    driverForm({ action: "withdraw" }),
+    { status: 302, location: () => `${planPath()}#twoj-przejazd` },
+  ],
+  [
+    "balance warns about a missing seat again",
+    planPageSection("bilans"),
+    { status: 200, contains: "Brakuje 1 miejsca", notContains: "Miejsc wystarcza" },
+  ],
   ["parent signs out", () => request("/api/auth/signout", { method: "POST" }), { status: 302, location: "/" }],
   [
     "outsider signs up",
@@ -551,6 +616,7 @@ const writeSteps = [
     { status: 302, location: "/dashboard" },
   ],
   ["outsider gets 404 on the plan page", () => request(planPath()), { status: 404 }],
+  ["outsider cannot declare as a driver", driverForm({ seats: "2" }), { status: 404 }],
   ["outsider signs out", () => request("/api/auth/signout", { method: "POST" }), { status: 302, location: "/" }],
 ];
 

@@ -334,26 +334,26 @@ Nowa tabela, brak danych do migracji. `events_id_group_unique` już istnieje (S-
 
 #### Automated
 
-- [x] 2.1 Lint przechodzi: `npm run lint`
-- [x] 2.2 Typy przechodzą: `npx astro check`
-- [x] 2.3 Build przechodzi: `npm run build`
+- [x] 2.1 Lint przechodzi: `npm run lint` — ac6fc00
+- [x] 2.2 Typy przechodzą: `npx astro check` — ac6fc00
+- [x] 2.3 Build przechodzi: `npm run build` — ac6fc00
 
 #### Manual
 
-- [x] 2.4 Ręczny POST `set` zapisuje wiersz w `event_drivers`, `withdraw` go usuwa, `seats=9` wraca z komunikatem, a błędny uuid daje 404
+- [x] 2.4 Ręczny POST `set` zapisuje wiersz w `event_drivers`, `withdraw` go usuwa, `seats=9` wraca z komunikatem, a błędny uuid daje 404 — ac6fc00
 
 ### Phase 3: Plan terminu z kierowcami i bilansem
 
 #### Automated
 
-- [ ] 3.1 Lint przechodzi: `npm run lint`
-- [ ] 3.2 Typy przechodzą: `npx astro check`
-- [ ] 3.3 Build przechodzi: `npm run build`
-- [ ] 3.4 Smoke przechodzi na uruchomionym serwerze: `npm run smoke`
+- [x] 3.1 Lint przechodzi: `npm run lint`
+- [x] 3.2 Typy przechodzą: `npx astro check`
+- [x] 3.3 Build przechodzi: `npm run build`
+- [x] 3.4 Smoke przechodzi na uruchomionym serwerze: `npm run smoke`
 
 #### Manual
 
-- [ ] 3.5 Przy 360 px karta bilansu jest widoczna bez przewijania, strona nie przewija się w poziomie, a pole miejsc i przyciski da się wygodnie obsłużyć bez powiększania
-- [ ] 3.6 Dwóch członków deklaruje się jako kierowcy; drugi po odświeżeniu widzi obu, sumę miejsc i telefon tego, kto go podał (link `tel:` działa na telefonie)
-- [ ] 3.7 Bilans przechodzi przez trzy stany: „Żadne dziecko jeszcze nie jedzie” → „Brakuje K miejsc” → „Miejsc wystarcza”
-- [ ] 3.8 Plan rozpoczętego terminu pokazuje deklarację kierowcy bez formularza i informację o blokadzie
+- [x] 3.5 Przy 360 px karta bilansu jest widoczna bez przewijania, strona nie przewija się w poziomie, a pole miejsc i przyciski da się wygodnie obsłużyć bez powiększania
+- [x] 3.6 Dwóch członków deklaruje się jako kierowcy; drugi po odświeżeniu widzi obu, sumę miejsc i telefon tego, kto go podał (link `tel:` działa na telefonie)
+- [x] 3.7 Bilans przechodzi przez trzy stany: „Żadne dziecko jeszcze nie jedzie” → „Brakuje K miejsc” → „Miejsc wystarcza”
+- [x] 3.8 Plan rozpoczętego terminu pokazuje deklarację kierowcy bez formularza i informację o blokadzie

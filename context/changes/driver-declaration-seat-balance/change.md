@@ -3,7 +3,7 @@ change_id: driver-declaration-seat-balance
 title: Driver declaration seat balance
 status: implementing
 created: 2026-11-13
-updated: 2026-11-13
+updated: 2026-11-16
 archived_at: null
 ---
 
