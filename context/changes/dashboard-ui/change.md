@@ -1,7 +1,7 @@
 ---
 change_id: dashboard-ui
 title: Dashboard ui
-status: implementing
+status: implemented
 created: 2026-11-17
 updated: 2026-11-17
 archived_at: null

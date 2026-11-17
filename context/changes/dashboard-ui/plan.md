@@ -297,7 +297,7 @@ N/A — brak zmian danych.
 
 #### Automated
 
-- [x] 4.1 `npm run lint` przechodzi (w tym `check-ui-literals: 0 hits in 13 files`)
-- [x] 4.2 `npx astro check` przechodzi bez błędów
-- [x] 4.3 `npm run build` przechodzi
-- [x] 4.4 `npm run smoke` przechodzi na uruchomionym serwerze
+- [x] 4.1 `npm run lint` przechodzi (w tym `check-ui-literals: 0 hits in 13 files`) — d9676fe
+- [x] 4.2 `npx astro check` przechodzi bez błędów — d9676fe
+- [x] 4.3 `npm run build` przechodzi — d9676fe
+- [x] 4.4 `npm run smoke` przechodzi na uruchomionym serwerze — d9676fe
