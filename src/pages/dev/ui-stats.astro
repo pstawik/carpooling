@@ -1,0 +1,177 @@
+---
+import { CircleAlert } from "lucide-react";
+import Layout from "@/layouts/Layout.astro";
+import { cardClass, linkButtonClass, listItemClass, subHeadingClass } from "@/components/groups/group-page-classes";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Card } from "@/components/ui/card";
+import { drivesLabel } from "@/lib/plural";
+
+// Kitchen sink for the group statistics: every cell of the 7-state matrix on one page, for the visual gate.
+// Dev only; a production build answers 404. No Supabase queries: all data is written in the page.
+if (!import.meta.env.DEV) {
+  return Astro.rewrite("/404");
+}
+
+const finishedCount = 6;
+// The drives values cover every form of the view's drivesLabel helper (src/lib/plural.ts);
+// a member without a nick shows the view's "Członek grupy" fallback.
+const drivers: { nick: string | null; drives: number }[] = [
+  { nick: "Ania", drives: 5 },
+  { nick: "Marek", drives: 2 },
+  { nick: "Kuba", drives: 1 },
+  { nick: null, drives: 0 },
+];
+// One child without a parent nick, as the view renders it.
+const children: { name: string; parentNick: string | null; present: number; absent: number }[] = [
+  { name: "Zosia", parentNick: "Ania", present: 5, absent: 1 },
+  { name: "Staś", parentNick: "Marek", present: 3, absent: 3 },
+  { name: "Lena", parentNick: null, present: 0, absent: 6 },
+];
+
+// The view's class constants come from group-page-classes, so the sink shows what the view shows.
+// These two style only the sink's own state labels, which the view does not have.
+const stateHeadingClass = "mb-1 text-lg font-semibold";
+const stateNoteClass = "text-muted-foreground mb-4 text-sm";
+---
+
+<Layout title="Kitchen sink: statystyki grupy">
+  <div class="bg-cosmic min-h-screen p-4">
+    <div class="mx-auto w-full max-w-xl">
+      <h1 class="text-foreground mb-2 text-2xl font-bold break-words">Kitchen sink: statystyki grupy</h1>
+      <p class="text-muted-foreground mb-6 text-sm">
+        Strona deweloperska: elementy statystyk grupy w 7 stanach. Dane są przykładowe, a link „Wróć do grupy” prowadzi
+        do kotwicy na tej stronie.
+      </p>
+
+      <Card role="region" aria-labelledby="state-default" className={cardClass}>
+        <h2 id="state-default" class:list={stateHeadingClass}>
+          default
+        </h2>
+        <p class:list={stateNoteClass}>Tylko tokeny i komponenty z ui/ oraz stałe z group-page-classes.</p>
+
+        <Card role="region" aria-labelledby="sink-default-podsumowanie-heading" className={cardClass}>
+          <h3 id="sink-default-podsumowanie-heading" class="mb-2 text-lg font-semibold">
+            Zakończone terminy: {finishedCount}
+          </h3>
+          <p class="text-muted-foreground text-sm">
+            Przejazd liczy się, gdy na termin jechało co najmniej jedno dziecko. Nieobecność to „nie jedzie” albo brak
+            deklaracji, liczone od dodania dziecka.
+          </p>
+        </Card>
+
+        <Card role="region" aria-labelledby="sink-default-kierowcy-heading" className={cardClass}>
+          <h3 id="sink-default-kierowcy-heading" class="mb-3 text-lg font-semibold">
+            Kierowcy
+          </h3>
+          <ul class="space-y-2 text-sm">
+            {drivers.map((driver) => (
+              <li class:list={listItemClass}>
+                <p class="font-medium break-words">{driver.nick ?? "Członek grupy"}</p>
+                <p class="text-muted-foreground">{drivesLabel(driver.drives)}</p>
+              </li>
+            ))}
+          </ul>
+        </Card>
+
+        <Card role="region" aria-labelledby="sink-default-dzieci-heading" className={cardClass}>
+          <h3 id="sink-default-dzieci-heading" class="mb-3 text-lg font-semibold">
+            Dzieci
+          </h3>
+          <ul class="space-y-2 text-sm">
+            {children.map((child) => (
+              <li class:list={listItemClass}>
+                <p class="break-words">
+                  <span class="font-medium">{child.name}</span>
+                  {child.parentNick && <span class="text-muted-foreground"> ({child.parentNick})</span>}
+                </p>
+                <p class="text-muted-foreground">
+                  Obecności: {child.present} · Nieobecności: {child.absent}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      </Card>
+
+      <Card role="region" aria-labelledby="state-hover" className={cardClass}>
+        <h2 id="state-hover" class:list={stateHeadingClass}>
+          hover
+        </h2>
+        <p class:list={stateNoteClass}>
+          Najedź kursorem: link „Wróć do grupy” zmienia tło (token --input, wariant outline w trybie dark).
+        </p>
+        <a href="#state-hover" class:list={linkButtonClass}>
+          Wróć do grupy
+        </a>
+      </Card>
+
+      <Card role="region" aria-labelledby="state-focus" className={cardClass}>
+        <h2 id="state-focus" class:list={stateHeadingClass}>
+          focus-visible
+        </h2>
+        <p class:list={stateNoteClass}>
+          Przejdź klawiszem Tab: link „Wróć do grupy” pokazuje obwódkę w kolorze tokenu --ring. Kliknięcie myszą nie
+          pokazuje obwódki.
+        </p>
+        <a href="#state-focus" class:list={linkButtonClass}>
+          Wróć do grupy
+        </a>
+      </Card>
+
+      <Card role="region" aria-labelledby="state-disabled" className={cardClass}>
+        <h2 id="state-disabled" class:list={stateHeadingClass}>
+          disabled
+        </h2>
+        <p class="text-muted-foreground text-sm">
+          N/A — statystyki są tylko do odczytu. Jedyną kontrolką widoku jest link „Wróć do grupy”, który zawsze jest
+          aktywny, więc nie ma czego wygaszać.
+        </p>
+      </Card>
+
+      <Card role="region" aria-labelledby="state-error" className={cardClass}>
+        <h2 id="state-error" class:list={stateHeadingClass}>
+          error
+        </h2>
+        <p class:list={stateNoteClass}>
+          Błąd ładowania statystyk zastępuje karty danych; token destructive, ikona i tekst (nie tylko kolor).
+        </p>
+        <Alert variant="destructive" role="alert">
+          <CircleAlert />
+          <AlertDescription>Nie udało się wczytać statystyk.</AlertDescription>
+        </Alert>
+      </Card>
+
+      <Card role="region" aria-labelledby="state-empty" className={cardClass}>
+        <h2 id="state-empty" class:list={stateHeadingClass}>
+          empty
+        </h2>
+        <p class:list={stateNoteClass}>Brak danych: prawdziwy pusty stan, nie pusta ramka.</p>
+
+        <h3 class:list={subHeadingClass}>Brak zakończonych terminów (jedna karta)</h3>
+        <Card className={cardClass}>
+          <p class="text-muted-foreground text-sm">
+            Brak zakończonych terminów — statystyki pojawią się po pierwszym terminie.
+          </p>
+        </Card>
+
+        <h3 class:list={subHeadingClass}>Brak dzieci przy zakończonych terminach</h3>
+        <Card role="region" aria-labelledby="sink-empty-dzieci-heading" className={cardClass}>
+          <h4 id="sink-empty-dzieci-heading" class="mb-3 text-lg font-semibold">
+            Dzieci
+          </h4>
+          <p class="text-muted-foreground text-sm">W grupie nie ma jeszcze dzieci.</p>
+        </Card>
+      </Card>
+
+      <Card role="region" aria-labelledby="state-loading" className={cardClass}>
+        <h2 id="state-loading" class:list={stateHeadingClass}>
+          loading
+        </h2>
+        <p class="text-muted-foreground text-sm">
+          N/A — SSR, brak doczytywania danych. Statystyki są liczone na serwerze (Promise.all) przed wysłaniem HTML, a
+          widok nie ma formularzy ani doczytywania, więc nie ma stanu ładowania ani przeskoku układu.
+        </p>
+      </Card>
+    </div>
+  </div>
+</Layout>
