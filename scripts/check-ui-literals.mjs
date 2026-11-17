@@ -12,12 +12,15 @@ const CLEANED_VIEWS = [
   "src/components/groups/ChildItem.tsx",
   "src/components/groups/EventItem.tsx",
   "src/components/groups/InvitePanel.tsx",
+  "src/components/groups/group-page-classes.ts",
+  "src/components/Topbar.astro",
   "src/pages/dev/ui-group.astro",
 ];
 
-// Same pattern as the /10x-ui hardcoded-value scan: hex, rgb(a), hsl(a), oklch, arbitrary px/rem, Tailwind palette classes.
+// The /10x-ui hardcoded-value scan, widened: side borders, ring-offset, placeholder/caret/accent/decoration,
+// arbitrary values in px/rem/em/% (incl. negative); hex ignored in href="#anchor" and hyphenated ids.
 const LITERAL =
-  /#[0-9a-fA-F]{3,8}\b|rgba?\(|hsla?\(|oklch\(|-\[[0-9.]+(px|rem)\]|\b(bg|text|border|ring|outline|from|via|to|fill|stroke|shadow|divide)-(slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose|white|black)\b/;
+  /(?<!href=["'])#[0-9a-fA-F]{3,8}\b(?![\w-])|rgba?\(|hsla?\(|oklch\(|-\[-?[0-9.]+(px|rem|em|%)\]|\b(bg|text|border(-[trblxyse])?|ring(-offset)?|outline|from|via|to|fill|stroke|shadow|divide|placeholder|caret|accent|decoration)-(slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose|white|black)\b/;
 
 let hits = 0;
 let missing = 0;
