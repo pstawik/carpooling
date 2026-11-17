@@ -5,8 +5,18 @@ import Topbar from "@/components/Topbar.astro";
 import InvitePanel from "@/components/groups/InvitePanel";
 import ChildItem from "@/components/groups/ChildItem";
 import EventItem from "@/components/groups/EventItem";
+import {
+  cardClass,
+  inputClass,
+  labelClass,
+  linkButtonClass,
+  planLinkClass,
+  selectClass,
+  submitClass,
+  summaryClass,
+} from "@/components/groups/group-page-classes";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { createClient } from "@/lib/supabase";
@@ -52,15 +62,10 @@ const eventMessage =
     : messageCode === "events_generated"
       ? eventsGeneratedMessage(Astro.url.searchParams.get("created"), Astro.url.searchParams.get("skipped"))
       : groupNoticeMessage(messageCode);
-// After an events mistake, "Zarządzaj terminami" is reopened so the admin sees the forms with the message.
+// "Zarządzaj terminami" opens after an events mistake (so the admin sees the forms with the message)
+// and when the group has no upcoming events (adding one is then the obvious next step).
 const eventError = errorSection === "terminy" ? groupErrorMessage(errorCode, null) : null;
 const weekdays = ["Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek", "Sobota", "Niedziela"];
-// shadcn Input is h-9; every control on this page stays at least 44 px tall for touch.
-const inputClass = "h-auto min-h-11 py-2";
-// The native <select> has no ui/ component: it gets the same tokens as Input.
-const selectClass =
-  "border-input text-foreground focus-visible:border-ring focus-visible:ring-ring/50 dark:bg-input/30 min-h-11 w-full min-w-0 rounded-md border bg-transparent px-3 py-2 text-base shadow-xs outline-none focus-visible:ring-3 md:text-sm";
-const labelClass = "text-muted-foreground block text-sm";
 
 // A failed events query must not take the whole group page down either. "Upcoming" is judged
 // against one `now` per request, the same moment that marks an event finished.
@@ -76,14 +81,6 @@ const now = new Date();
 const { upcoming, past } = splitEvents(events ?? [], now);
 const todayInWarsaw = utcToWarsawParts(now.toISOString()).date;
 const eventPlanHref = (eventId: string) => `/groups/${group.id}/terminy/${eventId}`;
-// The date label of every event, upcoming or past, opens its child plan.
-// Keyboard focus uses the --ring token (focus-visible only, so a mouse click shows no outline).
-const focusRingClass = "focus-visible:outline-ring rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2";
-const planLinkClass = cn("flex min-h-11 items-center break-words underline-offset-4 hover:underline", focusRingClass);
-const summaryClass = cn(
-  "text-muted-foreground flex min-h-11 cursor-pointer items-center text-sm font-semibold",
-  focusRingClass,
-);
 
 // A failed children query must not take the whole group page down.
 let children: GroupChild[] | null;
@@ -101,10 +98,6 @@ const otherChildren = children?.filter((child) => child.parentId !== user.id) ??
 const isAdmin = group.myRole === "admin";
 const inviteToken = isAdmin ? await getGroupInviteToken(supabase, group.id) : null;
 const inviteUrl = inviteToken ? `${Astro.url.origin}/join/${inviteToken}` : null;
-
-const cardClass = "mb-6 gap-0 p-4 backdrop-blur-xl sm:p-6";
-const submitClass = "h-auto min-h-11 w-full whitespace-normal";
-const linkButtonClass = cn(buttonVariants({ variant: "outline" }), "h-auto min-h-11 whitespace-normal");
 ---
 
 <Layout title={group.name}>
@@ -209,7 +202,7 @@ const linkButtonClass = cn(buttonVariants({ variant: "outline" }), "h-auto min-h
         </a>
 
         {isAdmin && (
-          <details class="mt-4" open={Boolean(eventError)}>
+          <details class="mt-4" open={Boolean(eventError) || upcoming.length === 0}>
             <summary class:list={summaryClass}>Zarządzaj terminami</summary>
 
             <form method="POST" action="/api/groups/events" class="mt-2 space-y-2">

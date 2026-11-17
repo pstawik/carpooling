@@ -7,9 +7,9 @@ repository: carpooling
 topic: "Audyt UI widoku /groups/[id] względem kontraktu design-systemu (tokeny + komponenty)"
 tags: [research, ui, design-tokens, shadcn, groups, 10x-ui]
 status: complete
-last_updated: 2026-11-16
+last_updated: 2026-11-17
 last_updated_by: Claude Code (claude-opus-5-5)
-last_updated_note: "Faza 5: oznaczono odroczone zarzuty"
+last_updated_note: "Przegląd implementacji: Topbar i duplikacja stałych rozwiązane (F5, F8), summary złagodzone (F7)"
 ---
 
 # Research: Audyt UI widoku /groups/[id]
@@ -101,9 +101,9 @@ Każdy zarzut: dowód (`plik:linia`) → co powinno go pokryć → skutek dla u�
 
 ### Deferred (found during implementation)
 
-- `src/components/Topbar.astro` nadal używa literałów palety — poza zakresem: inny widok (wspólny nagłówek).
-- `<summary>` z `display:flex` ukrywa natywny trójkąt rozwijania przy „Zarządzaj terminami” / „Minione terminy” — istniało wcześniej; słaba afordancja.
-- Kitchen sink (`src/pages/dev/ui-group.astro`) kopiuje stałe klas z `[id].astro` — ryzyko rozjazdu.
+- ~~`src/components/Topbar.astro` nadal używa literałów palety~~ — **rozwiązane w przeglądzie (F8)**: tokeny + nowy `--link`, dopisany do `CLEANED_VIEWS`.
+- `<summary>` z `display:flex` ukrywa natywny trójkąt rozwijania przy „Zarządzaj terminami” / „Minione terminy” — istniało wcześniej; słaba afordancja. Złagodzone w przeglądzie (F7): „Zarządzaj terminami” jest otwarte, gdy brak nadchodzących terminów.
+- ~~Kitchen sink kopiuje stałe klas z `[id].astro`~~ — **rozwiązane w przeglądzie (F5)**: wspólny moduł `src/components/groups/group-page-classes.ts`.
 
 ## Detailed Findings
 

@@ -4,8 +4,18 @@ import Layout from "@/layouts/Layout.astro";
 import InvitePanel from "@/components/groups/InvitePanel";
 import ChildItem from "@/components/groups/ChildItem";
 import EventItem from "@/components/groups/EventItem";
+import {
+  cardClass,
+  inputClass,
+  labelClass,
+  linkButtonClass,
+  planLinkClass,
+  selectClass,
+  submitClass,
+  summaryClass,
+} from "@/components/groups/group-page-classes";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -27,21 +37,8 @@ const sampleEvent = {
 const sampleChild = { id: "00000000-0000-4000-8000-000000000201", name: "Zosia" };
 const inviteUrl = "https://example.com/join/abc123";
 
-// The same class constants as src/pages/groups/[id].astro, so the sink shows what the view shows.
-const inputClass = "h-auto min-h-11 py-2";
-const selectClass =
-  "border-input text-foreground focus-visible:border-ring focus-visible:ring-ring/50 dark:bg-input/30 min-h-11 w-full min-w-0 rounded-md border bg-transparent px-3 py-2 text-base shadow-xs outline-none focus-visible:ring-3 md:text-sm";
-const labelClass = "text-muted-foreground block text-sm";
-const focusRingClass = "focus-visible:outline-ring rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2";
-const planLinkClass = cn("flex min-h-11 items-center break-words underline-offset-4 hover:underline", focusRingClass);
-const summaryClass = cn(
-  "text-muted-foreground flex min-h-11 cursor-pointer items-center text-sm font-semibold",
-  focusRingClass,
-);
-const cardClass = "mb-6 gap-0 p-4 backdrop-blur-xl sm:p-6";
-const submitClass = "h-auto min-h-11 w-full whitespace-normal";
+// The view's class constants come from group-page-classes, so the sink shows what the view shows.
 const buttonClass = "h-auto min-h-11 whitespace-normal";
-const linkButtonClass = cn(buttonVariants({ variant: "outline" }), "h-auto min-h-11 whitespace-normal");
 const stateHeadingClass = "mb-1 text-lg font-semibold";
 const stateNoteClass = "text-muted-foreground mb-4 text-sm";
 const subHeadingClass = "text-muted-foreground mb-2 text-sm font-semibold";

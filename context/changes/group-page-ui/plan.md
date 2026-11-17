@@ -319,6 +319,24 @@ Brak istotnych: zmiany są stylistyczne i statyczne; nie dochodzi JS po stronie 
 
 Nie dotyczy (brak zmian danych). Wycofanie: revert commitów fazy; faza 2 jest globalna, ale inne widoki nadpisują Button literałami, więc jej revert przywraca stan sprzed zmiany.
 
+## Addendum
+
+Zmiany spoza opisu faz, zaakceptowane w `/10x-impl-review` (`reviews/impl-review.md`, F6):
+
+- Implementacja (fazy 3–5):
+  - karty jako `Card` z `role="region"` i `aria-labelledby` zamiast `<section>`;
+  - podnagłówki `h3` „Dodaj termin” i „Generuj terminy cotygodniowe” w „Zarządzaj terminami”;
+  - `selectClass` z tokenami dla natywnego `<select>` (brak komponentu `ui/`);
+  - „Zarządzaj terminami” otwiera się przy każdym błędzie sekcji terminów;
+  - `check-ui-literals.mjs` kończy się błędem, gdy plik z listy nie istnieje.
+- Poprawki z przeglądu:
+  - F1: poszerzony regex skanu (boczne obramowania, `ring-offset`, `placeholder`/`caret`/`accent`/`decoration`, jednostki `em`/`%`, wartości ujemne, hex ignorowany w `href="#…"`);
+  - F2: pełna nieprzezroczystość pierścienia fokusu w `ui/button.tsx`;
+  - F4: nieprzezroczysty `--popover`;
+  - F5: wspólne stałe klas w `src/components/groups/group-page-classes.ts` (dopisany do `CLEANED_VIEWS`);
+  - F7: „Zarządzaj terminami” otwarte także, gdy grupa nie ma nadchodzących terminów;
+  - F8: `src/components/Topbar.astro` na tokenach z nowym tokenem `--link` (dopisany do `CLEANED_VIEWS`) — rozszerzenie zakresu o wspólny nagłówek, obecny na każdej stronie.
+
 ## References
 
 - Research: `context/changes/group-page-ui/research.md`
@@ -390,12 +408,12 @@ Nie dotyczy (brak zmian danych). Wycofanie: revert commitów fazy; faza 2 jest g
 
 #### Automated
 
-- [x] 5.1 `npm run lint` przechodzi i uruchamia `check-ui-literals`
-- [x] 5.2 Dodanie testowo `text-purple-200` do `[id].astro` powoduje błąd `npm run lint` (sprawdzić i cofnąć)
-- [x] 5.3 `npx astro check` przechodzi bez błędów
-- [x] 5.4 `npm run build` przechodzi
+- [x] 5.1 `npm run lint` przechodzi i uruchamia `check-ui-literals` — 0e1ea18
+- [x] 5.2 Dodanie testowo `text-purple-200` do `[id].astro` powoduje błąd `npm run lint` (sprawdzić i cofnąć) — 0e1ea18
+- [x] 5.3 `npx astro check` przechodzi bez błędów — 0e1ea18
+- [x] 5.4 `npm run build` przechodzi — 0e1ea18
 
 #### Manual
 
-- [x] 5.5 Blok UI w `AGENTS.md` jest zrozumiały i wskazuje poprawne ścieżki
-- [ ] 5.6 CI na PR przechodzi (`ci` i `smoke`)
+- [x] 5.5 Blok UI w `AGENTS.md` jest zrozumiały i wskazuje poprawne ścieżki — 0e1ea18
+- [x] 5.6 CI na PR przechodzi (`ci` i `smoke`) — 0e1ea18

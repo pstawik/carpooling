@@ -1,0 +1,36 @@
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+
+// Class constants shared by the group page (src/pages/groups/[id].astro) and its kitchen sink
+// (src/pages/dev/ui-group.astro), so the visual gate always shows what the view renders.
+// Token classes only — see the UI rules in AGENTS.md.
+
+/** shadcn Input is h-9; every control on the group page stays at least 44 px tall for touch. */
+export const inputClass = "h-auto min-h-11 py-2";
+
+/** The native <select> has no ui/ component: it gets the same tokens as Input. */
+export const selectClass =
+  "border-input text-foreground focus-visible:border-ring focus-visible:ring-ring/50 dark:bg-input/30 min-h-11 w-full min-w-0 rounded-md border bg-transparent px-3 py-2 text-base shadow-xs outline-none focus-visible:ring-3 md:text-sm";
+
+export const labelClass = "text-muted-foreground block text-sm";
+
+/** Keyboard focus uses the --ring token (focus-visible only, so a mouse click shows no outline). */
+export const focusRingClass =
+  "focus-visible:outline-ring rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2";
+
+/** The date label of every event, upcoming or past, opens its child plan. */
+export const planLinkClass = cn(
+  "flex min-h-11 items-center break-words underline-offset-4 hover:underline",
+  focusRingClass,
+);
+
+export const summaryClass = cn(
+  "text-muted-foreground flex min-h-11 cursor-pointer items-center text-sm font-semibold",
+  focusRingClass,
+);
+
+export const cardClass = "mb-6 gap-0 p-4 backdrop-blur-xl sm:p-6";
+
+export const submitClass = "h-auto min-h-11 w-full whitespace-normal";
+
+export const linkButtonClass = cn(buttonVariants({ variant: "outline" }), "h-auto min-h-11 whitespace-normal");

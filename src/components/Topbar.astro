@@ -1,13 +1,14 @@
 ---
 const { user, profile } = Astro.locals;
+// Token classes only (see the UI rules in AGENTS.md); --link is the readable purple for text links on the dark surface.
 const linkClass =
-  "inline-flex min-h-11 items-center text-purple-300 transition-colors hover:text-purple-100 hover:underline";
+  "text-link hover:text-foreground focus-visible:outline-ring inline-flex min-h-11 items-center rounded-sm transition-colors hover:underline focus-visible:outline-2 focus-visible:outline-offset-2";
 ---
 
-<div class="mb-4 flex flex-wrap items-center justify-between gap-x-3 rounded-xl border border-white/10 bg-white/5 px-4 py-1 text-sm text-white/80">
+<div class="border-border bg-card/50 text-foreground/80 mb-4 flex flex-wrap items-center justify-between gap-x-3 rounded-xl border px-4 py-1 text-sm">
   {user ? (
     <>
-      <span class="min-w-0 truncate text-blue-100/70">{profile?.nick ?? user.email}</span>
+      <span class="text-muted-foreground min-w-0 truncate">{profile?.nick ?? user.email}</span>
       <div class="flex items-center gap-3">
         <a href="/dashboard" class:list={linkClass}>
           Panel
@@ -21,7 +22,7 @@ const linkClass =
     </>
   ) : (
     <>
-      <span class="text-blue-100/70">Nie zalogowano</span>
+      <span class="text-muted-foreground">Nie zalogowano</span>
       <div class="flex gap-3">
         <a href="/auth/signin" class:list={linkClass}>
           Zaloguj się
