@@ -296,7 +296,7 @@ Nie dotyczy — brak zmian danych.
 
 #### Manual
 
-- [x] 2.5 Kontrast `text-success` na `bg-card` nad `bg-cosmic` jest czytelny (sprawdzenie w DevTools lub na zrzucie z fazy 4)
+- [x] 2.5 Kontrast `text-success` na `bg-card` nad `bg-cosmic` jest czytelny (sprawdzenie w DevTools lub na zrzucie z fazy 4) — 8ec3855
 
 ### Phase 3: Widok na tokenach i komponentach
 
@@ -320,13 +320,13 @@ Nie dotyczy — brak zmian danych.
 
 #### Automated
 
-- [x] 4.1 `npm run lint` przechodzi (w tym `check-ui-literals: 0 hits in 9 files`)
-- [x] 4.2 `npx astro check` przechodzi bez błędów
-- [x] 4.3 `npm run build` przechodzi
-- [x] 4.4 `npm run smoke` przechodzi na uruchomionym serwerze
+- [x] 4.1 `npm run lint` przechodzi (w tym `check-ui-literals: 0 hits in 9 files`) — 8ec3855
+- [x] 4.2 `npx astro check` przechodzi bez błędów — 8ec3855
+- [x] 4.3 `npm run build` przechodzi — 8ec3855
+- [x] 4.4 `npm run smoke` przechodzi na uruchomionym serwerze — 8ec3855
 
 #### Manual
 
-- [x] 4.5 `/dev/ui-event` pokazuje wszystkie 7 stanów (lub N/A z powodem); zrzuty na desktopie i 360 px
-- [x] 4.6 focus-visible: każdy przycisk, pole i link ma obwódkę w kolorze `--ring`; kliknięcie myszą nie pokazuje obwódki na linkach
-- [x] 4.7 Kontrast `--success` i plakietki „bez deklaracji” czytelny na zrzutach
+- [x] 4.5 `/dev/ui-event` pokazuje wszystkie 7 stanów (lub N/A z powodem); zrzuty na desktopie i 360 px — 8ec3855
+- [x] 4.6 focus-visible: każdy przycisk, pole i link ma obwódkę w kolorze `--ring`; kliknięcie myszą nie pokazuje obwódki na linkach — 8ec3855
+- [x] 4.7 Kontrast `--success` i plakietki „bez deklaracji” czytelny na zrzutach — 8ec3855
