@@ -296,37 +296,37 @@ Nie dotyczy — brak zmian danych.
 
 #### Manual
 
-- [ ] 2.5 Kontrast `text-success` na `bg-card` nad `bg-cosmic` jest czytelny (sprawdzenie w DevTools lub na zrzucie z fazy 4)
+- [x] 2.5 Kontrast `text-success` na `bg-card` nad `bg-cosmic` jest czytelny (sprawdzenie w DevTools lub na zrzucie z fazy 4)
 
 ### Phase 3: Widok na tokenach i komponentach
 
 #### Automated
 
-- [x] 3.1 Hardcoded-value scan z `/10x-ui` na `[eventId].astro` zwraca 0 trafień (było 31)
-- [x] 3.2 `npm run lint` przechodzi
-- [x] 3.3 `npx astro check` przechodzi bez błędów
-- [x] 3.4 `npm run build` przechodzi
+- [x] 3.1 Hardcoded-value scan z `/10x-ui` na `[eventId].astro` zwraca 0 trafień (było 31) — f763fb6
+- [x] 3.2 `npm run lint` przechodzi — f763fb6
+- [x] 3.3 `npx astro check` przechodzi bez błędów — f763fb6
+- [x] 3.4 `npm run build` przechodzi — f763fb6
 
 #### Manual
 
-- [x] 3.5 Na 360 px i desktopie: kolejność Bilans → Twoje dzieci → Plan dzieci → Twój przejazd → Kierowcy, bez przewijania w poziomie, kontrolki ≥ 44 px
-- [x] 3.6 Zaznaczenie „Jedzie”/„Nie jedzie” wraca do `#twoje-dzieci`, zapis kierowcy i „Wycofaj” do `#twoj-przejazd`; komunikat błędu widoczny po skoku bez przewijania
-- [x] 3.7 Liczba miejsc 0 lub 9 (przez DevTools) pokazuje „Podaj liczbę miejsc od 1 do 8” przy polu, pole ma `aria-invalid`
-- [x] 3.8 Niedobór, „Miejsc wystarcza” i „Żadne dziecko jeszcze nie jedzie” wyglądają poprawnie i różnią się ikoną, nie tylko kolorem
-- [x] 3.9 Konto bez dzieci w grupie widzi wskazówkę z działającym linkiem do `/groups/[id]#dzieci`
-- [x] 3.10 Termin rozpoczęty: brak kontrolek, widoczny tekst „tylko do odczytu”
+- [x] 3.5 Na 360 px i desktopie: kolejność Bilans → Twoje dzieci → Plan dzieci → Twój przejazd → Kierowcy, bez przewijania w poziomie, kontrolki ≥ 44 px — f763fb6
+- [x] 3.6 Zaznaczenie „Jedzie”/„Nie jedzie” wraca do `#twoje-dzieci`, zapis kierowcy i „Wycofaj” do `#twoj-przejazd`; komunikat błędu widoczny po skoku bez przewijania — f763fb6
+- [x] 3.7 Liczba miejsc 0 lub 9 (przez DevTools) pokazuje „Podaj liczbę miejsc od 1 do 8” przy polu, pole ma `aria-invalid` — f763fb6
+- [x] 3.8 Niedobór, „Miejsc wystarcza” i „Żadne dziecko jeszcze nie jedzie” wyglądają poprawnie i różnią się ikoną, nie tylko kolorem — f763fb6
+- [x] 3.9 Konto bez dzieci w grupie widzi wskazówkę z działającym linkiem do `/groups/[id]#dzieci` — f763fb6
+- [x] 3.10 Termin rozpoczęty: brak kontrolek, widoczny tekst „tylko do odczytu” — f763fb6
 
 ### Phase 4: Stany, kitchen sink i strażnik
 
 #### Automated
 
-- [ ] 4.1 `npm run lint` przechodzi (w tym `check-ui-literals: 0 hits in 9 files`)
-- [ ] 4.2 `npx astro check` przechodzi bez błędów
-- [ ] 4.3 `npm run build` przechodzi
-- [ ] 4.4 `npm run smoke` przechodzi na uruchomionym serwerze
+- [x] 4.1 `npm run lint` przechodzi (w tym `check-ui-literals: 0 hits in 9 files`)
+- [x] 4.2 `npx astro check` przechodzi bez błędów
+- [x] 4.3 `npm run build` przechodzi
+- [x] 4.4 `npm run smoke` przechodzi na uruchomionym serwerze
 
 #### Manual
 
-- [ ] 4.5 `/dev/ui-event` pokazuje wszystkie 7 stanów (lub N/A z powodem); zrzuty na desktopie i 360 px
-- [ ] 4.6 focus-visible: każdy przycisk, pole i link ma obwódkę w kolorze `--ring`; kliknięcie myszą nie pokazuje obwódki na linkach
-- [ ] 4.7 Kontrast `--success` i plakietki „bez deklaracji” czytelny na zrzutach
+- [x] 4.5 `/dev/ui-event` pokazuje wszystkie 7 stanów (lub N/A z powodem); zrzuty na desktopie i 360 px
+- [x] 4.6 focus-visible: każdy przycisk, pole i link ma obwódkę w kolorze `--ring`; kliknięcie myszą nie pokazuje obwódki na linkach
+- [x] 4.7 Kontrast `--success` i plakietki „bez deklaracji” czytelny na zrzutach
