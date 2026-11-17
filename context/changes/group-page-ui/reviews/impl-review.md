@@ -73,7 +73,7 @@ Evidence summary:
 - **Location**: PR #41
 - **Detail**: `origin/group-page-ui` is at 8a07c1b (close-out commit), but `gh pr view 41` still reports head 0e1ea18; CI has not run on 8a07c1b. The close-out commit only touches `plan.md`/`change.md`, so risk is low, but merging an unsynced PR would merge the stale head.
 - **Fix**: Close and reopen PR #41 (or push an empty commit) to force a sync, confirm `headRefOid == 8a07c1b`, and wait for green CI before merging.
-- **Decision**: FIX NOW — after the review-fixes commit: push, confirm PR headRefOid == local HEAD (close/reopen if stale), wait for green CI before merge
+- **Decision**: FIXED (differently) — PR #41 had already been merged at 0e1ea18 (merge f0e9c5f), which is why its head never moved. The close-out (8a07c1b) and review-fix (4f72dd6) commits went to follow-up PR #43 with `Closes #42`. #43's head was verified as 4f72dd6 with green `ci`/`smoke`, and it was merged as 03c3857, which closed #42.
 
 ### F4 — `--popover` token is translucent
 
