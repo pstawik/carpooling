@@ -3,12 +3,13 @@ import { CircleAlert, CircleCheck } from "lucide-react";
 import Layout from "@/layouts/Layout.astro";
 import {
   cardClass,
+  hintLinkClass,
   inputClass,
   labelClass,
   linkButtonClass,
   listItemClass,
   phoneLinkClass,
-  planLinkClass,
+  subHeadingClass,
   submitClass,
 } from "@/components/groups/group-page-classes";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -16,9 +17,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
 import { groupErrorMessage } from "@/lib/services/group-errors";
-import { seatsLabel } from "@/lib/plural";
+import { goingLabel, missingLabel, seatsLabel } from "@/lib/plural";
+import { telHref } from "@/lib/tel";
 
 // Kitchen sink for the event plan: every cell of the 7-state matrix on one page, for the visual gate.
 // Dev only; a production build answers 404. No Supabase queries: all data is written in the page.
@@ -29,7 +30,9 @@ if (!import.meta.env.DEV) {
 const groupId = "00000000-0000-4000-8000-000000000001";
 const eventId = "00000000-0000-4000-8000-000000000101";
 const sampleChild = { id: "00000000-0000-4000-8000-000000000201", name: "Zosia" };
-const sampleDriver = { nick: "Ania", seats: 3, phone: "+48 600 100 200", tel: "tel:+48600100200" };
+const sampleDriver = { nick: "Ania", seats: 3, phone: "+48 600 100 200" };
+// The view's text and link helpers (src/lib/), so the sink renders exactly what the view renders.
+const driverTel = telHref(sampleDriver.phone);
 
 // The view's texts for the error codes, so the sink shows exactly what the redirect shows.
 const seatsError = groupErrorMessage("invalid_driver_seats", null);
@@ -37,9 +40,9 @@ const attendanceLockedError = groupErrorMessage("attendance_locked", null);
 const unknownError = groupErrorMessage("unknown", null);
 
 // The view's class constants come from group-page-classes, so the sink shows what the view shows.
+// These two style only the sink's own state labels, which the view does not have.
 const stateHeadingClass = "mb-1 text-lg font-semibold";
 const stateNoteClass = "text-muted-foreground mb-4 text-sm";
-const subHeadingClass = "text-muted-foreground mb-2 text-sm font-semibold";
 ---
 
 <Layout title="Kitchen sink: plan terminu">
@@ -58,14 +61,14 @@ const subHeadingClass = "text-muted-foreground mb-2 text-sm font-semibold";
         <p class:list={stateNoteClass}>Tylko tokeny i komponenty z ui/ oraz stałe z group-page-classes.</p>
 
         <h3 class:list={subHeadingClass}>Bilans miejsc: niedobór</h3>
-        <p class="mb-3 break-words">{`Jadą 3 dzieci · ${seatsLabel(2)}`}</p>
+        <p class="mb-3 break-words">{`${goingLabel(3)} · ${seatsLabel(2)}`}</p>
         <Alert variant="destructive" role="alert" className="mb-4">
           <CircleAlert />
-          <AlertDescription className="font-semibold break-words">Brakuje 1 miejsca</AlertDescription>
+          <AlertDescription className="font-semibold break-words">{missingLabel(1)}</AlertDescription>
         </Alert>
 
         <h3 class:list={subHeadingClass}>Bilans miejsc: wystarcza</h3>
-        <p class="mb-3 break-words">{`Jadą 3 dzieci · ${seatsLabel(4)}`}</p>
+        <p class="mb-3 break-words">{`${goingLabel(3)} · ${seatsLabel(4)}`}</p>
         <Alert variant="success" role="status" className="mb-4">
           <CircleCheck />
           <AlertDescription className="font-semibold break-words">Miejsc wystarcza</AlertDescription>
@@ -149,7 +152,7 @@ const subHeadingClass = "text-muted-foreground mb-2 text-sm font-semibold";
               <span class="font-medium">{sampleDriver.nick}</span>
               <span class="text-muted-foreground"> — {seatsLabel(sampleDriver.seats)}</span>
             </p>
-            <a href={sampleDriver.tel} class:list={phoneLinkClass}>
+            <a href={driverTel} class:list={phoneLinkClass}>
               {sampleDriver.phone}
             </a>
           </li>
@@ -172,12 +175,12 @@ const subHeadingClass = "text-muted-foreground mb-2 text-sm font-semibold";
             Nie jedzie
           </Button>
         </div>
-        <a href={sampleDriver.tel} class:list={phoneLinkClass}>
+        <a href={driverTel} class:list={phoneLinkClass}>
           {sampleDriver.phone}
         </a>
         <p class="text-muted-foreground text-sm">
           Nie masz jeszcze dziecka w tej grupie.{" "}
-          <a href="#state-hover" class:list={cn(planLinkClass, "text-link inline-flex")}>
+          <a href="#state-hover" class:list={hintLinkClass}>
             Dodaj dziecko na stronie grupy
           </a>
         </p>
@@ -219,7 +222,7 @@ const subHeadingClass = "text-muted-foreground mb-2 text-sm font-semibold";
           <Button type="button" variant="outline" className={submitClass}>
             Wycofaj
           </Button>
-          <a href={sampleDriver.tel} class:list={phoneLinkClass}>
+          <a href={driverTel} class:list={phoneLinkClass}>
             {sampleDriver.phone}
           </a>
           <a href="#state-focus" class:list={linkButtonClass}>
@@ -311,13 +314,13 @@ const subHeadingClass = "text-muted-foreground mb-2 text-sm font-semibold";
         <p class:list={stateNoteClass}>Brak danych: prawdziwy pusty stan, nie pusta ramka.</p>
 
         <h3 class="mb-2 text-lg font-semibold">Bilans miejsc</h3>
-        <p class="mb-3 break-words">{`Jedzie 0 dzieci · ${seatsLabel(0)}`}</p>
+        <p class="mb-3 break-words">{`${goingLabel(0)} · ${seatsLabel(0)}`}</p>
         <p class="text-muted-foreground mb-4 text-sm">Żadne dziecko jeszcze nie jedzie</p>
 
         <h3 class="mb-3 text-lg font-semibold">Twoje dzieci</h3>
         <p class="text-muted-foreground mb-4 text-sm">
           Nie masz jeszcze dziecka w tej grupie.{" "}
-          <a href="#state-empty" class:list={cn(planLinkClass, "text-link inline-flex")}>
+          <a href="#state-empty" class:list={hintLinkClass}>
             Dodaj dziecko na stronie grupy
           </a>
         </p>

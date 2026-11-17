@@ -4,12 +4,13 @@ import Layout from "@/layouts/Layout.astro";
 import Topbar from "@/components/Topbar.astro";
 import {
   cardClass,
+  hintLinkClass,
   inputClass,
   labelClass,
   linkButtonClass,
   listItemClass,
   phoneLinkClass,
-  planLinkClass,
+  subHeadingClass,
   submitClass,
 } from "@/components/groups/group-page-classes";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -25,7 +26,8 @@ import { listGroupChildren } from "@/lib/services/children";
 import { buildChildPlan, listEventAttendance, type AttendanceStatus, type ChildPlan } from "@/lib/services/attendance";
 import { buildSeatBalance, listEventDrivers, type EventDriverEntry, type SeatBalance } from "@/lib/services/drivers";
 import { groupErrorMessage } from "@/lib/services/group-errors";
-import { pluralPl, seatsLabel } from "@/lib/plural";
+import { goingLabel, missingLabel, seatsLabel } from "@/lib/plural";
+import { telHref } from "@/lib/tel";
 import { formatEventStart } from "@/lib/time";
 
 // The full plan of one event (US-01): seat balance, the member's children, the child plan, their
@@ -81,21 +83,6 @@ try {
   plan = null;
 }
 const myDriver = drivers.find((driver) => driver.userId === user.id) ?? null;
-
-/** "Jedzie 0 dzieci", "Jedzie 1 dziecko", "Jadą 2 dzieci", "Jedzie 5 dzieci", "Jadą 22 dzieci". */
-function goingLabel(count: number): string {
-  return `${pluralPl(count, "Jedzie", "Jadą", "Jedzie")} ${count} ${pluralPl(count, "dziecko", "dzieci", "dzieci")}`;
-}
-
-/** "Brakuje 1 miejsca", "Brakuje 2 miejsc", "Brakuje 5 miejsc" (genitive). */
-function missingLabel(count: number): string {
-  return `Brakuje ${count} ${count === 1 ? "miejsca" : "miejsc"}`;
-}
-
-/** A dialable `tel:` target: digits and a leading plus only. */
-function telHref(phone: string): string {
-  return `tel:${phone.replace(/[^\d+]/g, "")}`;
-}
 
 const label = formatEventStart(event.startsAt);
 const statusLabels: Record<AttendanceStatus, string> = {
@@ -172,7 +159,7 @@ const statusLabels: Record<AttendanceStatus, string> = {
             {plan.mine.length === 0 ? (
               <p class="text-muted-foreground text-sm">
                 Nie masz jeszcze dziecka w tej grupie.{" "}
-                <a href={`/groups/${group.id}#dzieci`} class:list={cn(planLinkClass, "text-link inline-flex")}>
+                <a href={`/groups/${group.id}#dzieci`} class:list={hintLinkClass}>
                   Dodaj dziecko na stronie grupy
                 </a>
               </p>
@@ -226,7 +213,7 @@ const statusLabels: Record<AttendanceStatus, string> = {
             </h2>
 
             <div id="plan-jada" class="mb-4">
-              <h3 class="text-muted-foreground mb-2 text-sm font-semibold">Jadą ({plan.going.length})</h3>
+              <h3 class:list={subHeadingClass}>Jadą ({plan.going.length})</h3>
               {plan.going.length === 0 ? (
                 <p class="text-muted-foreground text-sm">Żadne dziecko jeszcze nie jedzie.</p>
               ) : (
@@ -242,7 +229,7 @@ const statusLabels: Record<AttendanceStatus, string> = {
             </div>
 
             <div id="plan-nie-jada">
-              <h3 class="text-muted-foreground mb-2 text-sm font-semibold">Nie jadą ({plan.notGoing.length})</h3>
+              <h3 class:list={subHeadingClass}>Nie jadą ({plan.notGoing.length})</h3>
               {plan.notGoing.length === 0 ? (
                 <p class="text-muted-foreground text-sm">Brak dzieci na tej liście.</p>
               ) : (

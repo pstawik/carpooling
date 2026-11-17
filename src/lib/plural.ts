@@ -14,6 +14,16 @@ export function seatsLabel(count: number): string {
   return `${count} ${pluralPl(count, "miejsce", "miejsca", "miejsc")}`;
 }
 
+/** "Jedzie 0 dzieci", "Jedzie 1 dziecko", "Jadą 2 dzieci", "Jedzie 5 dzieci", "Jadą 22 dzieci". */
+export function goingLabel(count: number): string {
+  return `${pluralPl(count, "Jedzie", "Jadą", "Jedzie")} ${count} ${pluralPl(count, "dziecko", "dzieci", "dzieci")}`;
+}
+
+/** "Brakuje 1 miejsca", "Brakuje 2 miejsc", "Brakuje 5 miejsc" (genitive). */
+export function missingLabel(count: number): string {
+  return `Brakuje ${count} ${count === 1 ? "miejsca" : "miejsc"}`;
+}
+
 /** "0 przejazdów", "1 przejazd", "2 przejazdy", "5 przejazdów", "22 przejazdy". */
 export function drivesLabel(count: number): string {
   return `${count} ${pluralPl(count, "przejazd", "przejazdy", "przejazdów")}`;
