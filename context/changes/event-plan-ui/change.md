@@ -12,6 +12,7 @@ archived_at: null
 zaloz tez issue na github dotyczace tej zmiany
 
 - **Issue:** https://github.com/pstawik/carpooling/issues/45
+- **Odstępstwo od planu (faza 3, 2026-11-17):** po przestawieniu sekcji „Twoje dzieci” jest drugą kartą, więc kotwica `#twoje-dzieci` po udanej deklaracji dziecka dawała widoczny skok (bilans znikał z ekranu). Decyzja użytkownika: przekierowanie po sukcesie bez kotwicy (`src/pages/api/groups/events/attendance.ts`), kotwica zostaje tylko przy `attendance_locked`; kotwice kierowcy bez zmian. `scripts/smoke.mjs`: oczekiwane przekierowania po sukcesie bez kotwicy, a `planPageSection` tnie kartę do następnego `data-slot="card"` (karty nie są już `<section>`).
 
 UI change started from `/10x-ui /groups/[id]/terminy/[eventId]` (design-system contract for one view).
 

@@ -1,7 +1,22 @@
 ---
+import { CircleAlert, CircleCheck } from "lucide-react";
 import Layout from "@/layouts/Layout.astro";
 import Topbar from "@/components/Topbar.astro";
+import {
+  cardClass,
+  inputClass,
+  labelClass,
+  linkButtonClass,
+  listItemClass,
+  phoneLinkClass,
+  planLinkClass,
+  submitClass,
+} from "@/components/groups/group-page-classes";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { createClient } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
 import { getGroupWithAdmins } from "@/lib/services/groups";
@@ -13,8 +28,8 @@ import { groupErrorMessage } from "@/lib/services/group-errors";
 import { pluralPl, seatsLabel } from "@/lib/plural";
 import { formatEventStart } from "@/lib/time";
 
-// The full plan of one event (US-01): seat balance, the member's own driver declaration, their
-// children, the drivers and the child plan. Middleware guarantees a signed-in user on /groups/*.
+// The full plan of one event (US-01): seat balance, the member's children, the child plan, their
+// own driver declaration and the drivers. Middleware guarantees a signed-in user on /groups/*.
 // Non-members, an event of another group, unknown and malformed ids all get the same 404.
 const supabase = createClient(Astro.request.headers, Astro.cookies);
 const { user } = Astro.locals;
@@ -36,13 +51,15 @@ if (!event) {
 const locked = hasStarted(event, new Date());
 
 // Only the attendance and driver endpoints' codes are shown here, each in the card its redirect
-// lands on: `attendance_locked` in #twoje-dzieci, the driver codes in #twoj-przejazd. The generic
+// lands on: `attendance_locked` in #twoje-dzieci (a successful declaration reopens the plan at the top), the driver codes in #twoj-przejazd. The generic
 // ones are shown at the top of the page.
 const errorCode = Astro.url.searchParams.get("error");
 const lockedError = errorCode === "attendance_locked" ? groupErrorMessage(errorCode, null) : null;
 const driverError =
   errorCode === "driver_locked" || errorCode === "invalid_driver_seats" ? groupErrorMessage(errorCode, null) : null;
 const error = errorCode === "not_configured" || errorCode === "unknown" ? groupErrorMessage(errorCode, null) : null;
+// The seats message is tied to the field it is about, so a screen reader announces it there.
+const seatsInvalid = errorCode === "invalid_driver_seats";
 
 // A failed children, attendance or drivers query must not take the whole page down.
 let plan: ChildPlan | null;
@@ -86,16 +103,6 @@ const statusLabels: Record<AttendanceStatus, string> = {
   not_going: "nie jedzie",
   undeclared: "bez deklaracji",
 };
-
-const cardClass = "rounded-2xl border border-white/10 bg-white/10 p-4 text-white backdrop-blur-xl sm:p-6";
-const choiceClass =
-  "h-auto min-h-11 w-full rounded-lg px-3 py-2 font-medium whitespace-normal text-white transition-colors";
-const choiceOnClass = "bg-purple-600 hover:bg-purple-500";
-const choiceOffClass = "border border-white/20 bg-white/10 hover:bg-white/20";
-const badgeClass = "ml-1 inline-block rounded bg-white/10 px-1.5 py-0.5 text-xs text-blue-100/80";
-const alertClass = "rounded-lg border border-red-500/30 bg-red-900/30 px-3 py-2 text-sm break-words text-red-300";
-const inputClass =
-  "min-h-11 w-full min-w-0 rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-white focus:ring-2 focus:ring-purple-400 focus:outline-none";
 ---
 
 <Layout title={`${label} · ${group.name}`}>
@@ -104,64 +111,179 @@ const inputClass =
       <Topbar />
 
       <header class="mb-4">
-        <p class="mb-1 text-sm break-words text-blue-100/70">{group.name}</p>
-        <h1 class="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-2xl font-bold break-words text-transparent">
-          {label}
-        </h1>
-        {event.note && <p class="mt-1 break-words text-blue-100/80">{event.note}</p>}
+        <p class="text-muted-foreground mb-1 text-sm break-words">{group.name}</p>
+        <h1 class="text-foreground text-2xl font-bold break-words">{label}</h1>
+        {event.note && <p class="text-muted-foreground mt-1 break-words">{event.note}</p>}
       </header>
 
       {error && (
-        <p
-          class="mb-4 rounded-lg border border-red-500/30 bg-red-900/30 px-3 py-2 text-sm break-words text-red-300"
-          role="alert"
-        >
-          {error}
-        </p>
+        <Alert variant="destructive" role="alert" className="mb-4">
+          <CircleAlert />
+          <AlertDescription className="break-words">{error}</AlertDescription>
+        </Alert>
       )}
 
       {plan === null || balance === null ? (
-        <section class:list={[cardClass, "mb-6"]}>
-          <p class="text-sm text-red-300" role="alert">
-            Nie udało się wczytać planu.
-          </p>
-        </section>
+        <Alert variant="destructive" role="alert" className="mb-6">
+          <CircleAlert />
+          <AlertDescription>Nie udało się wczytać planu.</AlertDescription>
+        </Alert>
       ) : (
         <>
-          <section id="bilans" class:list={[cardClass, "mb-6"]}>
-            <h2 class="mb-2 text-lg font-semibold">Bilans miejsc</h2>
+          <Card id="bilans" role="region" aria-labelledby="bilans-heading" className={cardClass}>
+            <h2 id="bilans-heading" class="mb-2 text-lg font-semibold">
+              Bilans miejsc
+            </h2>
             <p class="mb-3 break-words">{`${goingLabel(balance.going)} · ${seatsLabel(balance.seats)}`}</p>
             {balance.status === "shortage" && (
-              <p
-                class="rounded-lg border border-red-500/30 bg-red-900/30 px-3 py-2 font-semibold break-words text-red-300"
-                role="alert"
-              >
-                {missingLabel(balance.missing)}
-              </p>
+              <Alert variant="destructive" role="alert">
+                <CircleAlert />
+                <AlertDescription className="font-semibold break-words">
+                  {missingLabel(balance.missing)}
+                </AlertDescription>
+              </Alert>
             )}
             {balance.status === "enough" && (
-              <p class="rounded-lg border border-green-500/30 bg-green-900/30 px-3 py-2 font-semibold break-words text-green-300">
-                Miejsc wystarcza
-              </p>
+              <Alert variant="success" role="status">
+                <CircleCheck />
+                <AlertDescription className="font-semibold break-words">Miejsc wystarcza</AlertDescription>
+              </Alert>
             )}
             {balance.status === "none_going" && (
-              <p class="text-sm text-blue-100/70">Żadne dziecko jeszcze nie jedzie</p>
+              <p class="text-muted-foreground text-sm">Żadne dziecko jeszcze nie jedzie</p>
             )}
-          </section>
+          </Card>
 
-          <section id="twoj-przejazd" class:list={[cardClass, "mb-6 scroll-mt-4"]}>
-            <h2 class="mb-3 text-lg font-semibold">Twój przejazd</h2>
-            {driverError && (
-              <p class:list={[alertClass, "mb-3"]} role="alert">
-                {driverError}
+          <Card
+            id="twoje-dzieci"
+            role="region"
+            aria-labelledby="twoje-dzieci-heading"
+            className={cn(cardClass, "scroll-mt-4")}
+          >
+            <h2 id="twoje-dzieci-heading" class="mb-3 text-lg font-semibold">
+              Twoje dzieci
+            </h2>
+            {lockedError && (
+              <Alert variant="destructive" role="alert" className="mb-3">
+                <CircleAlert />
+                <AlertDescription className="break-words">{lockedError}</AlertDescription>
+              </Alert>
+            )}
+            {plan.mine.length === 0 ? (
+              <p class="text-muted-foreground text-sm">
+                Nie masz jeszcze dziecka w tej grupie.{" "}
+                <a href={`/groups/${group.id}#dzieci`} class:list={cn(planLinkClass, "text-link inline-flex")}>
+                  Dodaj dziecko na stronie grupy
+                </a>
               </p>
+            ) : (
+              <>
+                {locked && (
+                  <p class="text-muted-foreground mb-3 text-sm">
+                    Termin się rozpoczął — deklaracje są tylko do odczytu.
+                  </p>
+                )}
+                <ul class="space-y-3">
+                  {plan.mine.map((child) => (
+                    <li class:list={listItemClass}>
+                      <p class="break-words">
+                        <span class="font-medium">{child.name}</span>
+                        <span class="text-muted-foreground text-sm"> — {statusLabels[child.status]}</span>
+                      </p>
+                      {!locked && (
+                        <div class="mt-2 grid grid-cols-2 gap-2">
+                          {[
+                            { going: "true", text: "Jedzie", on: child.status === "going" },
+                            { going: "false", text: "Nie jedzie", on: child.status === "not_going" },
+                          ].map((choice) => (
+                            <form method="POST" action="/api/groups/events/attendance" class="min-w-0">
+                              <input type="hidden" name="group_id" value={group.id} />
+                              <input type="hidden" name="event_id" value={event.id} />
+                              <input type="hidden" name="child_id" value={child.id} />
+                              <input type="hidden" name="going" value={choice.going} />
+                              <Button
+                                type="submit"
+                                variant={choice.on ? "default" : "outline"}
+                                aria-pressed={choice.on ? "true" : "false"}
+                                className={submitClass}
+                              >
+                                {choice.text}
+                              </Button>
+                            </form>
+                          ))}
+                        </div>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+          </Card>
+
+          <Card role="region" aria-labelledby="plan-heading" className={cardClass}>
+            <h2 id="plan-heading" class="mb-3 text-lg font-semibold">
+              Plan dzieci
+            </h2>
+
+            <div id="plan-jada" class="mb-4">
+              <h3 class="text-muted-foreground mb-2 text-sm font-semibold">Jadą ({plan.going.length})</h3>
+              {plan.going.length === 0 ? (
+                <p class="text-muted-foreground text-sm">Żadne dziecko jeszcze nie jedzie.</p>
+              ) : (
+                <ul class="space-y-1 text-sm">
+                  {plan.going.map((child) => (
+                    <li class="break-words">
+                      <span class="font-medium">{child.name}</span>
+                      {child.parentNick && <span class="text-muted-foreground"> ({child.parentNick})</span>}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            <div id="plan-nie-jada">
+              <h3 class="text-muted-foreground mb-2 text-sm font-semibold">Nie jadą ({plan.notGoing.length})</h3>
+              {plan.notGoing.length === 0 ? (
+                <p class="text-muted-foreground text-sm">Brak dzieci na tej liście.</p>
+              ) : (
+                <ul class="space-y-1 text-sm">
+                  {plan.notGoing.map((child) => (
+                    <li class="break-words">
+                      <span class="font-medium">{child.name}</span>
+                      {child.parentNick && <span class="text-muted-foreground"> ({child.parentNick})</span>}
+                      {child.undeclared && (
+                        <Badge variant="secondary" className="ml-1">
+                          bez deklaracji
+                        </Badge>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </Card>
+
+          <Card
+            id="twoj-przejazd"
+            role="region"
+            aria-labelledby="twoj-przejazd-heading"
+            className={cn(cardClass, "scroll-mt-4")}
+          >
+            <h2 id="twoj-przejazd-heading" class="mb-3 text-lg font-semibold">
+              Twój przejazd
+            </h2>
+            {driverError && (
+              <Alert variant="destructive" role="alert" id="driver-error" className="mb-3">
+                <CircleAlert />
+                <AlertDescription className="break-words">{driverError}</AlertDescription>
+              </Alert>
             )}
             {locked ? (
               <>
                 <p class="mb-2 break-words">
                   {myDriver ? `Jedziesz jako kierowca: ${seatsLabel(myDriver.seats)}` : "Nie jedziesz jako kierowca"}
                 </p>
-                <p class="text-sm text-blue-100/70">
+                <p class="text-muted-foreground text-sm">
                   Termin się rozpoczął — deklaracja kierowcy jest tylko do odczytu.
                 </p>
               </>
@@ -172,23 +294,25 @@ const inputClass =
                   <input type="hidden" name="group_id" value={group.id} />
                   <input type="hidden" name="event_id" value={event.id} />
                   <input type="hidden" name="action" value="set" />
-                  <label for="driver-seats" class="block text-sm text-blue-100/80">
+                  <label for="driver-seats" class:list={labelClass}>
                     Wolne miejsca dla dzieci (1–8)
                   </label>
-                  <input
+                  <Input
                     id="driver-seats"
                     name="seats"
                     type="number"
-                    inputmode="numeric"
+                    inputMode="numeric"
                     min="1"
                     max="8"
                     step="1"
                     required
                     placeholder="np. 3"
-                    value={myDriver ? String(myDriver.seats) : undefined}
-                    class:list={inputClass}
+                    defaultValue={myDriver ? String(myDriver.seats) : undefined}
+                    aria-invalid={seatsInvalid ? "true" : undefined}
+                    aria-describedby={seatsInvalid ? "driver-error" : undefined}
+                    className={inputClass}
                   />
-                  <Button type="submit" className={cn(choiceClass, choiceOnClass)}>
+                  <Button type="submit" className={submitClass}>
                     {myDriver ? "Zapisz miejsca" : "Jadę jako kierowca"}
                   </Button>
                 </form>
@@ -197,78 +321,31 @@ const inputClass =
                     <input type="hidden" name="group_id" value={group.id} />
                     <input type="hidden" name="event_id" value={event.id} />
                     <input type="hidden" name="action" value="withdraw" />
-                    <Button type="submit" className={cn(choiceClass, choiceOffClass)}>
+                    <Button type="submit" variant="outline" className={submitClass}>
                       Wycofaj
                     </Button>
                   </form>
                 )}
               </>
             )}
-          </section>
+          </Card>
 
-          {plan.mine.length > 0 && (
-            <section id="twoje-dzieci" class:list={[cardClass, "mb-6 scroll-mt-4"]}>
-              <h2 class="mb-3 text-lg font-semibold">Twoje dzieci</h2>
-              {lockedError && (
-                <p class:list={[alertClass, "mb-3"]} role="alert">
-                  {lockedError}
-                </p>
-              )}
-              {locked && (
-                <p class="mb-3 text-sm text-blue-100/70">Termin się rozpoczął — deklaracje są tylko do odczytu.</p>
-              )}
-              <ul class="space-y-3">
-                {plan.mine.map((child) => (
-                  <li class="rounded-xl border border-white/10 bg-white/5 p-3">
-                    <p class="break-words">
-                      <span class="font-medium">{child.name}</span>
-                      <span class="text-sm text-blue-100/70"> — {statusLabels[child.status]}</span>
-                    </p>
-                    {!locked && (
-                      <div class="mt-2 grid grid-cols-2 gap-2">
-                        {[
-                          { going: "true", text: "Jedzie", on: child.status === "going" },
-                          { going: "false", text: "Nie jedzie", on: child.status === "not_going" },
-                        ].map((choice) => (
-                          <form method="POST" action="/api/groups/events/attendance" class="min-w-0">
-                            <input type="hidden" name="group_id" value={group.id} />
-                            <input type="hidden" name="event_id" value={event.id} />
-                            <input type="hidden" name="child_id" value={child.id} />
-                            <input type="hidden" name="going" value={choice.going} />
-                            <Button
-                              type="submit"
-                              aria-pressed={choice.on ? "true" : "false"}
-                              className={cn(choiceClass, choice.on ? choiceOnClass : choiceOffClass)}
-                            >
-                              {choice.text}
-                            </Button>
-                          </form>
-                        ))}
-                      </div>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
-
-          <section id="kierowcy" class:list={[cardClass, "mb-6"]}>
-            <h2 class="mb-3 text-lg font-semibold">Kierowcy ({drivers.length})</h2>
+          <Card id="kierowcy" role="region" aria-labelledby="kierowcy-heading" className={cardClass}>
+            <h2 id="kierowcy-heading" class="mb-3 text-lg font-semibold">
+              Kierowcy ({drivers.length})
+            </h2>
             {drivers.length === 0 ? (
-              <p class="text-sm text-blue-100/70">Nikt jeszcze nie zadeklarował się jako kierowca</p>
+              <p class="text-muted-foreground text-sm">Nikt jeszcze nie zadeklarował się jako kierowca</p>
             ) : (
               <ul class="space-y-2 text-sm">
                 {drivers.map((driver) => (
-                  <li class="rounded-xl border border-white/10 bg-white/5 p-3">
+                  <li class:list={listItemClass}>
                     <p class="break-words">
                       <span class="font-medium">{driver.nick ?? "Członek grupy"}</span>
-                      <span class="text-blue-100/70"> — {seatsLabel(driver.seats)}</span>
+                      <span class="text-muted-foreground"> — {seatsLabel(driver.seats)}</span>
                     </p>
                     {driver.phone && (
-                      <a
-                        href={telHref(driver.phone)}
-                        class="inline-flex min-h-11 items-center break-all text-blue-200 underline-offset-4 hover:underline"
-                      >
+                      <a href={telHref(driver.phone)} class:list={phoneLinkClass}>
                         {driver.phone}
                       </a>
                     )}
@@ -276,51 +353,11 @@ const inputClass =
                 ))}
               </ul>
             )}
-          </section>
-
-          <section class:list={[cardClass, "mb-6"]}>
-            <h2 class="mb-3 text-lg font-semibold">Plan dzieci</h2>
-
-            <div id="plan-jada" class="mb-4">
-              <h3 class="mb-2 text-sm font-semibold text-blue-100/80">Jadą ({plan.going.length})</h3>
-              {plan.going.length === 0 ? (
-                <p class="text-sm text-blue-100/70">Żadne dziecko jeszcze nie jedzie.</p>
-              ) : (
-                <ul class="space-y-1 text-sm">
-                  {plan.going.map((child) => (
-                    <li class="break-words">
-                      <span class="font-medium">{child.name}</span>
-                      {child.parentNick && <span class="text-blue-100/70"> ({child.parentNick})</span>}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-
-            <div id="plan-nie-jada">
-              <h3 class="mb-2 text-sm font-semibold text-blue-100/80">Nie jadą ({plan.notGoing.length})</h3>
-              {plan.notGoing.length === 0 ? (
-                <p class="text-sm text-blue-100/70">Brak dzieci na tej liście.</p>
-              ) : (
-                <ul class="space-y-1 text-sm">
-                  {plan.notGoing.map((child) => (
-                    <li class="break-words">
-                      <span class="font-medium">{child.name}</span>
-                      {child.parentNick && <span class="text-blue-100/70"> ({child.parentNick})</span>}
-                      {child.undeclared && <span class:list={badgeClass}>bez deklaracji</span>}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          </section>
+          </Card>
         </>
       )}
 
-      <a
-        href={`/groups/${group.id}#terminy`}
-        class="inline-flex min-h-11 items-center rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm text-white transition-colors hover:bg-white/20"
-      >
+      <a href={`/groups/${group.id}#terminy`} class:list={linkButtonClass}>
         Wróć do grupy
       </a>
     </div>

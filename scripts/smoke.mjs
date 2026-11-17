@@ -160,11 +160,14 @@ const driverForm =
       form: { group_id: groupId(), event_id: event(), action, ...(seats === undefined ? {} : { seats }) },
     });
 
-/** Reads the plan page and narrows the body to one card (`bilans` / `kierowcy`), up to its end. */
+/** Reads the plan page and narrows the body to one card (`bilans` / `kierowcy`), up to the next card. */
 const planPageSection = (sectionId) => async () => {
   const result = await request(planPath(), { readBody: true });
   const at = result.body.indexOf(`id="${sectionId}"`);
-  return { ...result, body: at === -1 ? "" : result.body.slice(at, result.body.indexOf("</section>", at)) };
+  if (at === -1) return { ...result, body: "" };
+  // Every card is a ui/card `<div data-slot="card">`; the last card on the page runs to the end of the body.
+  const next = result.body.indexOf('data-slot="card"', at);
+  return { ...result, body: result.body.slice(at, next === -1 ? undefined : next) };
 };
 
 const addEventForm =
@@ -539,16 +542,12 @@ const writeSteps = [
     planPageList("plan-nie-jada", childRenamed),
     { status: 200, contains: "bez deklaracji" },
   ],
-  [
-    "parent declares the child going",
-    declareForm({ going: "true" }),
-    { status: 302, location: () => `${planPath()}#twoje-dzieci` },
-  ],
+  ["parent declares the child going", declareForm({ going: "true" }), { status: 302, location: () => planPath() }],
   ["plan lists the child as going", planPageList("plan-jada"), { status: 200, contains: ["Jadą (1)", childRenamed] }],
   [
     "parent switches the child to not going",
     declareForm({ going: "false" }),
-    { status: 302, location: () => `${planPath()}#twoje-dzieci` },
+    { status: 302, location: () => planPath() },
   ],
   [
     "plan lists the child as not going, with a declaration",
@@ -563,7 +562,7 @@ const writeSteps = [
   [
     "parent declares the child going again",
     declareForm({ going: "true" }),
-    { status: 302, location: () => `${planPath()}#twoje-dzieci` },
+    { status: 302, location: () => planPath() },
   ],
   [
     "balance warns about a missing seat",

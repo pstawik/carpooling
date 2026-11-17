@@ -289,10 +289,10 @@ Nie dotyczy — brak zmian danych.
 
 #### Automated
 
-- [x] 2.1 `npm run lint` przechodzi
-- [x] 2.2 `npx astro check` przechodzi bez błędów
-- [x] 2.3 `npm run build` przechodzi
-- [x] 2.4 `global.css` zawiera `--color-success: var(--success)` w `@theme inline` i `--success` w `:root` oraz `.dark`
+- [x] 2.1 `npm run lint` przechodzi — edeb748
+- [x] 2.2 `npx astro check` przechodzi bez błędów — edeb748
+- [x] 2.3 `npm run build` przechodzi — edeb748
+- [x] 2.4 `global.css` zawiera `--color-success: var(--success)` w `@theme inline` i `--success` w `:root` oraz `.dark` — edeb748
 
 #### Manual
 
@@ -302,19 +302,19 @@ Nie dotyczy — brak zmian danych.
 
 #### Automated
 
-- [ ] 3.1 Hardcoded-value scan z `/10x-ui` na `[eventId].astro` zwraca 0 trafień (było 31)
-- [ ] 3.2 `npm run lint` przechodzi
-- [ ] 3.3 `npx astro check` przechodzi bez błędów
-- [ ] 3.4 `npm run build` przechodzi
+- [x] 3.1 Hardcoded-value scan z `/10x-ui` na `[eventId].astro` zwraca 0 trafień (było 31)
+- [x] 3.2 `npm run lint` przechodzi
+- [x] 3.3 `npx astro check` przechodzi bez błędów
+- [x] 3.4 `npm run build` przechodzi
 
 #### Manual
 
-- [ ] 3.5 Na 360 px i desktopie: kolejność Bilans → Twoje dzieci → Plan dzieci → Twój przejazd → Kierowcy, bez przewijania w poziomie, kontrolki ≥ 44 px
-- [ ] 3.6 Zaznaczenie „Jedzie”/„Nie jedzie” wraca do `#twoje-dzieci`, zapis kierowcy i „Wycofaj” do `#twoj-przejazd`; komunikat błędu widoczny po skoku bez przewijania
-- [ ] 3.7 Liczba miejsc 0 lub 9 (przez DevTools) pokazuje „Podaj liczbę miejsc od 1 do 8” przy polu, pole ma `aria-invalid`
-- [ ] 3.8 Niedobór, „Miejsc wystarcza” i „Żadne dziecko jeszcze nie jedzie” wyglądają poprawnie i różnią się ikoną, nie tylko kolorem
-- [ ] 3.9 Konto bez dzieci w grupie widzi wskazówkę z działającym linkiem do `/groups/[id]#dzieci`
-- [ ] 3.10 Termin rozpoczęty: brak kontrolek, widoczny tekst „tylko do odczytu”
+- [x] 3.5 Na 360 px i desktopie: kolejność Bilans → Twoje dzieci → Plan dzieci → Twój przejazd → Kierowcy, bez przewijania w poziomie, kontrolki ≥ 44 px
+- [x] 3.6 Zaznaczenie „Jedzie”/„Nie jedzie” wraca do `#twoje-dzieci`, zapis kierowcy i „Wycofaj” do `#twoj-przejazd`; komunikat błędu widoczny po skoku bez przewijania
+- [x] 3.7 Liczba miejsc 0 lub 9 (przez DevTools) pokazuje „Podaj liczbę miejsc od 1 do 8” przy polu, pole ma `aria-invalid`
+- [x] 3.8 Niedobór, „Miejsc wystarcza” i „Żadne dziecko jeszcze nie jedzie” wyglądają poprawnie i różnią się ikoną, nie tylko kolorem
+- [x] 3.9 Konto bez dzieci w grupie widzi wskazówkę z działającym linkiem do `/groups/[id]#dzieci`
+- [x] 3.10 Termin rozpoczęty: brak kontrolek, widoczny tekst „tylko do odczytu”
 
 ### Phase 4: Stany, kitchen sink i strażnik
 

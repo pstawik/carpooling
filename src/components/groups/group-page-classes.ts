@@ -1,8 +1,9 @@
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-// Class constants shared by the group page (src/pages/groups/[id].astro) and its kitchen sink
-// (src/pages/dev/ui-group.astro), so the visual gate always shows what the view renders.
+// Class constants shared by the group page (src/pages/groups/[id].astro), the event plan
+// (src/pages/groups/[id]/terminy/[eventId].astro) and their kitchen sinks (src/pages/dev/ui-group.astro,
+// src/pages/dev/ui-event.astro), so the visual gate always shows what the views render.
 // Token classes only — see the UI rules in AGENTS.md.
 
 /** shadcn Input is h-9; every control on the group page stays at least 44 px tall for touch. */
@@ -34,3 +35,12 @@ export const cardClass = "mb-6 gap-0 p-4 backdrop-blur-xl sm:p-6";
 export const submitClass = "h-auto min-h-11 w-full whitespace-normal";
 
 export const linkButtonClass = cn(buttonVariants({ variant: "outline" }), "h-auto min-h-11 whitespace-normal");
+
+/** One child or driver row inside an event plan card; the border colour comes from --border (base layer). */
+export const listItemClass = "bg-secondary/50 rounded-xl border p-3";
+
+/** A driver's phone number: a dialable link in the --link colour, 44 px tall for touch. */
+export const phoneLinkClass = cn(
+  "text-link inline-flex min-h-11 items-center break-all underline-offset-4 hover:underline",
+  focusRingClass,
+);
