@@ -1,7 +1,7 @@
 ---
 change_id: group-stats-ui
 title: Move the group stats view onto design tokens and shared components
-status: implemented
+status: impl_reviewed
 created: 2026-11-17
 updated: 2026-11-17
 archived_at: null

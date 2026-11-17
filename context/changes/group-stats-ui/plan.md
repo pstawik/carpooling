@@ -152,6 +152,8 @@ Bramka wizualna: wszystkie stany widoku statystyk na jednej stronie dev-only.
 - Karty stanów: **default** (podsumowanie z licznikiem i regułami, 2–3 kierowców z różnymi formami `drivesLabel`, dzieci z nickiem rodzica i bez), **hover** („Wróć do grupy”), **focus-visible** (Tab na „Wróć do grupy”, obwódka `--ring`), **disabled** (N/A — widok tylko do odczytu, jedyna kontrolka to link), **error** (błąd ładowania w `Alert destructive`), **empty** (brak zakończonych terminów — jedna karta; brak dzieci przy >0 terminach), **loading** (N/A — SSR, dane w `Promise.all` przed wysłaniem HTML).
 - Klasy wyłącznie z `group-page-classes.ts` i tokenów; lokalne stałe tylko dla etykiet stanów sinka (jak `ui-event.astro:44-45`).
 
+**Odstępstwo (impl-review F1, 2026-11-17)**: Nagłówki regionów (`mb-2 text-lg font-semibold`, `mb-3 text-lg font-semibold`) są wpisane inline i w widoku, i w sinku, a nie w `group-page-classes.ts`, wbrew regule z Critical Implementation Details. To świadome: tak samo robią `[eventId].astro:121` i `ui-event.astro:316`. Wspólna stała tylko dla statystyk dałaby dwa widoki z różnymi konwencjami. Rozjazd odstępów między widokiem a sinkiem wychwytują zrzuty z bramki wizualnej.
+
 ### Success Criteria:
 
 #### Automated Verification:
