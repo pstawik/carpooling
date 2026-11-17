@@ -2,8 +2,10 @@ import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 // Class constants shared by the group page (src/pages/groups/[id].astro), the event plan
-// (src/pages/groups/[id]/terminy/[eventId].astro), the group statistics (src/pages/groups/[id]/statystyki.astro)
-// and the kitchen sinks (src/pages/dev/ui-group.astro, src/pages/dev/ui-event.astro, src/pages/dev/ui-stats.astro),
+// (src/pages/groups/[id]/terminy/[eventId].astro), the group statistics (src/pages/groups/[id]/statystyki.astro),
+// the dashboard (src/pages/dashboard.astro)
+// and the kitchen sinks (src/pages/dev/ui-group.astro, src/pages/dev/ui-event.astro, src/pages/dev/ui-stats.astro,
+// src/pages/dev/ui-dashboard.astro),
 // so the visual gate
 // always shows what the views render.
 // Token classes only — see the UI rules in AGENTS.md.
@@ -46,6 +48,19 @@ export const hintLinkClass = cn(planLinkClass, "text-link inline-flex");
 
 /** One child or driver row inside an event plan card; the border colour comes from --border (base layer). */
 export const listItemClass = "bg-secondary/50 rounded-xl border p-3";
+
+/**
+ * One group on the dashboard: a whole-row link to the group page, 44 px tall for touch.
+ * focusRingClass comes first so listItemClass's rounded-xl wins over its rounded-sm.
+ */
+export const groupLinkClass = cn(
+  focusRingClass,
+  listItemClass,
+  "hover:bg-accent flex min-h-11 items-center justify-between gap-3 px-3 py-2 transition-colors",
+);
+
+/** A primary-styled link under a card, e.g. "Panel administratora" on the dashboard; 44 px tall for touch. */
+export const primaryLinkButtonClass = cn(buttonVariants(), "h-auto min-h-11");
 
 /** A driver's phone number: a dialable link in the --link colour, 44 px tall for touch. */
 export const phoneLinkClass = cn(

@@ -1,7 +1,14 @@
 ---
+import { CircleAlert } from "lucide-react";
 import Layout from "@/layouts/Layout.astro";
+import Topbar from "@/components/Topbar.astro";
+import { cardClass, groupLinkClass, primaryLinkButtonClass } from "@/components/groups/group-page-classes";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 import { createClient } from "@/lib/supabase";
 import { listMyGroups, type MyGroup } from "@/lib/services/groups";
+import { cn } from "@/lib/utils";
 
 const { user, profile, isAppAdmin } = Astro.locals;
 
@@ -20,64 +27,48 @@ if (supabase && user) {
 ---
 
 <Layout title="Panel">
-  <div class="bg-cosmic flex min-h-screen items-center justify-center p-4">
-    <div class="w-full max-w-sm rounded-2xl border border-white/10 bg-white/10 p-6 text-center text-white backdrop-blur-xl sm:p-8">
-      <h1 class="mb-4 bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-3xl font-bold break-words text-transparent">
+  <div class="bg-cosmic min-h-screen p-4">
+    <div class="mx-auto w-full max-w-xl">
+      <Topbar />
+
+      <h1 class="text-foreground mb-4 text-2xl font-bold break-words">
         {profile ? `Cześć, ${profile.first_name}!` : "Cześć!"}
       </h1>
-      <p class="break-words text-blue-100/80">
-        {profile ? (
-          <>
-            Twój nick: <span class="font-semibold text-white">{profile.nick}</span>
-          </>
-        ) : (
-          <>
-            Zalogowano jako <span class="font-semibold text-white">{user?.email}</span>
-          </>
-        )}
-      </p>
-      <section class="mt-6 text-left">
-        <h2 class="mb-3 text-lg font-semibold">Twoje grupy</h2>
+
+      <Card id="grupy" role="region" aria-labelledby="grupy-heading" className={cn(cardClass, "scroll-mt-4")}>
+        <h2 id="grupy-heading" class="mb-3 text-lg font-semibold">
+          Twoje grupy
+        </h2>
         {groupsFailed ? (
-          <p class="text-sm text-red-300" role="alert">
-            Nie udało się wczytać grup. Spróbuj ponownie później.
-          </p>
+          <Alert variant="destructive" role="alert">
+            <CircleAlert />
+            <AlertDescription className="break-words">
+              Nie udało się wczytać grup. Spróbuj ponownie później.
+            </AlertDescription>
+          </Alert>
         ) : groups.length === 0 ? (
-          <p class="text-sm text-blue-100/70">Nie należysz jeszcze do żadnej grupy.</p>
+          <p class="text-muted-foreground text-sm">
+            Nie należysz jeszcze do żadnej grupy. Poproś administratora grupy o link zaproszeniowy.
+          </p>
         ) : (
           <ul class="space-y-2">
             {groups.map((group) => (
               <li>
-                <a
-                  href={`/groups/${group.id}`}
-                  class="flex min-h-11 items-center justify-between gap-3 rounded-lg border border-white/10 bg-white/5 px-3 py-2 transition-colors hover:bg-white/15"
-                >
+                <a href={`/groups/${group.id}`} class:list={groupLinkClass}>
                   <span class="min-w-0 font-medium break-words">{group.name}</span>
-                  {group.role === "admin" && (
-                    <span class="shrink-0 rounded-full bg-purple-600/60 px-2 py-0.5 text-xs">administrator</span>
-                  )}
+                  {group.role === "admin" && <Badge>administrator</Badge>}
                 </a>
               </li>
             ))}
           </ul>
         )}
-      </section>
+      </Card>
+
       {isAppAdmin && (
-        <a
-          href="/admin/groups"
-          class="mt-6 inline-flex min-h-11 items-center rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium transition-colors hover:bg-purple-500"
-        >
+        <a href="/admin/groups" class:list={primaryLinkButtonClass}>
           Panel administratora
         </a>
       )}
-      <form method="POST" action="/api/auth/signout" class="mt-6">
-        <button
-          type="submit"
-          class="min-h-11 rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
-        >
-          Wyloguj
-        </button>
-      </form>
     </div>
   </div>
 </Layout>
