@@ -329,29 +329,29 @@ N/A — brak zmian danych.
 
 #### Automated
 
-- [x] 1.1 `npm run lint` przechodzi
-- [x] 1.2 `npx astro check` przechodzi bez błędów
-- [x] 1.3 `npm run build` przechodzi, a zbudowany CSS zawiera regułę z `--autofill` dla `:autofill`
+- [x] 1.1 `npm run lint` przechodzi — 343e557
+- [x] 1.2 `npx astro check` przechodzi bez błędów — 343e557
+- [x] 1.3 `npm run build` przechodzi, a zbudowany CSS zawiera regułę z `--autofill` dla `:autofill` — 343e557
 
 #### Manual
 
-- [x] 1.4 W Edge i Chrome na `/auth/signin`: po wybraniu zapamiętanego loginu pola są fioletowe (`#4a2870`), nie musztardowe; po kliknięciu w pole kolor zostaje, a obwódka fokusu jest widoczna
-- [x] 1.5 Autouzupełnione pole na stronie grupy (np. formularz z `Input`) też ma fioletowe tło
+- [x] 1.4 W Edge i Chrome na `/auth/signin`: po wybraniu zapamiętanego loginu pola są fioletowe (`#4a2870`), nie musztardowe; po kliknięciu w pole kolor zostaje, a obwódka fokusu jest widoczna — 343e557
+- [x] 1.5 Autouzupełnione pole na stronie grupy (np. formularz z `Input`) też ma fioletowe tło — 343e557
 
 ### Phase 2: Komponenty auth na kontrakcie
 
 #### Automated
 
-- [ ] 2.1 Hardcoded-value scan z `/10x-ui` na `FormField.tsx`, `ServerError.tsx`, `SubmitButton.tsx`, `PasswordToggle.tsx`, `SignUpForm.tsx`, `SignInForm.tsx` zwraca 0 trafień
-- [ ] 2.2 `npm run lint` przechodzi
-- [ ] 2.3 `npx astro check` przechodzi bez błędów
-- [ ] 2.4 `npm run build` przechodzi
-- [ ] 2.5 `npm run smoke` przechodzi na uruchomionym serwerze
+- [x] 2.1 Hardcoded-value scan z `/10x-ui` na `FormField.tsx`, `ServerError.tsx`, `SubmitButton.tsx`, `PasswordToggle.tsx`, `SignUpForm.tsx`, `SignInForm.tsx` zwraca 0 trafień
+- [x] 2.2 `npm run lint` przechodzi
+- [x] 2.3 `npx astro check` przechodzi bez błędów
+- [x] 2.4 `npm run build` przechodzi
+- [x] 2.5 `npm run smoke` przechodzi na uruchomionym serwerze
 
 #### Manual
 
-- [ ] 2.6 Na 360 px i desktopie, `/auth/signin` i `/auth/signup`: pola, przycisk i błąd serwera wyglądają jak w reszcie aplikacji; brak przewijania w poziomie; kontrolki ≥ 44 px
-- [ ] 2.7 Tab po polach i „Pokaż hasło” pokazuje obwódkę `--ring`; błąd walidacji pola (np. pusty e-mail) ma czerwoną obwódkę i tekst w `--destructive`; podczas wysyłki przycisk jest nieaktywny ze spinnerem
+- [x] 2.6 Na 360 px i desktopie, `/auth/signin` i `/auth/signup`: pola, przycisk i błąd serwera wyglądają jak w reszcie aplikacji; brak przewijania w poziomie; kontrolki ≥ 44 px
+- [x] 2.7 Tab po polach i „Pokaż hasło” pokazuje obwódkę `--ring`; błąd walidacji pola (np. pusty e-mail) ma czerwoną obwódkę i tekst w `--destructive`; podczas wysyłki przycisk jest nieaktywny ze spinnerem
 
 ### Phase 3: Strony logowania i rejestracji
 

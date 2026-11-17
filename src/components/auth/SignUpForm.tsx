@@ -18,7 +18,7 @@ interface Props {
 type FieldErrors = Partial<Record<"first_name" | "nick" | "email" | "phone" | "password" | "confirmPassword", string>>;
 
 function Hint({ children }: { children: React.ReactNode }) {
-  return <p className="mt-1 text-xs text-blue-100/50">{children}</p>;
+  return <p className="text-muted-foreground mt-1 text-xs">{children}</p>;
 }
 
 export default function SignUpForm({ serverError, invite }: Props) {
