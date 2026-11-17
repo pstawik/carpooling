@@ -1,6 +1,10 @@
 ---
+import { CircleAlert } from "lucide-react";
 import Layout from "@/layouts/Layout.astro";
 import Topbar from "@/components/Topbar.astro";
+import { cardClass, linkButtonClass, listItemClass } from "@/components/groups/group-page-classes";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Card } from "@/components/ui/card";
 import { createClient } from "@/lib/supabase";
 import { getGroupWithAdmins } from "@/lib/services/groups";
 import { countFinishedEvents, getGroupStats, type GroupStats } from "@/lib/services/stats";
@@ -36,9 +40,6 @@ try {
   console.error(loadError);
   stats = null;
 }
-
-const cardClass = "rounded-2xl border border-white/10 bg-white/10 p-4 text-white backdrop-blur-xl sm:p-6";
-const rowClass = "rounded-xl border border-white/10 bg-white/5 p-3";
 ---
 
 <Layout title={`Statystyki · ${group.name}`}>
@@ -47,76 +48,71 @@ const rowClass = "rounded-xl border border-white/10 bg-white/5 p-3";
       <Topbar />
 
       <header class="mb-4">
-        <h1 class="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-2xl font-bold break-words text-transparent">
-          Statystyki — {group.name}
-        </h1>
+        <p class="text-muted-foreground mb-1 text-sm break-words">{group.name}</p>
+        <h1 class="text-foreground text-2xl font-bold">Statystyki</h1>
       </header>
 
       {stats === null ? (
-        <section class:list={[cardClass, "mb-6"]}>
-          <p class="text-sm text-red-300" role="alert">
-            Nie udało się wczytać statystyk.
-          </p>
-        </section>
+        <Alert variant="destructive" role="alert" className="mb-6">
+          <CircleAlert />
+          <AlertDescription>Nie udało się wczytać statystyk.</AlertDescription>
+        </Alert>
       ) : (
         <>
-          <section class:list={[cardClass, "mb-6"]}>
+          <Card className={cardClass}>
             <p class="mb-2 font-semibold">Zakończone terminy: {finishedCount}</p>
-            <p class="text-sm text-blue-100/70">
+            <p class="text-muted-foreground text-sm">
               Przejazd liczy się, gdy na termin jechało co najmniej jedno dziecko. Nieobecność to „nie jedzie” albo brak
               deklaracji, liczone od dodania dziecka.
             </p>
-          </section>
+          </Card>
 
           {finishedCount === 0 ? (
-            <section class:list={[cardClass, "mb-6"]}>
-              <p class="text-sm text-blue-100/70">
+            <Card className={cardClass}>
+              <p class="text-muted-foreground text-sm">
                 Brak zakończonych terminów — statystyki pojawią się po pierwszym terminie.
               </p>
-            </section>
+            </Card>
           ) : (
             <>
-              <section id="kierowcy" class:list={[cardClass, "mb-6"]}>
+              <Card id="kierowcy" className={cardClass}>
                 <h2 class="mb-3 text-lg font-semibold">Kierowcy</h2>
                 <ul class="space-y-2 text-sm">
                   {stats.drivers.map((driver) => (
-                    <li class:list={rowClass}>
+                    <li class:list={listItemClass}>
                       <p class="font-medium break-words">{driver.nick ?? "Członek grupy"}</p>
-                      <p class="text-blue-100/70">{drivesLabel(driver.drives)}</p>
+                      <p class="text-muted-foreground">{drivesLabel(driver.drives)}</p>
                     </li>
                   ))}
                 </ul>
-              </section>
+              </Card>
 
-              <section id="dzieci" class:list={[cardClass, "mb-6"]}>
+              <Card id="dzieci" className={cardClass}>
                 <h2 class="mb-3 text-lg font-semibold">Dzieci</h2>
                 {stats.children.length === 0 ? (
-                  <p class="text-sm text-blue-100/70">W grupie nie ma jeszcze dzieci.</p>
+                  <p class="text-muted-foreground text-sm">W grupie nie ma jeszcze dzieci.</p>
                 ) : (
                   <ul class="space-y-2 text-sm">
                     {stats.children.map((child) => (
-                      <li class:list={rowClass}>
+                      <li class:list={listItemClass}>
                         <p class="break-words">
                           <span class="font-medium">{child.name}</span>
-                          {child.parentNick && <span class="text-blue-100/70"> ({child.parentNick})</span>}
+                          {child.parentNick && <span class="text-muted-foreground"> ({child.parentNick})</span>}
                         </p>
-                        <p class="text-blue-100/70">
+                        <p class="text-muted-foreground">
                           Obecności: {child.present} · Nieobecności: {child.absent}
                         </p>
                       </li>
                     ))}
                   </ul>
                 )}
-              </section>
+              </Card>
             </>
           )}
         </>
       )}
 
-      <a
-        href={`/groups/${group.id}`}
-        class="inline-flex min-h-11 items-center rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm text-white transition-colors hover:bg-white/20"
-      >
+      <a href={`/groups/${group.id}`} class:list={linkButtonClass}>
         Wróć do grupy
       </a>
     </div>

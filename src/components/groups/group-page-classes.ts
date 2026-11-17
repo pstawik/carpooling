@@ -2,8 +2,9 @@ import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 // Class constants shared by the group page (src/pages/groups/[id].astro), the event plan
-// (src/pages/groups/[id]/terminy/[eventId].astro) and their kitchen sinks (src/pages/dev/ui-group.astro,
-// src/pages/dev/ui-event.astro), so the visual gate always shows what the views render.
+// (src/pages/groups/[id]/terminy/[eventId].astro), the group statistics (src/pages/groups/[id]/statystyki.astro)
+// and the kitchen sinks (src/pages/dev/ui-group.astro, src/pages/dev/ui-event.astro), so the visual gate
+// always shows what the views render.
 // Token classes only — see the UI rules in AGENTS.md.
 
 /** shadcn Input is h-9; every control on the group page stays at least 44 px tall for touch. */
