@@ -1,7 +1,8 @@
 ---
 import { CircleAlert } from "lucide-react";
 import Layout from "@/layouts/Layout.astro";
-import { cardClass, groupLinkClass, linkButtonClass } from "@/components/groups/group-page-classes";
+import Topbar from "@/components/Topbar.astro";
+import { cardClass, groupLinkClass } from "@/components/groups/group-page-classes";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
@@ -27,24 +28,18 @@ if (supabase && user) {
 ---
 
 <Layout title="Panel">
-  <div class="bg-cosmic flex min-h-screen items-center justify-center p-4">
-    <Card className={cn(cardClass, "w-full max-w-sm text-center")}>
-      <h1 class="text-foreground mb-4 text-3xl font-bold break-words">
+  <div class="bg-cosmic min-h-screen p-4">
+    <div class="mx-auto w-full max-w-xl">
+      <Topbar />
+
+      <h1 class="text-foreground mb-4 text-2xl font-bold break-words">
         {profile ? `Cześć, ${profile.first_name}!` : "Cześć!"}
       </h1>
-      <p class="text-muted-foreground break-words">
-        {profile ? (
-          <>
-            Twój nick: <span class="text-foreground font-semibold">{profile.nick}</span>
-          </>
-        ) : (
-          <>
-            Zalogowano jako <span class="text-foreground font-semibold">{user?.email}</span>
-          </>
-        )}
-      </p>
-      <section class="mt-6 text-left">
-        <h2 class="mb-3 text-lg font-semibold">Twoje grupy</h2>
+
+      <Card id="grupy" role="region" aria-labelledby="grupy-heading" className={cardClass}>
+        <h2 id="grupy-heading" class="mb-3 text-lg font-semibold">
+          Twoje grupy
+        </h2>
         {groupsFailed ? (
           <Alert variant="destructive" role="alert">
             <CircleAlert />
@@ -53,7 +48,9 @@ if (supabase && user) {
             </AlertDescription>
           </Alert>
         ) : groups.length === 0 ? (
-          <p class="text-muted-foreground text-sm">Nie należysz jeszcze do żadnej grupy.</p>
+          <p class="text-muted-foreground text-sm">
+            Nie należysz jeszcze do żadnej grupy. Poproś administratora grupy o link zaproszeniowy.
+          </p>
         ) : (
           <ul class="space-y-2">
             {groups.map((group) => (
@@ -66,17 +63,13 @@ if (supabase && user) {
             ))}
           </ul>
         )}
-      </section>
+      </Card>
+
       {isAppAdmin && (
-        <a href="/admin/groups" class:list={cn(buttonVariants(), "mt-6 h-auto min-h-11 self-center")}>
+        <a href="/admin/groups" class:list={cn(buttonVariants(), "h-auto min-h-11")}>
           Panel administratora
         </a>
       )}
-      <form method="POST" action="/api/auth/signout" class="mt-6">
-        <button type="submit" class:list={linkButtonClass}>
-          Wyloguj
-        </button>
-      </form>
-    </Card>
+    </div>
   </div>
 </Layout>

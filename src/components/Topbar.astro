@@ -1,5 +1,6 @@
 ---
 const { user, profile } = Astro.locals;
+const isDashboard = Astro.url.pathname === "/dashboard";
 // Token classes only (see the UI rules in AGENTS.md); --link is the readable purple for text links on the dark surface.
 const linkClass =
   "text-link hover:text-foreground focus-visible:outline-ring inline-flex min-h-11 items-center rounded-sm transition-colors hover:underline focus-visible:outline-2 focus-visible:outline-offset-2";
@@ -10,7 +11,7 @@ const linkClass =
     <>
       <span class="text-muted-foreground min-w-0 truncate">{profile?.nick ?? user.email}</span>
       <div class="flex items-center gap-3">
-        <a href="/dashboard" class:list={linkClass}>
+        <a href="/dashboard" class:list={linkClass} aria-current={isDashboard ? "page" : undefined}>
           Panel
         </a>
         <form method="POST" action="/api/auth/signout">

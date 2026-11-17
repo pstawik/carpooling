@@ -254,30 +254,30 @@ N/A — brak zmian danych.
 
 #### Automated
 
-- [x] 1.1 Hardcoded-value scan z `/10x-ui` na `dashboard.astro` zwraca 0 trafień (było 11 linii)
-- [x] 1.2 `npm run lint` przechodzi
-- [x] 1.3 `npx astro check` przechodzi bez błędów
-- [x] 1.4 `npm run build` przechodzi
+- [x] 1.1 Hardcoded-value scan z `/10x-ui` na `dashboard.astro` zwraca 0 trafień (było 11 linii) — d8919d1
+- [x] 1.2 `npm run lint` przechodzi — d8919d1
+- [x] 1.3 `npx astro check` przechodzi bez błędów — d8919d1
+- [x] 1.4 `npm run build` przechodzi — d8919d1
 
 #### Manual
 
-- [x] 1.5 Na 360 px i desktopie: karta i wiersze grup wyglądają jak na stronie grupy, brak przewijania w poziomie, kontrolki ≥ 44 px
-- [x] 1.6 Tab na wierszu grupy, „Panel administratora” i „Wyloguj” pokazuje obwódkę w kolorze `--ring`
+- [x] 1.5 Na 360 px i desktopie: karta i wiersze grup wyglądają jak na stronie grupy, brak przewijania w poziomie, kontrolki ≥ 44 px — d8919d1
+- [x] 1.6 Tab na wierszu grupy, „Panel administratora” i „Wyloguj” pokazuje obwódkę w kolorze `--ring` — d8919d1
 
 ### Phase 2: Układ i nawigacja
 
 #### Automated
 
-- [ ] 2.1 Hardcoded-value scan na `dashboard.astro` i `Topbar.astro` zwraca 0 trafień
-- [ ] 2.2 `npm run lint` przechodzi
-- [ ] 2.3 `npx astro check` przechodzi bez błędów
-- [ ] 2.4 `npm run build` przechodzi
-- [ ] 2.5 `npm run smoke` przechodzi na uruchomionym serwerze (nick w HTML, lista grup, link do grupy)
+- [x] 2.1 Hardcoded-value scan na `dashboard.astro` i `Topbar.astro` zwraca 0 trafień
+- [x] 2.2 `npm run lint` przechodzi
+- [x] 2.3 `npx astro check` przechodzi bez błędów
+- [x] 2.4 `npm run build` przechodzi
+- [x] 2.5 `npm run smoke` przechodzi na uruchomionym serwerze (nick w HTML, lista grup, link do grupy)
 
 #### Manual
 
-- [ ] 2.6 Na 360 px i desktopie: `Topbar` u góry, nagłówek i karta „Twoje grupy” wyrównane jak na stronie grupy, jeden przycisk „Wyloguj” (w `Topbar`)
-- [ ] 2.7 Konto bez grup widzi tekst o linku zaproszeniowym; czytnik ekranu / inspektor pokazuje `aria-current="page"` na „Panel” tylko na `/dashboard`
+- [x] 2.6 Na 360 px i desktopie: `Topbar` u góry, nagłówek i karta „Twoje grupy” wyrównane jak na stronie grupy, jeden przycisk „Wyloguj” (w `Topbar`)
+- [x] 2.7 Konto bez grup widzi tekst o linku zaproszeniowym; czytnik ekranu / inspektor pokazuje `aria-current="page"` na „Panel” tylko na `/dashboard`
 
 ### Phase 3: Kitchen sink `/dev/ui-dashboard`
 
