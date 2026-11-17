@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { createClient } from "@/lib/supabase";
 import { listMyGroups, type MyGroup } from "@/lib/services/groups";
+import { cn } from "@/lib/utils";
 
 const { user, profile, isAppAdmin } = Astro.locals;
 
@@ -34,7 +35,7 @@ if (supabase && user) {
         {profile ? `Cześć, ${profile.first_name}!` : "Cześć!"}
       </h1>
 
-      <Card id="grupy" role="region" aria-labelledby="grupy-heading" className={cardClass}>
+      <Card id="grupy" role="region" aria-labelledby="grupy-heading" className={cn(cardClass, "scroll-mt-4")}>
         <h2 id="grupy-heading" class="mb-3 text-lg font-semibold">
           Twoje grupy
         </h2>

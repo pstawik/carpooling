@@ -158,6 +158,10 @@ Bramka wizualna: wszystkie stany panelu na jednej stronie dev-only.
 - Karty stanów: **default** (lista 3 grup: członek, administrator z `Badge`, długa nazwa łamana `break-words`; nagłówek z imieniem i wariant „Cześć!” bez profilu), **hover** (wiersz grupy, „Panel administratora”), **focus-visible** (Tab na wierszu grupy i przycisku, obwódka `--ring`), **disabled** (N/A — brak kontrolek ze stanem nieaktywnym), **error** (`Alert destructive` z tekstem widoku), **empty** (pusty stan z tekstem o linku zaproszeniowym), **loading** (N/A — SSR, `listMyGroups` przed wysłaniem HTML).
 - Klasy wyłącznie z `group-page-classes.ts` i tokenów; lokalne stałe tylko dla etykiet stanów sinka (jak `ui-stats.astro`).
 
+**Odstępstwo (impl-review F1, 2026-11-17)**: Faza 3 dodała w `group-page-classes.ts` drugi eksport, `primaryLinkButtonClass` (= `cn(buttonVariants(), "h-auto min-h-11")`), i przepięła na niego „Panel administratora” w `dashboard.astro` — to te same klasy co w kontrakcie faz 1–2, ale wspólne z sinkiem, zgodnie z regułą z Critical Implementation Details (stąd dwa nowe eksporty zamiast jednego z fazy 1). W sinku oba powitania („Cześć, Ania!”, „Cześć!”) to `<p>` z typografią `h1` widoku, żeby strona miała jeden `h1`; wiersze grup i przycisk prowadzą do kotwic `#state-…` zamiast prawdziwych tras. Commit a29b6a8.
+
+**Odstępstwo (impl-review F2, 2026-11-17)**: Krótkie ciągi klas — typografia powitania (`text-foreground text-2xl font-bold break-words`), nagłówek karty (`mb-3 text-lg font-semibold`), nazwa grupy (`min-w-0 font-medium break-words`) i tekst pustego stanu (`text-muted-foreground text-sm`) — są wpisane inline i w widoku, i w sinku, a nie w `group-page-classes.ts`. To świadome: tak samo robią `statystyki.astro`/`ui-stats.astro` (odstępstwo F1 w `group-stats-ui`) i `[eventId].astro`/`ui-event.astro`. Wspólne stałe tylko dla panelu dałyby różne konwencje w parach widok/sink; rozjazd wychwytują zrzuty z bramki wizualnej.
+
 ### Success Criteria:
 
 #### Automated Verification:
