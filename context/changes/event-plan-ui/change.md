@@ -1,7 +1,7 @@
 ---
 change_id: event-plan-ui
 title: Event plan UI
-status: implemented
+status: impl_reviewed
 created: 2026-11-17
 updated: 2026-11-17
 archived_at: null

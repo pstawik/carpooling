@@ -542,12 +542,12 @@ const writeSteps = [
     planPageList("plan-nie-jada", childRenamed),
     { status: 200, contains: "bez deklaracji" },
   ],
-  ["parent declares the child going", declareForm({ going: "true" }), { status: 302, location: () => planPath() }],
+  ["parent declares the child going", declareForm({ going: "true" }), { status: 302, locationExact: () => planPath() }],
   ["plan lists the child as going", planPageList("plan-jada"), { status: 200, contains: ["Jadą (1)", childRenamed] }],
   [
     "parent switches the child to not going",
     declareForm({ going: "false" }),
-    { status: 302, location: () => planPath() },
+    { status: 302, locationExact: () => planPath() },
   ],
   [
     "plan lists the child as not going, with a declaration",
@@ -562,7 +562,7 @@ const writeSteps = [
   [
     "parent declares the child going again",
     declareForm({ going: "true" }),
-    { status: 302, location: () => planPath() },
+    { status: 302, locationExact: () => planPath() },
   ],
   [
     "balance warns about a missing seat",
@@ -640,12 +640,19 @@ for (const [name, run, raw] of steps) {
   const actual = await run();
   // A location or text may depend on values captured by earlier steps (group id, invite token): resolve it late.
   const late = (value) => (typeof value === "function" ? value() : value);
-  const expected = { ...raw, location: late(raw.location), contains: late(raw.contains) };
+  const expected = {
+    ...raw,
+    location: late(raw.location),
+    locationExact: late(raw.locationExact),
+    contains: late(raw.contains),
+  };
   // `contains` may list several texts; every one must be present.
   const mustContain = expected.contains === undefined ? [] : [expected.contains].flat();
   const ok =
     actual.status === expected.status &&
     (expected.location === undefined || actual.location.startsWith(expected.location)) &&
+    // `locationExact` for redirects whose prefix is shared with error redirects (`?error=…`).
+    (expected.locationExact === undefined || actual.location === expected.locationExact) &&
     mustContain.every((text) => actual.body.includes(text)) &&
     (expected.notContains === undefined || !actual.body.includes(expected.notContains));
   console.log(`${ok ? "PASS" : "FAIL"}  ${name}  -> ${actual.status} ${actual.location}`);
@@ -657,7 +664,9 @@ for (const [name, run, raw] of steps) {
         : expected.notContains !== undefined
           ? ` (body without "${expected.notContains}")`
           : "";
-    console.log(`      expected ${expected.status} ${expected.location ?? ""}${containsNote}`);
+    console.log(
+      `      expected ${expected.status} ${expected.locationExact ?? expected.location ?? ""}${containsNote}`,
+    );
   }
 }
 

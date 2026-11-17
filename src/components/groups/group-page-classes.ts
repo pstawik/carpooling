@@ -36,6 +36,12 @@ export const submitClass = "h-auto min-h-11 w-full whitespace-normal";
 
 export const linkButtonClass = cn(buttonVariants({ variant: "outline" }), "h-auto min-h-11 whitespace-normal");
 
+/** A small muted heading inside a card, e.g. "Jadą (2)" / "Nie jadą (1)" in the child plan. */
+export const subHeadingClass = "text-muted-foreground mb-2 text-sm font-semibold";
+
+/** A text link inside a muted hint, e.g. "Dodaj dziecko na stronie grupy" for a parent without children. */
+export const hintLinkClass = cn(planLinkClass, "text-link inline-flex");
+
 /** One child or driver row inside an event plan card; the border colour comes from --border (base layer). */
 export const listItemClass = "bg-secondary/50 rounded-xl border p-3";
 
