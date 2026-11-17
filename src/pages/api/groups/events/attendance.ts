@@ -57,5 +57,7 @@ export const POST: APIRoute = async (context) => {
     return context.redirect(`${planUrl}?error=unknown`);
   }
 
-  return context.redirect(`${planUrl}#twoje-dzieci`);
+  // No anchor on success: "Twoje dzieci" is the second card, so the plan reopens at the top with the
+  // updated seat balance in view. Only `attendance_locked` above jumps to #twoje-dzieci.
+  return context.redirect(planUrl);
 };

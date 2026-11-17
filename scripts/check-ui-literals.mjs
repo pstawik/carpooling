@@ -15,6 +15,8 @@ const CLEANED_VIEWS = [
   "src/components/groups/group-page-classes.ts",
   "src/components/Topbar.astro",
   "src/pages/dev/ui-group.astro",
+  "src/pages/groups/[id]/terminy/[eventId].astro",
+  "src/pages/dev/ui-event.astro",
 ];
 
 // The /10x-ui hardcoded-value scan, widened: side borders, ring-offset, placeholder/caret/accent/decoration,
