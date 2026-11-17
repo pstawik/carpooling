@@ -280,19 +280,19 @@ Nie dotyczy — brak zmian danych.
 
 #### Automated
 
-- [x] 1.1 Plik `src/components/ui/badge.tsx` istnieje i importuje `cn` z `@/lib/utils`
-- [x] 1.2 `git diff --stat package.json package-lock.json` jest pusty
-- [x] 1.3 `npm run lint` przechodzi
-- [x] 1.4 `npx astro check` przechodzi bez błędów
+- [x] 1.1 Plik `src/components/ui/badge.tsx` istnieje i importuje `cn` z `@/lib/utils` — 871fa2f
+- [x] 1.2 `git diff --stat package.json package-lock.json` jest pusty — 871fa2f
+- [x] 1.3 `npm run lint` przechodzi — 871fa2f
+- [x] 1.4 `npx astro check` przechodzi bez błędów — 871fa2f
 
 ### Phase 2: Rola `--success`
 
 #### Automated
 
-- [ ] 2.1 `npm run lint` przechodzi
-- [ ] 2.2 `npx astro check` przechodzi bez błędów
-- [ ] 2.3 `npm run build` przechodzi
-- [ ] 2.4 `global.css` zawiera `--color-success: var(--success)` w `@theme inline` i `--success` w `:root` oraz `.dark`
+- [x] 2.1 `npm run lint` przechodzi
+- [x] 2.2 `npx astro check` przechodzi bez błędów
+- [x] 2.3 `npm run build` przechodzi
+- [x] 2.4 `global.css` zawiera `--color-success: var(--success)` w `@theme inline` i `--success` w `:root` oraz `.dark`
 
 #### Manual
 
