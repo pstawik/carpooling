@@ -1,10 +1,10 @@
 ---
 change_id: group-page-ui
 title: Group page UI
-status: impl_reviewed
+status: archived
 created: 2026-11-16
-updated: 2026-11-16
-archived_at: null
+updated: 2026-11-17
+archived_at: 2026-11-17T05:47:52Z
 ---
 
 ## Notes
