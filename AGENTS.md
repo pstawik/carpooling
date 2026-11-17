@@ -34,7 +34,7 @@ Merge Tailwind classes with `cn()` from `@/lib/utils`, never by string concatena
 - Tokens live in `src/styles/global.css`; their values are in `.dark`, which is always on (`<html class="dark">` in `src/layouts/Layout.astro`). Positive status uses `--success` via `<Alert variant="success">`, never a palette green.
 - Check `src/components/ui/` before creating a component; add missing ones via `npx shadcn@latest add <name>` and re-point the generated `cn` import to `@/lib/utils` (the CLI resolves it to the npm package `cn` here).
 - No palette classes (`bg-purple-600`, `text-white`), hex/rgb/oklch literals or arbitrary values (`p-[13px]`) in views; use role tokens (`bg-primary`, `text-muted-foreground`, `border-input`, …).
-- Kitchen sinks with the 7 component states: `/dev/ui-group` and `/dev/ui-event` (dev only); class constants they share with a view live in `src/components/groups/group-page-classes.ts`.
+- Kitchen sinks with the 7 component states: `/dev/ui-group`, `/dev/ui-event` and `/dev/ui-stats` (dev only); class constants they share with a view live in `src/components/groups/group-page-classes.ts`.
 - `scripts/check-ui-literals.mjs` runs in `npm run lint`; append every newly cleaned view to its `CLEANED_VIEWS` list.
 
 ## Testing

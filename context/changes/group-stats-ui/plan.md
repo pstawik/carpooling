@@ -277,21 +277,21 @@ Nie dotyczy — brak zmian danych.
 
 #### Automated
 
-- [x] 3.1 Hardcoded-value scan na `src/pages/dev/ui-stats.astro` zwraca 0 trafień
-- [x] 3.2 `npm run lint` przechodzi
-- [x] 3.3 `npx astro check` przechodzi bez błędów
-- [x] 3.4 `npm run build` przechodzi, a `/dev/ui-stats` w buildzie produkcyjnym odpowiada 404
+- [x] 3.1 Hardcoded-value scan na `src/pages/dev/ui-stats.astro` zwraca 0 trafień — 49a7888
+- [x] 3.2 `npm run lint` przechodzi — 49a7888
+- [x] 3.3 `npx astro check` przechodzi bez błędów — 49a7888
+- [x] 3.4 `npm run build` przechodzi, a `/dev/ui-stats` w buildzie produkcyjnym odpowiada 404 — 49a7888
 
 #### Manual
 
-- [x] 3.5 `/dev/ui-stats` pokazuje wszystkie 7 stanów (lub N/A z powodem); zrzuty na desktopie i 360 px
-- [x] 3.6 Kontrast `text-muted-foreground` na kartach czytelny na zrzutach
+- [x] 3.5 `/dev/ui-stats` pokazuje wszystkie 7 stanów (lub N/A z powodem); zrzuty na desktopie i 360 px — 49a7888
+- [x] 3.6 Kontrast `text-muted-foreground` na kartach czytelny na zrzutach — 49a7888
 
 ### Phase 4: Strażnik
 
 #### Automated
 
-- [ ] 4.1 `npm run lint` przechodzi (w tym `check-ui-literals: 0 hits in 11 files`)
-- [ ] 4.2 `npx astro check` przechodzi bez błędów
-- [ ] 4.3 `npm run build` przechodzi
-- [ ] 4.4 `npm run smoke` przechodzi na uruchomionym serwerze
+- [x] 4.1 `npm run lint` przechodzi (w tym `check-ui-literals: 0 hits in 11 files`)
+- [x] 4.2 `npx astro check` przechodzi bez błędów
+- [x] 4.3 `npm run build` przechodzi
+- [x] 4.4 `npm run smoke` przechodzi na uruchomionym serwerze
