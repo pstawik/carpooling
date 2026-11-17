@@ -262,30 +262,30 @@ Nie dotyczy — brak zmian danych.
 
 #### Automated
 
-- [x] 2.1 Hardcoded-value scan na `statystyki.astro` dalej 0 trafień
-- [x] 2.2 `npm run lint` przechodzi
-- [x] 2.3 `npx astro check` przechodzi bez błędów
-- [x] 2.4 `npm run build` przechodzi
-- [x] 2.5 `npm run smoke` przechodzi na uruchomionym serwerze (w tym „stats page renders for member”)
+- [x] 2.1 Hardcoded-value scan na `statystyki.astro` dalej 0 trafień — 4732cca
+- [x] 2.2 `npm run lint` przechodzi — 4732cca
+- [x] 2.3 `npx astro check` przechodzi bez błędów — 4732cca
+- [x] 2.4 `npm run build` przechodzi — 4732cca
+- [x] 2.5 `npm run smoke` przechodzi na uruchomionym serwerze (w tym „stats page renders for member”) — 4732cca
 
 #### Manual
 
-- [x] 2.6 Grupa bez zakończonych terminów: dokładnie jedna karta z komunikatem, bez „Zakończone terminy: 0”
-- [x] 2.7 Grupa z zakończonym terminem (wstawionym jako postgres lub przez zmianę `starts_at`): karta podsumowania z licznikiem i regułami, karty Kierowcy i Dzieci; czytnik ekranu / drzewo dostępności pokazuje trzy regiony z nazwami
+- [x] 2.6 Grupa bez zakończonych terminów: dokładnie jedna karta z komunikatem, bez „Zakończone terminy: 0” — 4732cca
+- [x] 2.7 Grupa z zakończonym terminem (wstawionym jako postgres lub przez zmianę `starts_at`): karta podsumowania z licznikiem i regułami, karty Kierowcy i Dzieci; czytnik ekranu / drzewo dostępności pokazuje trzy regiony z nazwami — 4732cca
 
 ### Phase 3: Kitchen sink `/dev/ui-stats`
 
 #### Automated
 
-- [ ] 3.1 Hardcoded-value scan na `src/pages/dev/ui-stats.astro` zwraca 0 trafień
-- [ ] 3.2 `npm run lint` przechodzi
-- [ ] 3.3 `npx astro check` przechodzi bez błędów
-- [ ] 3.4 `npm run build` przechodzi, a `/dev/ui-stats` w buildzie produkcyjnym odpowiada 404
+- [x] 3.1 Hardcoded-value scan na `src/pages/dev/ui-stats.astro` zwraca 0 trafień
+- [x] 3.2 `npm run lint` przechodzi
+- [x] 3.3 `npx astro check` przechodzi bez błędów
+- [x] 3.4 `npm run build` przechodzi, a `/dev/ui-stats` w buildzie produkcyjnym odpowiada 404
 
 #### Manual
 
-- [ ] 3.5 `/dev/ui-stats` pokazuje wszystkie 7 stanów (lub N/A z powodem); zrzuty na desktopie i 360 px
-- [ ] 3.6 Kontrast `text-muted-foreground` na kartach czytelny na zrzutach
+- [x] 3.5 `/dev/ui-stats` pokazuje wszystkie 7 stanów (lub N/A z powodem); zrzuty na desktopie i 360 px
+- [x] 3.6 Kontrast `text-muted-foreground` na kartach czytelny na zrzutach
 
 ### Phase 4: Strażnik
 

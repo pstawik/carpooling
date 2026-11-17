@@ -3,7 +3,8 @@ import { cn } from "@/lib/utils";
 
 // Class constants shared by the group page (src/pages/groups/[id].astro), the event plan
 // (src/pages/groups/[id]/terminy/[eventId].astro), the group statistics (src/pages/groups/[id]/statystyki.astro)
-// and the kitchen sinks (src/pages/dev/ui-group.astro, src/pages/dev/ui-event.astro), so the visual gate
+// and the kitchen sinks (src/pages/dev/ui-group.astro, src/pages/dev/ui-event.astro, src/pages/dev/ui-stats.astro),
+// so the visual gate
 // always shows what the views render.
 // Token classes only — see the UI rules in AGENTS.md.
 
