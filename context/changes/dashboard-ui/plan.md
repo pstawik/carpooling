@@ -268,30 +268,30 @@ N/A — brak zmian danych.
 
 #### Automated
 
-- [x] 2.1 Hardcoded-value scan na `dashboard.astro` i `Topbar.astro` zwraca 0 trafień
-- [x] 2.2 `npm run lint` przechodzi
-- [x] 2.3 `npx astro check` przechodzi bez błędów
-- [x] 2.4 `npm run build` przechodzi
-- [x] 2.5 `npm run smoke` przechodzi na uruchomionym serwerze (nick w HTML, lista grup, link do grupy)
+- [x] 2.1 Hardcoded-value scan na `dashboard.astro` i `Topbar.astro` zwraca 0 trafień — fe78666
+- [x] 2.2 `npm run lint` przechodzi — fe78666
+- [x] 2.3 `npx astro check` przechodzi bez błędów — fe78666
+- [x] 2.4 `npm run build` przechodzi — fe78666
+- [x] 2.5 `npm run smoke` przechodzi na uruchomionym serwerze (nick w HTML, lista grup, link do grupy) — fe78666
 
 #### Manual
 
-- [x] 2.6 Na 360 px i desktopie: `Topbar` u góry, nagłówek i karta „Twoje grupy” wyrównane jak na stronie grupy, jeden przycisk „Wyloguj” (w `Topbar`)
-- [x] 2.7 Konto bez grup widzi tekst o linku zaproszeniowym; czytnik ekranu / inspektor pokazuje `aria-current="page"` na „Panel” tylko na `/dashboard`
+- [x] 2.6 Na 360 px i desktopie: `Topbar` u góry, nagłówek i karta „Twoje grupy” wyrównane jak na stronie grupy, jeden przycisk „Wyloguj” (w `Topbar`) — fe78666
+- [x] 2.7 Konto bez grup widzi tekst o linku zaproszeniowym; czytnik ekranu / inspektor pokazuje `aria-current="page"` na „Panel” tylko na `/dashboard` — fe78666
 
 ### Phase 3: Kitchen sink `/dev/ui-dashboard`
 
 #### Automated
 
-- [ ] 3.1 Hardcoded-value scan na `src/pages/dev/ui-dashboard.astro` zwraca 0 trafień
-- [ ] 3.2 `npm run lint` przechodzi
-- [ ] 3.3 `npx astro check` przechodzi bez błędów
-- [ ] 3.4 `npm run build` przechodzi, a `/dev/ui-dashboard` w buildzie produkcyjnym odpowiada 404
+- [x] 3.1 Hardcoded-value scan na `src/pages/dev/ui-dashboard.astro` zwraca 0 trafień
+- [x] 3.2 `npm run lint` przechodzi
+- [x] 3.3 `npx astro check` przechodzi bez błędów
+- [x] 3.4 `npm run build` przechodzi, a `/dev/ui-dashboard` w buildzie produkcyjnym odpowiada 404
 
 #### Manual
 
-- [ ] 3.5 `/dev/ui-dashboard` pokazuje wszystkie 7 stanów (lub N/A z powodem); zrzuty na desktopie i 360 px
-- [ ] 3.6 Kontrast `text-muted-foreground` (70 % zamiast dawnych 80 %) czytelny na zrzutach
+- [x] 3.5 `/dev/ui-dashboard` pokazuje wszystkie 7 stanów (lub N/A z powodem); zrzuty na desktopie i 360 px
+- [x] 3.6 Kontrast `text-muted-foreground` (70 % zamiast dawnych 80 %) czytelny na zrzutach
 
 ### Phase 4: Strażnik
 

@@ -2,14 +2,12 @@
 import { CircleAlert } from "lucide-react";
 import Layout from "@/layouts/Layout.astro";
 import Topbar from "@/components/Topbar.astro";
-import { cardClass, groupLinkClass } from "@/components/groups/group-page-classes";
+import { cardClass, groupLinkClass, primaryLinkButtonClass } from "@/components/groups/group-page-classes";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { createClient } from "@/lib/supabase";
 import { listMyGroups, type MyGroup } from "@/lib/services/groups";
-import { cn } from "@/lib/utils";
 
 const { user, profile, isAppAdmin } = Astro.locals;
 
@@ -66,7 +64,7 @@ if (supabase && user) {
       </Card>
 
       {isAppAdmin && (
-        <a href="/admin/groups" class:list={cn(buttonVariants(), "h-auto min-h-11")}>
+        <a href="/admin/groups" class:list={primaryLinkButtonClass}>
           Panel administratora
         </a>
       )}

@@ -59,6 +59,9 @@ export const groupLinkClass = cn(
   "hover:bg-accent flex min-h-11 items-center justify-between gap-3 px-3 py-2 transition-colors",
 );
 
+/** A primary-styled link under a card, e.g. "Panel administratora" on the dashboard; 44 px tall for touch. */
+export const primaryLinkButtonClass = cn(buttonVariants(), "h-auto min-h-11");
+
 /** A driver's phone number: a dialable link in the --link colour, 44 px tall for touch. */
 export const phoneLinkClass = cn(
   "text-link inline-flex min-h-11 items-center break-all underline-offset-4 hover:underline",

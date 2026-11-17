@@ -1,0 +1,170 @@
+---
+import { CircleAlert } from "lucide-react";
+import Layout from "@/layouts/Layout.astro";
+import { cardClass, groupLinkClass, primaryLinkButtonClass } from "@/components/groups/group-page-classes";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
+
+// Kitchen sink for the dashboard: every cell of the 7-state matrix on one page, for the visual gate.
+// Dev only; a production build answers 404. No Supabase queries: all data is written in the page.
+// No Topbar: it reads Astro.locals and is already a cleaned view.
+if (!import.meta.env.DEV) {
+  return Astro.rewrite("/404");
+}
+
+// A member row, an admin row (Badge) and a long name that must wrap (break-words) at 360 px.
+const groups: { name: string; role: "member" | "admin" }[] = [
+  { name: "Basen — wtorki", role: "member" },
+  { name: "Judo w szkole nr 3", role: "admin" },
+  {
+    name: "Zajęcia pływackie dla dzieci z osiedla Słoneczne Wzgórza, grupa poniedziałkowo-środowa (Konstancin-Jeziorna-Skolimów-Chylice)",
+    role: "member",
+  },
+];
+const firstName = "Ania";
+
+// The view's class constants come from group-page-classes, so the sink shows what the view shows.
+// These two style only the sink's own state labels, which the view does not have.
+const stateHeadingClass = "mb-1 text-lg font-semibold";
+const stateNoteClass = "text-muted-foreground mb-4 text-sm";
+---
+
+<Layout title="Kitchen sink: panel">
+  <div class="bg-cosmic min-h-screen p-4">
+    <div class="mx-auto w-full max-w-xl">
+      <h1 class="text-foreground mb-2 text-2xl font-bold break-words">Kitchen sink: panel</h1>
+      <p class="text-muted-foreground mb-6 text-sm">
+        Strona deweloperska: elementy panelu w 7 stanach. Dane są przykładowe, a wiersze grup i przycisk „Panel
+        administratora” prowadzą do kotwic na tej stronie.
+      </p>
+
+      <Card role="region" aria-labelledby="state-default" className={cardClass}>
+        <h2 id="state-default" class:list={stateHeadingClass}>
+          default
+        </h2>
+        <p class:list={stateNoteClass}>Tylko tokeny i komponenty z ui/ oraz stałe z group-page-classes.</p>
+
+        <p class="text-foreground mb-2 text-2xl font-bold break-words">{`Cześć, ${firstName}!`}</p>
+        <p class="text-foreground mb-4 text-2xl font-bold break-words">Cześć!</p>
+
+        <Card role="region" aria-labelledby="sink-default-grupy-heading" className={cardClass}>
+          <h3 id="sink-default-grupy-heading" class="mb-3 text-lg font-semibold">
+            Twoje grupy
+          </h3>
+          <ul class="space-y-2">
+            {groups.map((group) => (
+              <li>
+                <a href="#state-default" class:list={groupLinkClass}>
+                  <span class="min-w-0 font-medium break-words">{group.name}</span>
+                  {group.role === "admin" && <Badge>administrator</Badge>}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </Card>
+
+        <a href="#state-default" class:list={primaryLinkButtonClass}>
+          Panel administratora
+        </a>
+      </Card>
+
+      <Card role="region" aria-labelledby="state-hover" className={cardClass}>
+        <h2 id="state-hover" class:list={stateHeadingClass}>
+          hover
+        </h2>
+        <p class:list={stateNoteClass}>
+          Najedź kursorem: wiersz grupy zmienia tło (token --accent), przycisk „Panel administratora” przechodzi na
+          primary/90.
+        </p>
+        <ul class="mb-4 space-y-2">
+          <li>
+            <a href="#state-hover" class:list={groupLinkClass}>
+              <span class="min-w-0 font-medium break-words">{groups[1].name}</span>
+              <Badge>administrator</Badge>
+            </a>
+          </li>
+        </ul>
+        <a href="#state-hover" class:list={primaryLinkButtonClass}>
+          Panel administratora
+        </a>
+      </Card>
+
+      <Card role="region" aria-labelledby="state-focus" className={cardClass}>
+        <h2 id="state-focus" class:list={stateHeadingClass}>
+          focus-visible
+        </h2>
+        <p class:list={stateNoteClass}>
+          Przejdź klawiszem Tab: wiersz grupy i przycisk „Panel administratora” pokazują obwódkę w kolorze tokenu
+          --ring. Kliknięcie myszą nie pokazuje obwódki.
+        </p>
+        <ul class="mb-4 space-y-2">
+          <li>
+            <a href="#state-focus" class:list={groupLinkClass}>
+              <span class="min-w-0 font-medium break-words">{groups[0].name}</span>
+            </a>
+          </li>
+        </ul>
+        <a href="#state-focus" class:list={primaryLinkButtonClass}>
+          Panel administratora
+        </a>
+      </Card>
+
+      <Card role="region" aria-labelledby="state-disabled" className={cardClass}>
+        <h2 id="state-disabled" class:list={stateHeadingClass}>
+          disabled
+        </h2>
+        <p class="text-muted-foreground text-sm">
+          N/A — panel nie ma kontrolek ze stanem nieaktywnym. Wiersze grup i przycisk „Panel administratora” są zwykłymi
+          linkami, zawsze aktywnymi; przycisk jest ukrywany, gdy użytkownik nie jest administratorem aplikacji.
+        </p>
+      </Card>
+
+      <Card role="region" aria-labelledby="state-error" className={cardClass}>
+        <h2 id="state-error" class:list={stateHeadingClass}>
+          error
+        </h2>
+        <p class:list={stateNoteClass}>
+          Błąd ładowania grup zastępuje listę w karcie „Twoje grupy”; token destructive, ikona i tekst (nie tylko
+          kolor).
+        </p>
+        <Card role="region" aria-labelledby="sink-error-grupy-heading" className={cardClass}>
+          <h3 id="sink-error-grupy-heading" class="mb-3 text-lg font-semibold">
+            Twoje grupy
+          </h3>
+          <Alert variant="destructive" role="alert">
+            <CircleAlert />
+            <AlertDescription className="break-words">
+              Nie udało się wczytać grup. Spróbuj ponownie później.
+            </AlertDescription>
+          </Alert>
+        </Card>
+      </Card>
+
+      <Card role="region" aria-labelledby="state-empty" className={cardClass}>
+        <h2 id="state-empty" class:list={stateHeadingClass}>
+          empty
+        </h2>
+        <p class:list={stateNoteClass}>Brak grup: prawdziwy pusty stan z podpowiedzią, nie pusta ramka.</p>
+        <Card role="region" aria-labelledby="sink-empty-grupy-heading" className={cardClass}>
+          <h3 id="sink-empty-grupy-heading" class="mb-3 text-lg font-semibold">
+            Twoje grupy
+          </h3>
+          <p class="text-muted-foreground text-sm">
+            Nie należysz jeszcze do żadnej grupy. Poproś administratora grupy o link zaproszeniowy.
+          </p>
+        </Card>
+      </Card>
+
+      <Card role="region" aria-labelledby="state-loading" className={cardClass}>
+        <h2 id="state-loading" class:list={stateHeadingClass}>
+          loading
+        </h2>
+        <p class="text-muted-foreground text-sm">
+          N/A — SSR, brak doczytywania danych. Lista grup (listMyGroups) jest pobierana na serwerze przed wysłaniem
+          HTML, a panel nie ma formularzy ani doczytywania, więc nie ma stanu ładowania ani przeskoku układu.
+        </p>
+      </Card>
+    </div>
+  </div>
+</Layout>
