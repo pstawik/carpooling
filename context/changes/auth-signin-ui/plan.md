@@ -342,31 +342,31 @@ N/A — brak zmian danych.
 
 #### Automated
 
-- [x] 2.1 Hardcoded-value scan z `/10x-ui` na `FormField.tsx`, `ServerError.tsx`, `SubmitButton.tsx`, `PasswordToggle.tsx`, `SignUpForm.tsx`, `SignInForm.tsx` zwraca 0 trafień
-- [x] 2.2 `npm run lint` przechodzi
-- [x] 2.3 `npx astro check` przechodzi bez błędów
-- [x] 2.4 `npm run build` przechodzi
-- [x] 2.5 `npm run smoke` przechodzi na uruchomionym serwerze
+- [x] 2.1 Hardcoded-value scan z `/10x-ui` na `FormField.tsx`, `ServerError.tsx`, `SubmitButton.tsx`, `PasswordToggle.tsx`, `SignUpForm.tsx`, `SignInForm.tsx` zwraca 0 trafień — 3b021cc
+- [x] 2.2 `npm run lint` przechodzi — 3b021cc
+- [x] 2.3 `npx astro check` przechodzi bez błędów — 3b021cc
+- [x] 2.4 `npm run build` przechodzi — 3b021cc
+- [x] 2.5 `npm run smoke` przechodzi na uruchomionym serwerze — 3b021cc
 
 #### Manual
 
-- [x] 2.6 Na 360 px i desktopie, `/auth/signin` i `/auth/signup`: pola, przycisk i błąd serwera wyglądają jak w reszcie aplikacji; brak przewijania w poziomie; kontrolki ≥ 44 px
-- [x] 2.7 Tab po polach i „Pokaż hasło” pokazuje obwódkę `--ring`; błąd walidacji pola (np. pusty e-mail) ma czerwoną obwódkę i tekst w `--destructive`; podczas wysyłki przycisk jest nieaktywny ze spinnerem
+- [x] 2.6 Na 360 px i desktopie, `/auth/signin` i `/auth/signup`: pola, przycisk i błąd serwera wyglądają jak w reszcie aplikacji; brak przewijania w poziomie; kontrolki ≥ 44 px — 3b021cc
+- [x] 2.7 Tab po polach i „Pokaż hasło” pokazuje obwódkę `--ring`; błąd walidacji pola (np. pusty e-mail) ma czerwoną obwódkę i tekst w `--destructive`; podczas wysyłki przycisk jest nieaktywny ze spinnerem — 3b021cc
 
 ### Phase 3: Strony logowania i rejestracji
 
 #### Automated
 
-- [ ] 3.1 Hardcoded-value scan na `signin.astro` i `signup.astro` zwraca 0 trafień
-- [ ] 3.2 `npm run lint` przechodzi
-- [ ] 3.3 `npx astro check` przechodzi bez błędów
-- [ ] 3.4 `npm run build` przechodzi
-- [ ] 3.5 `npm run smoke` przechodzi na uruchomionym serwerze, z nowymi krokami dla `/auth/signin` i `/auth/signup`
+- [x] 3.1 Hardcoded-value scan na `signin.astro` i `signup.astro` zwraca 0 trafień
+- [x] 3.2 `npm run lint` przechodzi
+- [x] 3.3 `npx astro check` przechodzi bez błędów
+- [x] 3.4 `npm run build` przechodzi
+- [x] 3.5 `npm run smoke` przechodzi na uruchomionym serwerze, z nowymi krokami dla `/auth/signin` i `/auth/signup`
 
 #### Manual
 
-- [ ] 3.6 Na 360 px i desktopie: obie karty wyglądają jak karty w aplikacji (bez gradientu), komunikat „Konto utworzone — zaloguj się” jest zielonym `Alert`, komunikat zaproszenia — `Alert` z ikoną info
-- [ ] 3.7 Tab na „Zarejestruj się” / „Zaloguj się” pokazuje obwódkę `--ring`; zalogowany wchodzący na `/auth/signin` ląduje na panelu, a z `?invite=<token>` — na stronie dołączenia do grupy
+- [x] 3.6 Na 360 px i desktopie: obie karty wyglądają jak karty w aplikacji (bez gradientu), komunikat „Konto utworzone — zaloguj się” jest zielonym `Alert`, komunikat zaproszenia — `Alert` z ikoną info
+- [x] 3.7 Tab na „Zarejestruj się” / „Zaloguj się” pokazuje obwódkę `--ring`; zalogowany wchodzący na `/auth/signin` ląduje na panelu, a z `?invite=<token>` — na stronie dołączenia do grupy
 
 ### Phase 4: Kitchen sink `/dev/ui-auth`
 
