@@ -248,30 +248,30 @@ Nie dotyczy — brak zmian danych.
 
 #### Automated
 
-- [x] 1.1 Hardcoded-value scan z `/10x-ui` na `statystyki.astro` zwraca 0 trafień (było 11 linii)
-- [x] 1.2 `npm run lint` przechodzi
-- [x] 1.3 `npx astro check` przechodzi bez błędów
-- [x] 1.4 `npm run build` przechodzi
+- [x] 1.1 Hardcoded-value scan z `/10x-ui` na `statystyki.astro` zwraca 0 trafień (było 11 linii) — d9c0ce1
+- [x] 1.2 `npm run lint` przechodzi — d9c0ce1
+- [x] 1.3 `npx astro check` przechodzi bez błędów — d9c0ce1
+- [x] 1.4 `npm run build` przechodzi — d9c0ce1
 
 #### Manual
 
-- [x] 1.5 Na 360 px i desktopie: nagłówek z nazwą grupy nad „Statystyki”, karty wyglądają jak na stronie grupy, brak przewijania w poziomie, „Wróć do grupy” ≥ 44 px
-- [x] 1.6 Tab na „Wróć do grupy” pokazuje obwódkę w kolorze `--ring`
+- [x] 1.5 Na 360 px i desktopie: nagłówek z nazwą grupy nad „Statystyki”, karty wyglądają jak na stronie grupy, brak przewijania w poziomie, „Wróć do grupy” ≥ 44 px — d9c0ce1
+- [x] 1.6 Tab na „Wróć do grupy” pokazuje obwódkę w kolorze `--ring` — d9c0ce1
 
 ### Phase 2: Pusty stan i regiony
 
 #### Automated
 
-- [ ] 2.1 Hardcoded-value scan na `statystyki.astro` dalej 0 trafień
-- [ ] 2.2 `npm run lint` przechodzi
-- [ ] 2.3 `npx astro check` przechodzi bez błędów
-- [ ] 2.4 `npm run build` przechodzi
-- [ ] 2.5 `npm run smoke` przechodzi na uruchomionym serwerze (w tym „stats page renders for member”)
+- [x] 2.1 Hardcoded-value scan na `statystyki.astro` dalej 0 trafień
+- [x] 2.2 `npm run lint` przechodzi
+- [x] 2.3 `npx astro check` przechodzi bez błędów
+- [x] 2.4 `npm run build` przechodzi
+- [x] 2.5 `npm run smoke` przechodzi na uruchomionym serwerze (w tym „stats page renders for member”)
 
 #### Manual
 
-- [ ] 2.6 Grupa bez zakończonych terminów: dokładnie jedna karta z komunikatem, bez „Zakończone terminy: 0”
-- [ ] 2.7 Grupa z zakończonym terminem (wstawionym jako postgres lub przez zmianę `starts_at`): karta podsumowania z licznikiem i regułami, karty Kierowcy i Dzieci; czytnik ekranu / drzewo dostępności pokazuje trzy regiony z nazwami
+- [x] 2.6 Grupa bez zakończonych terminów: dokładnie jedna karta z komunikatem, bez „Zakończone terminy: 0”
+- [x] 2.7 Grupa z zakończonym terminem (wstawionym jako postgres lub przez zmianę `starts_at`): karta podsumowania z licznikiem i regułami, karty Kierowcy i Dzieci; czytnik ekranu / drzewo dostępności pokazuje trzy regiony z nazwami
 
 ### Phase 3: Kitchen sink `/dev/ui-stats`
 

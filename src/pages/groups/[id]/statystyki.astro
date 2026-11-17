@@ -59,14 +59,6 @@ try {
         </Alert>
       ) : (
         <>
-          <Card className={cardClass}>
-            <p class="mb-2 font-semibold">Zakończone terminy: {finishedCount}</p>
-            <p class="text-muted-foreground text-sm">
-              Przejazd liczy się, gdy na termin jechało co najmniej jedno dziecko. Nieobecność to „nie jedzie” albo brak
-              deklaracji, liczone od dodania dziecka.
-            </p>
-          </Card>
-
           {finishedCount === 0 ? (
             <Card className={cardClass}>
               <p class="text-muted-foreground text-sm">
@@ -75,8 +67,20 @@ try {
             </Card>
           ) : (
             <>
-              <Card id="kierowcy" className={cardClass}>
-                <h2 class="mb-3 text-lg font-semibold">Kierowcy</h2>
+              <Card id="podsumowanie" role="region" aria-labelledby="podsumowanie-heading" className={cardClass}>
+                <h2 id="podsumowanie-heading" class="mb-2 text-lg font-semibold">
+                  Zakończone terminy: {finishedCount}
+                </h2>
+                <p class="text-muted-foreground text-sm">
+                  Przejazd liczy się, gdy na termin jechało co najmniej jedno dziecko. Nieobecność to „nie jedzie” albo
+                  brak deklaracji, liczone od dodania dziecka.
+                </p>
+              </Card>
+
+              <Card id="kierowcy" role="region" aria-labelledby="kierowcy-heading" className={cardClass}>
+                <h2 id="kierowcy-heading" class="mb-3 text-lg font-semibold">
+                  Kierowcy
+                </h2>
                 <ul class="space-y-2 text-sm">
                   {stats.drivers.map((driver) => (
                     <li class:list={listItemClass}>
@@ -87,8 +91,10 @@ try {
                 </ul>
               </Card>
 
-              <Card id="dzieci" className={cardClass}>
-                <h2 class="mb-3 text-lg font-semibold">Dzieci</h2>
+              <Card id="dzieci" role="region" aria-labelledby="dzieci-heading" className={cardClass}>
+                <h2 id="dzieci-heading" class="mb-3 text-lg font-semibold">
+                  Dzieci
+                </h2>
                 {stats.children.length === 0 ? (
                   <p class="text-muted-foreground text-sm">W grupie nie ma jeszcze dzieci.</p>
                 ) : (
