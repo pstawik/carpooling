@@ -54,7 +54,7 @@ Cloudflare) należą do obserwowalności, nie do testów — poza tą mapą.
 | #1 | Przy liczbie dzieci „jedzie” większej niż suma miejsc plan zawsze pokazuje ostrzeżenie o niedoborze; dzieci bez deklaracji nie zwiększają zapotrzebowania, ale są oznaczone; kierowca usunięty z grupy nie dokłada miejsc | „Bilans = suma po wszystkich wierszach” — wiersze byłych członków i wycofane deklaracje nie mogą się liczyć | Gdzie liczony jest bilans (SQL czy TS), jakie wiersze wchodzą do sumy, jak traktowane są deklaracje byłych członków | pgTAP lub unit (zależnie od miejsca logiki) | Oczekiwana wartość przepisana ze wzoru w kodzie (problem wyroczni) — liczby mają pochodzić z ręcznie policzonych przykładów wg PRD |
 | #2 | Po usunięciu dziecka, terminu lub członka deklaracje i statystyki zakończonych terminów pozostają bez zmian; znikają tylko deklaracje przyszłych terminów | „Kaskada jest w porządku, bo przyszłe deklaracje i tak trzeba usunąć” — PRD wymaga zachowania zakończonych | Reguły usuwania (kaskady, ograniczenia) dla dzieci, terminów, członkostwa; czy obecne zachowanie to świadomy kompromis do rozstrzygnięcia | pgTAP integration | Test zatwierdzający obecne zachowanie zamiast wymagania PRD; liczniki zakładające pustą bazę |
 | #3 | Dla każdej tabeli × operacji × roli (spoza grupy, członek innej grupy, członek tej grupy nie-właściciel, właściciel, admin grupy, admin aplikacji) dostęp jest dokładnie taki, jak w PRD; każda tabela ma włączony RLS; po regeneracji stary link nie działa | „Zalogowany = uprawniony”; „przetestowany SELECT = UPDATE/DELETE też szczelne” | Lista tabel i polityk per operacja, funkcje `security definer`, granty, istniejące pokrycie w `supabase/tests/` | pgTAP + strażnik katalogowy RLS | Tylko ścieżka szczęśliwa; liczenie wszystkich wierszy przy niepustej bazie; kopiowanie warunku polityki do asercji |
-| #4 | Zapis deklaracji dziecka i kierowcy przechodzi sekundę przed startem i jest odrzucany od chwili startu, także w dniach zmiany czasu i dla godzin w czasie lokalnym grupy | „Zegar serwera w UTC = czas terminu”; „zablokowany przycisk w UI = blokada” | Jak przechowywany jest start (typ, strefa), który zegar egzekwuje blokadę (baza czy Worker), odpowiedź na pytanie #14 z roadmapy | pgTAP z kontrolowanym czasem | Testy oparte o bieżący `now()` (niestabilne); sprawdzanie wyłącznie stanu UI |
+| #4 | Zapis deklaracji dziecka i kierowcy przechodzi sekundę przed startem i jest odrzucany od chwili startu, także w dniach zmiany czasu i dla godzin w czasie lokalnym grupy | „Zegar serwera w UTC = czas terminu”; „zablokowany przycisk w UI = blokada” | Jak przechowywany jest start (typ, strefa), który zegar egzekwuje blokadę (baza czy Worker), gdzie odbywa się konwersja strefy (pytanie #14 z roadmapy rozstrzygnięte: Europe/Warsaw) | granica startu: pgTAP ze stałym `now()` w transakcji (`starts_at = now()` vs `now() + 1 s`); strefa i zmiana czasu: unit (Vitest) na czystych funkcjach konwersji | Testy zależne od zegara ściennego (`Date.now()`, przesunięcia względem bieżącej godziny); sprawdzanie wyłącznie stanu UI |
 | #5 | Gdy zapytanie lub RPC zwróci błąd, a wejście jest złośliwe lub brzegowe (zły format, rok poza zakresem, puste ciało), użytkownik dostaje jawny komunikat błędu (4xx lub przekierowanie z błędem), nigdy 500 ani komunikat sukcesu | „Końcowe 302 = sukces” | Mapowanie błędów RPC na komunikaty, schematy zod na granicy API, zachowanie stron przy błędzie zapytania | unit (mapowanie, zod) + kroki smoke | Mockowanie wnętrza klienta Supabase; asercja tylko na kod statusu bez sprawdzenia celu przekierowania i stanu danych |
 | #6 | Dla zestawu zakończonych i niezakończonych terminów statystyki zwracają liczby zgodne z ręcznie policzonym przykładem: nieobecność = jawne „nie jedzie” + brak deklaracji, przejazdy kierowcy tylko z zakończonych terminów | „Zakończony = data w przeszłości wg zegara Workera” | Gdzie liczone są statystyki, która definicja „zakończony” obowiązuje, jak traktowani są byli członkowie | pgTAP | Lustrzane odbicie implementacji; fixture bez dzieci bez deklaracji i bez terminów na granicy |
 
@@ -67,8 +67,8 @@ aktualizuje go, gdy na dysku pojawiają się artefakty.
 | # | Phase name | Goal (one line) | Risks covered | Test types | Status | Change folder |
 |---|------------|-----------------|---------------|------------|--------|---------------|
 | 1 | Bilans i statystyki na danych granicznych | Udowodnić, że ostrzeżenie o niedoborze i statystyki są zgodne z ręcznie policzonymi przykładami z PRD | #1, #6 | pgTAP lub unit (bootstrap Vitest, jeśli logika jest w TS) | complete | context/archive/2026-11-18-testing-seat-balance-stats/ |
-| 2 | Trwałość historii i granica startu terminu | Udowodnić, że usunięcia nie zmieniają zakończonych terminów, a blokada działa dokładnie od chwili startu | #2, #4 | pgTAP z kontrolowanym czasem | change opened | context/changes/testing-history-durability-start-boundary/ |
-| 3 | Macierz izolacji RLS | Udowodnić izolację grup i własności deklaracji dla każdej tabeli, operacji i roli oraz wymusić RLS na nowych tabelach | #3 | pgTAP + strażnik katalogowy | not started | — |
+| 2 | Trwałość historii i granica startu terminu | Udowodnić, że usunięcia nie zmieniają zakończonych terminów, a blokada działa dokładnie od chwili startu | #2, #4 | pgTAP z kontrolowanym czasem | complete | context/archive/2026-11-18-testing-history-durability-start-boundary/ |
+| 3 | Macierz izolacji RLS | Udowodnić izolację grup i własności deklaracji dla każdej tabeli, operacji i roli oraz wymusić RLS na nowych tabelach | #3 | pgTAP + strażnik katalogowy | planned | context/changes/testing-rls-isolation-matrix/ |
 | 4 | Ścieżki błędów i walidacja wejścia w API | Udowodnić, że błędy backendu i złe wejście dają jawny błąd, nie 500 ani pozorny sukces | #5 | unit + smoke | not started | — |
 | 5 | Bramki jakości | Wpiąć nowe testy w CI i hook po edycji, żeby podłoga nie spadła | cross-cutting | gates, post-edit hook | not started | — |
 
@@ -76,7 +76,7 @@ aktualizuje go, gdy na dysku pojawiają się artefakty.
 
 | Layer | Tool | Version | Notes |
 |-------|------|---------|-------|
-| DB integration (RLS, reguły, statystyki) | pgTAP przez `supabase test db` | Supabase CLI (lokalny stack) | 10 plików w `supabase/tests/`; uruchamiane w CI |
+| DB integration (RLS, reguły, statystyki) | pgTAP przez `supabase test db` | Supabase CLI (lokalny stack) | 12 plików w `supabase/tests/`; uruchamiane w CI |
 | HTTP smoke | `scripts/smoke.mjs` (Node) | n/a | przepływy auth i zapisów na działającym serwerze; uruchamiany w CI |
 | unit (TS) | Vitest przez `npm test` (`vitest run`) | 5.1.0 | czyste funkcje z `src/lib/`; `src/**/*.test.ts`, środowisko `node`, `vitest.config.ts` niezależny od `astro.config.mjs` (bez workerd); uruchamiany w CI (job `ci`) |
 | e2e | none — świadomie | — | żadne ryzyko z §2 nie wymaga przeglądarki |
@@ -216,7 +216,7 @@ odpowiednia faza zostanie wdrożona; wcześniej brzmi „TBD — see §3 Phase N
   do FR-007 w roadmapie (bez zapisanej chwili usunięcia nie ma wyroczni).
   Do backportu w `/10x-test-plan`: dla ryzyka #4 warstwa strefy/DST to
   Vitest, a „kontrolowany czas” w pgTAP to stałe `now()` w transakcji
-  (§2 Risk Response Guidance).
+  (§2 Risk Response Guidance) — wprowadzone 2026-11-18.
 
 ## 7. What We Deliberately Don't Test
 

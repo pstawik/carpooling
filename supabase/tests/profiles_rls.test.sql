@@ -160,9 +160,11 @@ reset role;
 set local role anon;
 set local "request.jwt.claims" to '{"role": "anon"}';
 
-select is_empty(
+select throws_ok(
   $$select * from public.profiles$$,
-  'anon sees zero profiles'
+  '42501',
+  null,
+  'anon cannot read profiles'
 );
 
 reset role;
