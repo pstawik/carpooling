@@ -344,16 +344,16 @@ Migracja dodaje tylko funkcję i trigger. Nie zmienia istniejących danych: wier
 
 #### Automated
 
-- [x] 3.1 `npx supabase test db` przechodzi; nowy plik raportuje test `todo` jako oczekiwaną porażkę, bez czerwieni
-- [x] 3.2 Celowe zepsucie (`e.starts_at <= now()` → `e.starts_at < now()` w `group_child_stats`, w lokalnej kopii funkcji w transakcji testu albo w roboczej migracji) daje czerwone asercje dla N; po cofnięciu zielono
-- [x] 3.3 Celowe zepsucie zakresu (`>=` → `>` przy `created_at`) daje czerwoną asercję Zosi; po cofnięciu zielono
+- [x] 3.1 `npx supabase test db` przechodzi; nowy plik raportuje test `todo` jako oczekiwaną porażkę, bez czerwieni — 7a4e88c
+- [x] 3.2 Celowe zepsucie (`e.starts_at <= now()` → `e.starts_at < now()` w `group_child_stats`, w lokalnej kopii funkcji w transakcji testu albo w roboczej migracji) daje czerwone asercje dla N; po cofnięciu zielono — 7a4e88c
+- [x] 3.3 Celowe zepsucie zakresu (`>=` → `>` przy `created_at`) daje czerwoną asercję Zosi; po cofnięciu zielono — 7a4e88c
 
 ### Phase 4: Dokumentacja
 
 #### Automated
 
-- [ ] 4.1 `npm run lint` przechodzi (prettier dla `*.md` w lint-staged)
+- [x] 4.1 `npm run lint` przechodzi (prettier dla `*.md` w lint-staged)
 
 #### Manual
 
-- [ ] 4.2 §6.1 test-plan da się zastosować do nowej reguły liczenia bez czytania tego planu
+- [x] 4.2 §6.1 test-plan da się zastosować do nowej reguły liczenia bez czytania tego planu
