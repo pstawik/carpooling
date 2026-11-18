@@ -318,10 +318,10 @@ Migracja dodaje tylko funkcję i trigger. Nie zmienia istniejących danych: wier
 
 #### Automated
 
-- [x] 1.1 `npm test` przechodzi i raportuje testy z `drivers.test.ts` i `attendance.test.ts`
-- [x] 1.2 `npm run lint` przechodzi
-- [x] 1.3 `npx astro check` przechodzi
-- [x] 1.4 Celowe zepsucie (`seats < going` → `seats <= going` w `drivers.ts:97`) daje czerwony test równości; po cofnięciu zielono
+- [x] 1.1 `npm test` przechodzi i raportuje testy z `drivers.test.ts` i `attendance.test.ts` — 9c4e4ea
+- [x] 1.2 `npm run lint` przechodzi — 9c4e4ea
+- [x] 1.3 `npx astro check` przechodzi — 9c4e4ea
+- [x] 1.4 Celowe zepsucie (`seats < going` → `seats <= going` w `drivers.ts:97`) daje czerwony test równości; po cofnięciu zielono — 9c4e4ea
 
 #### Manual
 
@@ -331,14 +331,14 @@ Migracja dodaje tylko funkcję i trigger. Nie zmienia istniejących danych: wier
 
 #### Automated
 
-- [ ] 2.1 `npx supabase db reset` stosuje migrację bez błędów
-- [ ] 2.2 `npx supabase test db` przechodzi, łącznie z `member_removal_declarations.test.sql` i dotychczasowymi plikami
-- [ ] 2.3 Celowe zepsucie (`starts_at > now()` → `starts_at >= now()` w triggerze) daje czerwoną asercję dla terminu S; po cofnięciu zielono
-- [ ] 2.4 `npm run lint` i `npx astro check` przechodzą
+- [x] 2.1 `npx supabase db reset` stosuje migrację bez błędów
+- [x] 2.2 `npx supabase test db` przechodzi, łącznie z `member_removal_declarations.test.sql` i dotychczasowymi plikami
+- [x] 2.3 Celowe zepsucie (`starts_at > now()` → `starts_at >= now()` w triggerze) daje czerwoną asercję dla terminu S; po cofnięciu zielono
+- [x] 2.4 `npm run lint` i `npx astro check` przechodzą
 
 #### Manual
 
-- [ ] 2.5 Lokalnie: kierowca na przyszłym terminie usunięty SQL-em z `group_members`; po odświeżeniu planu terminu jego miejsca znikają z bilansu i pojawia się ostrzeżenie o niedoborze, gdy miejsc jest za mało
+- [x] 2.5 Lokalnie: kierowca na przyszłym terminie usunięty SQL-em z `group_members`; po odświeżeniu planu terminu jego miejsca znikają z bilansu i pojawia się ostrzeżenie o niedoborze, gdy miejsc jest za mało
 
 ### Phase 3: Statystyki na granicach
 
