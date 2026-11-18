@@ -1,10 +1,10 @@
 ---
 change_id: auth-signin-ui
 title: Sign-in view on design tokens, with an autofill colour from the app palette
-status: impl_reviewed
+status: archived
 created: 2026-11-17
 updated: 2026-11-18
-archived_at: null
+archived_at: 2026-11-18T06:00:13Z
 ---
 
 ## Notes
