@@ -376,26 +376,26 @@ public.children to authenticated` i `grant select on public.profiles to anon`.
 
 #### Automated
 
-- [x] 1.1 Migracja aplikuje się na czystej bazie: `npx supabase db reset`
-- [x] 1.2 `npx supabase test db` przechodzi (w tym zaktualizowane `children_rls` i `profiles_rls`)
-- [x] 1.3 `npm run lint`, `npx astro check`, `npm test` przechodzą
+- [x] 1.1 Migracja aplikuje się na czystej bazie: `npx supabase db reset` — 4a8d3f7
+- [x] 1.2 `npx supabase test db` przechodzi (w tym zaktualizowane `children_rls` i `profiles_rls`) — 4a8d3f7
+- [x] 1.3 `npm run lint`, `npx astro check`, `npm test` przechodzą — 4a8d3f7
 
 #### Manual
 
-- [x] 1.4 Celowe zepsucie: bez `revoke insert …` test `created_at` czerwony; przywrócone
-- [x] 1.5 `npm run dev`: zalogowany rodzic dodaje dziecko w grupie bez błędu
+- [x] 1.4 Celowe zepsucie: bez `revoke insert …` test `created_at` czerwony; przywrócone — 4a8d3f7
+- [x] 1.5 `npm run dev`: zalogowany rodzic dodaje dziecko w grupie bez błędu — 4a8d3f7
 
 ### Phase 2: Strażnik katalogowy
 
 #### Automated
 
-- [ ] 2.1 `npx supabase test db` przechodzi, w tym `rls_catalog_guard.test.sql`
-- [ ] 2.2 Sonda w pliku potwierdza, że każda z 5 funkcji naruszeń wykrywa obiekt sondy
+- [x] 2.1 `npx supabase test db` przechodzi, w tym `rls_catalog_guard.test.sql`
+- [x] 2.2 Sonda w pliku potwierdza, że każda z 5 funkcji naruszeń wykrywa obiekt sondy
 
 #### Manual
 
-- [ ] 2.3 Celowe zepsucie: tabela bez RLS → czerwona asercja 1 z nazwą tabeli; cofnięte
-- [ ] 2.4 Celowe zepsucie: polityka `to public` → czerwona asercja 3; cofnięte
+- [x] 2.3 Celowe zepsucie: tabela bez RLS → czerwona asercja 1 z nazwą tabeli; cofnięte
+- [x] 2.4 Celowe zepsucie: polityka `to public` → czerwona asercja 3; cofnięte
 
 ### Phase 3: Macierz — dane grupy
 
