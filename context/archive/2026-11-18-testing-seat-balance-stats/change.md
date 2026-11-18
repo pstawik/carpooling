@@ -1,10 +1,10 @@
 ---
 change_id: testing-seat-balance-stats
 title: Testy bilansu miejsc i statystyk na danych granicznych (rollout Phase 1)
-status: impl_reviewed
+status: archived
 created: 2026-11-18
 updated: 2026-11-18
-archived_at: null
+archived_at: 2026-11-18T08:43:01Z
 ---
 
 ## Notes
