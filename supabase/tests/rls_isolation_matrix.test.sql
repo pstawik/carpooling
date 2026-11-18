@@ -60,12 +60,26 @@
 --   event_drivers U (B)         42501  N  N  N  N  N  Y
 --   event_drivers D (B)         42501  N  N  N  N  N  Y   (B after start: N)
 --
+--   table / op                  anon   O  C  X      M  A      (F = former member)
+--   profiles S (B phone)        42501  N  N  N      Y  Y      F: Y, then N after removal
+--   groups S (G1)               42501  N  N  Y      Y  -
+--   group_members S (G1)        42501  N  N  Y      Y  -
+--   groups I/U/D                -      -  -  42501  -  -      (only via create_group)
+--   group_members I/U/D         -      -  -  42501  -  42501  (only via RPCs)
+--   app_admins S/I/U/D          -      -  -  42501  -  -
+--   group_invites S (G1)        42501  N  N  N      N  Y
+--   regenerate_group_invite     42501  -  42501 42501 42501 Y
+--   old token after regenerate  invite_group_name null (anon); join invalid_invite (O)
+--   admin RPCs + helpers        42501 for anon; add_group_admin, admin_list_groups,
+--                               create_group 42501 for A (not an app admin)
+--   group_*_stats (G1)          42501  N  N  N      Y  -
+--
 -- The test runs in one transaction, so now() is constant throughout.
 begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(142);
+select plan(206);
 
 -- ---------------------------------------------------------------------------
 -- Fixtures (as postgres)
@@ -1360,7 +1374,493 @@ select results_eq(
   'B D event_drivers (B, started): declaration kept (PRD FR-015 :106, :130)'
 );
 
--- Phase 4 sections go here
+-- ===========================================================================
+-- profiles: B's phone
+-- B's phone is set as postgres. F reads it as a member, is then removed from
+-- G1 (as postgres) and must lose it at once (PRD :144, :147).
+-- ===========================================================================
+
+update public.profiles set phone = '+48500100200' where id = '5a000000-0000-0000-0000-0000000000b1';
+
+set local role anon;
+set local "request.jwt.claims" to '{"role": "anon"}';
+
+select throws_ok(
+  $$select phone from public.profiles where id = '5a000000-0000-0000-0000-0000000000b1'$$,
+  '42501', null, 'anon S profiles (B phone): 42501 (PRD :58)'
+);
+
+reset role;
+
+set local role authenticated;
+set local "request.jwt.claims" to '{"sub": "5a000000-0000-0000-0000-0000000000e1", "role": "authenticated"}';
+
+select is_empty(
+  $$select phone from public.profiles where id = '5a000000-0000-0000-0000-0000000000b1'$$,
+  'O S profiles (B phone): sees none (PRD :58)'
+);
+
+set local "request.jwt.claims" to '{"sub": "5a000000-0000-0000-0000-0000000000c1", "role": "authenticated"}';
+
+select is_empty(
+  $$select phone from public.profiles where id = '5a000000-0000-0000-0000-0000000000b1'$$,
+  'C S profiles (B phone): sees none (PRD :58)'
+);
+
+set local "request.jwt.claims" to '{"sub": "5a000000-0000-0000-0000-0000000000f1", "role": "authenticated"}';
+
+select is_empty(
+  $$select phone from public.profiles where id = '5a000000-0000-0000-0000-0000000000b1'$$,
+  'X S profiles (B phone): sees none (F9; decyzja: archive/2026-11-10-app-admin-creates-group/plan.md:216)'
+);
+
+set local "request.jwt.claims" to '{"sub": "5a000000-0000-0000-0000-0000000000d1", "role": "authenticated"}';
+
+select results_eq(
+  $$select phone from public.profiles where id = '5a000000-0000-0000-0000-0000000000b1'$$,
+  $$values ('+48500100200'::text)$$,
+  'M S profiles (B phone): sees it (PRD :136)'
+);
+
+set local "request.jwt.claims" to '{"sub": "5a000000-0000-0000-0000-0000000000a1", "role": "authenticated"}';
+
+select results_eq(
+  $$select phone from public.profiles where id = '5a000000-0000-0000-0000-0000000000b1'$$,
+  $$values ('+48500100200'::text)$$,
+  'A S profiles (B phone): sees it (PRD :136)'
+);
+
+set local "request.jwt.claims" to '{"sub": "5a000000-0000-0000-0000-0000000000f2", "role": "authenticated"}';
+
+select results_eq(
+  $$select phone from public.profiles where id = '5a000000-0000-0000-0000-0000000000b1'$$,
+  $$values ('+48500100200'::text)$$,
+  'F S profiles (B phone) while a member: sees it (PRD :136)'
+);
+
+reset role;
+
+delete from public.group_members
+where group_id = '5b000000-0000-0000-0000-000000000001'
+  and user_id = '5a000000-0000-0000-0000-0000000000f2';
+
+set local role authenticated;
+set local "request.jwt.claims" to '{"sub": "5a000000-0000-0000-0000-0000000000f2", "role": "authenticated"}';
+
+select is_empty(
+  $$select phone from public.profiles where id = '5a000000-0000-0000-0000-0000000000b1'$$,
+  'F S profiles (B phone) after removal from G1: sees none (PRD :144, :147)'
+);
+
+reset role;
+
+-- ===========================================================================
+-- groups, group_members, app_admins
+-- S: id in (G1, G2). Writes go only through RPCs, so every direct write is a
+-- privilege error, also for the app admin (F9) and the group admin.
+-- After the profiles section G1 has members A, B and M.
+-- ===========================================================================
+
+set local role anon;
+set local "request.jwt.claims" to '{"role": "anon"}';
+
+select throws_ok(
+  $$select id from public.groups where id = '5b000000-0000-0000-0000-000000000001'$$,
+  '42501', null, 'anon S groups: 42501 (PRD :144)'
+);
+
+select throws_ok(
+  $$select user_id from public.group_members where group_id = '5b000000-0000-0000-0000-000000000001'$$,
+  '42501', null, 'anon S group_members: 42501 (PRD :144)'
+);
+
+reset role;
+
+set local role authenticated;
+set local "request.jwt.claims" to '{"sub": "5a000000-0000-0000-0000-0000000000e1", "role": "authenticated"}';
+
+select is_empty(
+  $$select id from public.groups where id = '5b000000-0000-0000-0000-000000000001'$$,
+  'O S groups (G1): sees none (PRD :144)'
+);
+
+select is_empty(
+  $$select user_id from public.group_members where group_id = '5b000000-0000-0000-0000-000000000001'$$,
+  'O S group_members (G1): sees none (PRD :144)'
+);
+
+set local "request.jwt.claims" to '{"sub": "5a000000-0000-0000-0000-0000000000c1", "role": "authenticated"}';
+
+select is_empty(
+  $$select id from public.groups where id = '5b000000-0000-0000-0000-000000000001'$$,
+  'C S groups (G1): sees none (PRD :144)'
+);
+
+select is_empty(
+  $$select user_id from public.group_members where group_id = '5b000000-0000-0000-0000-000000000001'$$,
+  'C S group_members (G1): sees none (PRD :144)'
+);
+
+set local "request.jwt.claims" to '{"sub": "5a000000-0000-0000-0000-0000000000d1", "role": "authenticated"}';
+
+select set_eq(
+  $$select id from public.groups
+    where id in ('5b000000-0000-0000-0000-000000000001', '5b000000-0000-0000-0000-000000000002')$$,
+  $$values ('5b000000-0000-0000-0000-000000000001'::uuid)$$,
+  'M S groups: sees G1, not G2 (PRD :144)'
+);
+
+select set_eq(
+  $$select user_id from public.group_members
+    where group_id in ('5b000000-0000-0000-0000-000000000001', '5b000000-0000-0000-0000-000000000002')$$,
+  $$values ('5a000000-0000-0000-0000-0000000000a1'::uuid), ('5a000000-0000-0000-0000-0000000000b1'::uuid),
+           ('5a000000-0000-0000-0000-0000000000d1'::uuid)$$,
+  'M S group_members: sees G1 members, not G2 (PRD :141, :144)'
+);
+
+set local "request.jwt.claims" to '{"sub": "5a000000-0000-0000-0000-0000000000f1", "role": "authenticated"}';
+
+select set_eq(
+  $$select id from public.groups
+    where id in ('5b000000-0000-0000-0000-000000000001', '5b000000-0000-0000-0000-000000000002')$$,
+  $$values ('5b000000-0000-0000-0000-000000000001'::uuid), ('5b000000-0000-0000-0000-000000000002'::uuid)$$,
+  'X S groups: sees all groups (PRD :139, :144)'
+);
+
+select set_eq(
+  $$select user_id from public.group_members where group_id = '5b000000-0000-0000-0000-000000000001'$$,
+  $$values ('5a000000-0000-0000-0000-0000000000a1'::uuid), ('5a000000-0000-0000-0000-0000000000b1'::uuid),
+           ('5a000000-0000-0000-0000-0000000000d1'::uuid)$$,
+  'X S group_members (G1): sees members (decyzja: archive/2026-11-10-app-admin-creates-group/plan.md:216)'
+);
+
+select throws_ok(
+  $$insert into public.groups (name) values ('RLSM X direct')$$,
+  '42501', null, 'X I groups: 42501, only via create_group (F9)'
+);
+
+select throws_ok(
+  $$update public.groups set name = 'RLSM X' where id = '5b000000-0000-0000-0000-000000000001'$$,
+  '42501', null, 'X U groups (G1): 42501 (F9)'
+);
+
+select throws_ok(
+  $$delete from public.groups where id = '5b000000-0000-0000-0000-000000000001'$$,
+  '42501', null, 'X D groups (G1): 42501 (F9)'
+);
+
+select throws_ok(
+  $$insert into public.group_members (group_id, user_id, role)
+    values ('5b000000-0000-0000-0000-000000000001', '5a000000-0000-0000-0000-0000000000f1', 'admin')$$,
+  '42501', null, 'X I group_members (self into G1): 42501, only via add_group_admin (F9)'
+);
+
+select throws_ok(
+  $$update public.group_members set role = 'admin'
+    where group_id = '5b000000-0000-0000-0000-000000000001'
+      and user_id = '5a000000-0000-0000-0000-0000000000b1'$$,
+  '42501', null, 'X U group_members (B role): 42501 (F9)'
+);
+
+select throws_ok(
+  $$delete from public.group_members
+    where group_id = '5b000000-0000-0000-0000-000000000001'
+      and user_id = '5a000000-0000-0000-0000-0000000000d1'$$,
+  '42501', null, 'X D group_members (M): 42501 (F9)'
+);
+
+select throws_ok(
+  $$select user_id from public.app_admins where user_id = '5a000000-0000-0000-0000-0000000000f1'$$,
+  '42501', null, 'X S app_admins (own row): 42501, reached only via is_app_admin() (F9; PRD :173)'
+);
+
+select throws_ok(
+  $$insert into public.app_admins (user_id) values ('5a000000-0000-0000-0000-0000000000a1')$$,
+  '42501', null, 'X I app_admins (A): 42501, granted outside the app (F9; PRD :139, :173)'
+);
+
+select throws_ok(
+  $$update public.app_admins set created_at = created_at
+    where user_id = '5a000000-0000-0000-0000-0000000000f1'$$,
+  '42501', null, 'X U app_admins (own row): 42501 (F9; PRD :173)'
+);
+
+select throws_ok(
+  $$delete from public.app_admins where user_id = '5a000000-0000-0000-0000-0000000000f1'$$,
+  '42501', null, 'X D app_admins (own row): 42501 (F9; PRD :173)'
+);
+
+set local "request.jwt.claims" to '{"sub": "5a000000-0000-0000-0000-0000000000a1", "role": "authenticated"}';
+
+select throws_ok(
+  $$insert into public.group_members (group_id, user_id, role)
+    values ('5b000000-0000-0000-0000-000000000001', '5a000000-0000-0000-0000-0000000000e1', 'member')$$,
+  '42501', null, 'A I group_members (O into G1): 42501, members join only by invite (PRD :84, :141)'
+);
+
+select throws_ok(
+  $$update public.group_members set role = 'admin'
+    where group_id = '5b000000-0000-0000-0000-000000000001'
+      and user_id = '5a000000-0000-0000-0000-0000000000b1'$$,
+  '42501', null, 'A U group_members (B role): 42501, admins are designated by the app admin (PRD :80)'
+);
+
+select throws_ok(
+  $$delete from public.group_members
+    where group_id = '5b000000-0000-0000-0000-000000000001'
+      and user_id = '5a000000-0000-0000-0000-0000000000d1'$$,
+  '42501', null, 'A D group_members (M): 42501, removal is not built (PRD FR-007 :86 parked)'
+);
+
+reset role;
+
+-- ===========================================================================
+-- group_invites: G1's link
+-- The current token is set as postgres; A then regenerates it and the old one
+-- must stop working at once (PRD :82, :140).
+-- ===========================================================================
+
+insert into public.group_invites (group_id, token, created_by)
+values ('5b000000-0000-0000-0000-000000000001', 'rlsm-old-token', '5a000000-0000-0000-0000-0000000000a1');
+
+set local role anon;
+set local "request.jwt.claims" to '{"role": "anon"}';
+
+select throws_ok(
+  $$select token from public.group_invites where group_id = '5b000000-0000-0000-0000-000000000001'$$,
+  '42501', null, 'anon S group_invites (G1): 42501 (PRD :140)'
+);
+
+select throws_ok(
+  $$select public.regenerate_group_invite('5b000000-0000-0000-0000-000000000001')$$,
+  '42501', null, 'anon regenerate_group_invite (G1): 42501 (PRD :82)'
+);
+
+reset role;
+
+set local role authenticated;
+set local "request.jwt.claims" to '{"sub": "5a000000-0000-0000-0000-0000000000e1", "role": "authenticated"}';
+
+select is_empty(
+  $$select token from public.group_invites where group_id = '5b000000-0000-0000-0000-000000000001'$$,
+  'O S group_invites (G1): sees none (PRD :58, :140)'
+);
+
+set local "request.jwt.claims" to '{"sub": "5a000000-0000-0000-0000-0000000000c1", "role": "authenticated"}';
+
+select is_empty(
+  $$select token from public.group_invites where group_id = '5b000000-0000-0000-0000-000000000001'$$,
+  'C S group_invites (G1): sees none (PRD :140)'
+);
+
+select throws_ok(
+  $$select public.regenerate_group_invite('5b000000-0000-0000-0000-000000000001')$$,
+  '42501', null, 'C regenerate_group_invite (G1): 42501, admin of another group (PRD :140)'
+);
+
+set local "request.jwt.claims" to '{"sub": "5a000000-0000-0000-0000-0000000000d1", "role": "authenticated"}';
+
+select is_empty(
+  $$select token from public.group_invites where group_id = '5b000000-0000-0000-0000-000000000001'$$,
+  'M S group_invites (G1): sees none (decyzja: archive/2026-11-12-join-group-by-invite-link/plan.md:87)'
+);
+
+select throws_ok(
+  $$select public.regenerate_group_invite('5b000000-0000-0000-0000-000000000001')$$,
+  '42501', null, 'M regenerate_group_invite (G1): 42501 (PRD :82)'
+);
+
+set local "request.jwt.claims" to '{"sub": "5a000000-0000-0000-0000-0000000000f1", "role": "authenticated"}';
+
+select is_empty(
+  $$select token from public.group_invites where group_id = '5b000000-0000-0000-0000-000000000001'$$,
+  'X S group_invites (G1): sees none (decyzja: archive/2026-11-12-join-group-by-invite-link/plan.md:87)'
+);
+
+select throws_ok(
+  $$select public.regenerate_group_invite('5b000000-0000-0000-0000-000000000001')$$,
+  '42501', null, 'X regenerate_group_invite (G1): 42501 (decyzja: archive/2026-11-12-join-group-by-invite-link/plan.md:77)'
+);
+
+set local "request.jwt.claims" to '{"sub": "5a000000-0000-0000-0000-0000000000a1", "role": "authenticated"}';
+
+select results_eq(
+  $$select token from public.group_invites where group_id = '5b000000-0000-0000-0000-000000000001'$$,
+  $$values ('rlsm-old-token'::text)$$,
+  'A S group_invites (G1): sees the current token (PRD :140)'
+);
+
+select isnt(
+  public.regenerate_group_invite('5b000000-0000-0000-0000-000000000001'),
+  'rlsm-old-token',
+  'A regenerate_group_invite (G1): returns a new token (PRD :82)'
+);
+
+set local "request.jwt.claims" to '{"sub": "5a000000-0000-0000-0000-0000000000e1", "role": "authenticated"}';
+
+select throws_ok(
+  $$select * from public.join_group_by_invite('rlsm-old-token')$$,
+  'P0001', 'invalid_invite', 'O join_group_by_invite (old G1 token): invalid_invite (PRD :82, :140)'
+);
+
+reset role;
+
+select is_empty(
+  $$select user_id from public.group_members
+    where group_id = '5b000000-0000-0000-0000-000000000001'
+      and user_id = '5a000000-0000-0000-0000-0000000000e1'$$,
+  'O join with old token: O is not a member of G1 (PRD :82)'
+);
+
+set local role anon;
+set local "request.jwt.claims" to '{"role": "anon"}';
+
+select is(
+  public.invite_group_name('rlsm-old-token'),
+  null,
+  'anon invite_group_name (old G1 token): null (PRD :82)'
+);
+
+reset role;
+
+-- ===========================================================================
+-- RPCs: anon and a non app admin (F9)
+-- ===========================================================================
+
+set local role anon;
+set local "request.jwt.claims" to '{"role": "anon"}';
+
+select throws_ok(
+  $$select public.add_group_admin('5b000000-0000-0000-0000-000000000001', 'rlsm-o@example.test')$$,
+  '42501', 'permission denied for function add_group_admin',
+  'anon add_group_admin: no EXECUTE privilege (F9)'
+);
+
+-- The message pins the grant layer: the function's own is_app_admin() check
+-- also raises 42501, which would hide a stray EXECUTE grant to anon.
+select throws_ok(
+  $$select * from public.admin_list_groups()$$,
+  '42501', 'permission denied for function admin_list_groups',
+  'anon admin_list_groups: no EXECUTE privilege (F9)'
+);
+
+select throws_ok(
+  $$select public.is_app_admin()$$,
+  '42501', null, 'anon is_app_admin: 42501 (F9)'
+);
+
+select throws_ok(
+  $$select public.is_group_member('5b000000-0000-0000-0000-000000000001')$$,
+  '42501', null, 'anon is_group_member: 42501 (F9)'
+);
+
+select throws_ok(
+  $$select public.shares_group_with('5a000000-0000-0000-0000-0000000000b1')$$,
+  '42501', null, 'anon shares_group_with: 42501 (F9)'
+);
+
+select throws_ok(
+  $$select public.is_group_admin('5b000000-0000-0000-0000-000000000001')$$,
+  '42501', null, 'anon is_group_admin: 42501 (F9)'
+);
+
+reset role;
+
+set local role authenticated;
+set local "request.jwt.claims" to '{"sub": "5a000000-0000-0000-0000-0000000000a1", "role": "authenticated"}';
+
+select throws_ok(
+  $$select public.add_group_admin('5b000000-0000-0000-0000-000000000001', 'rlsm-o@example.test')$$,
+  '42501', null, 'A add_group_admin (G1): 42501, only the app admin designates admins (PRD :80)'
+);
+
+select throws_ok(
+  $$select * from public.admin_list_groups()$$,
+  '42501', null, 'A admin_list_groups: 42501 (PRD :139)'
+);
+
+select throws_ok(
+  $$select public.create_group('RLSM A group', array['rlsm-a@example.test'])$$,
+  '42501', null, 'A create_group: 42501, only the app admin creates groups (PRD :80)'
+);
+
+reset role;
+
+-- ===========================================================================
+-- Statistics of G1 (PRD FR-017 :112)
+-- ===========================================================================
+
+set local role anon;
+set local "request.jwt.claims" to '{"role": "anon"}';
+
+select throws_ok(
+  $$select * from public.group_driver_stats('5b000000-0000-0000-0000-000000000001')$$,
+  '42501', null, 'anon group_driver_stats (G1): 42501 (PRD :146)'
+);
+
+select throws_ok(
+  $$select * from public.group_child_stats('5b000000-0000-0000-0000-000000000001')$$,
+  '42501', null, 'anon group_child_stats (G1): 42501 (PRD :146)'
+);
+
+reset role;
+
+set local role authenticated;
+set local "request.jwt.claims" to '{"sub": "5a000000-0000-0000-0000-0000000000e1", "role": "authenticated"}';
+
+select is_empty(
+  $$select * from public.group_driver_stats('5b000000-0000-0000-0000-000000000001')$$,
+  'O group_driver_stats (G1): empty (PRD :58)'
+);
+
+select is_empty(
+  $$select * from public.group_child_stats('5b000000-0000-0000-0000-000000000001')$$,
+  'O group_child_stats (G1): empty (PRD :58)'
+);
+
+set local "request.jwt.claims" to '{"sub": "5a000000-0000-0000-0000-0000000000c1", "role": "authenticated"}';
+
+select is_empty(
+  $$select * from public.group_driver_stats('5b000000-0000-0000-0000-000000000001')$$,
+  'C group_driver_stats (G1): empty (PRD :58)'
+);
+
+select is_empty(
+  $$select * from public.group_child_stats('5b000000-0000-0000-0000-000000000001')$$,
+  'C group_child_stats (G1): empty (PRD :58)'
+);
+
+set local "request.jwt.claims" to '{"sub": "5a000000-0000-0000-0000-0000000000f1", "role": "authenticated"}';
+
+select is_empty(
+  $$select * from public.group_driver_stats('5b000000-0000-0000-0000-000000000001')$$,
+  'X group_driver_stats (G1): empty (decyzja: archive/2026-11-16-group-engagement-stats/reviews/impl-review.md:43-44)'
+);
+
+select is_empty(
+  $$select * from public.group_child_stats('5b000000-0000-0000-0000-000000000001')$$,
+  'X group_child_stats (G1): empty (decyzja: archive/2026-11-16-group-engagement-stats/reviews/impl-review.md:43-44)'
+);
+
+set local "request.jwt.claims" to '{"sub": "5a000000-0000-0000-0000-0000000000d1", "role": "authenticated"}';
+
+select ok(
+  exists (
+    select 1 from public.group_driver_stats('5b000000-0000-0000-0000-000000000001')
+    where user_id = '5a000000-0000-0000-0000-0000000000b1'
+  ),
+  'M group_driver_stats (G1): includes B (PRD FR-017 :112)'
+);
+
+select ok(
+  exists (
+    select 1 from public.group_child_stats('5b000000-0000-0000-0000-000000000001')
+    where child_id = '5c000000-0000-0000-0000-000000000001'
+  ),
+  'M group_child_stats (G1): includes B''s child CB1 (PRD FR-017 :112)'
+);
+
+reset role;
 
 select * from finish();
 

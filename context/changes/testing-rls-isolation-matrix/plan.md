@@ -401,26 +401,26 @@ public.children to authenticated` i `grant select on public.profiles to anon`.
 
 #### Automated
 
-- [x] 3.1 `npx supabase test db` przechodzi, w tym `rls_isolation_matrix.test.sql`
-- [x] 3.2 Każda z 4 tabel ma asercje dla wszystkich 7 ról i operacji S/I/U/D
-- [x] 3.3 Plik nie zawiera `count(*)` bez filtra po identyfikatorach fixture'ów
+- [x] 3.1 `npx supabase test db` przechodzi, w tym `rls_isolation_matrix.test.sql` — 98093b4
+- [x] 3.2 Każda z 4 tabel ma asercje dla wszystkich 7 ról i operacji S/I/U/D — 98093b4
+- [x] 3.3 Plik nie zawiera `count(*)` bez filtra po identyfikatorach fixture'ów — 98093b4
 
 #### Manual
 
-- [x] 3.4 Celowe zepsucie: `children_update_own` przepuszcza admina grupy → czerwona asercja; cofnięte
-- [x] 3.5 Celowe zepsucie: `event_drivers_delete_own` bez warunku właściciela → czerwona asercja; cofnięte
+- [x] 3.4 Celowe zepsucie: `children_update_own` przepuszcza admina grupy → czerwona asercja; cofnięte — 98093b4
+- [x] 3.5 Celowe zepsucie: `event_drivers_delete_own` bez warunku właściciela → czerwona asercja; cofnięte — 98093b4
 
 ### Phase 4: Macierz — członkostwo, profile, linki, RPC, statystyki
 
 #### Automated
 
-- [ ] 4.1 `npx supabase test db` przechodzi
-- [ ] 4.2 Pozycje F9 1–3 mają odpowiadające asercje w pliku macierzy
+- [x] 4.1 `npx supabase test db` przechodzi
+- [x] 4.2 Pozycje F9 1–3 mają odpowiadające asercje w pliku macierzy
 
 #### Manual
 
-- [ ] 4.3 Celowe zepsucie: `profiles_select_group_peers` na `using (true)` → czerwone asercje telefonu; cofnięte
-- [ ] 4.4 Celowe zepsucie: `admin_list_groups` wykonywalne przez anon → czerwona asercja i strażnik; cofnięte
+- [x] 4.3 Celowe zepsucie: `profiles_select_group_peers` na `using (true)` → czerwone asercje telefonu; cofnięte
+- [x] 4.4 Celowe zepsucie: `admin_list_groups` wykonywalne przez anon → czerwona asercja i strażnik; cofnięte
 
 ### Phase 5: Domknięcie — cookbook, F9, bramka
 
