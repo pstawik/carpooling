@@ -430,8 +430,8 @@ z `20261116130000_create_engagement_stats.sql:29-61`.
 
 #### Automated
 
-- [x] 5.1 `npm run lint` przechodzi (prettier dla `*.md`)
+- [x] 5.1 `npm run lint` przechodzi (prettier dla `*.md`) — cd72761
 
 #### Manual
 
-- [x] 5.2 §6.2 da się zastosować do nowej reguły czasu lub usuwania bez czytania tego planu
+- [x] 5.2 §6.2 da się zastosować do nowej reguły czasu lub usuwania bez czytania tego planu — cd72761
