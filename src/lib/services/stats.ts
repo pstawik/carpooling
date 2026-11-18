@@ -3,7 +3,10 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 /** Drives of one member over the group's finished events (FR-017). */
 export interface DriverStat {
   userId: string;
-  /** `null` only if the member's profile is not visible, which RLS should not allow for a member. */
+  /**
+   * `null` when the driver's profile is not visible: usually a former member who still has drives
+   * from finished events but no longer shares a group with the viewer (RLS on profiles).
+   */
   nick: string | null;
   drives: number;
 }
@@ -58,7 +61,8 @@ export async function countFinishedEvents(supabase: SupabaseClient, groupId: str
 /**
  * The group's engagement statistics, counted in the database by `group_driver_stats` and
  * `group_child_stats` (security invoker, so RLS limits them to members: a non-member gets empty
- * lists). Drivers are ordered by nick, children by name.
+ * lists). Drivers are ordered by nick, with hidden nicks (usually former members) last; children
+ * by name.
  */
 export async function getGroupStats(supabase: SupabaseClient, groupId: string): Promise<GroupStats> {
   const [driversResult, childrenResult] = await Promise.all([
@@ -77,7 +81,10 @@ export async function getGroupStats(supabase: SupabaseClient, groupId: string): 
 
   const drivers = driverRows
     .map((row) => ({ userId: row.user_id, nick: row.nick, drives: row.drives }))
-    .sort((a, b) => (a.nick ?? "").localeCompare(b.nick ?? "", "pl"));
+    .sort((a, b) => {
+      if (a.nick === null || b.nick === null) return (a.nick === null ? 1 : 0) - (b.nick === null ? 1 : 0);
+      return a.nick.localeCompare(b.nick, "pl");
+    });
   const children = childRows
     .map((row) => ({
       childId: row.child_id,
