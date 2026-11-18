@@ -389,26 +389,26 @@ public.children to authenticated` i `grant select on public.profiles to anon`.
 
 #### Automated
 
-- [x] 2.1 `npx supabase test db` przechodzi, w tym `rls_catalog_guard.test.sql`
-- [x] 2.2 Sonda w pliku potwierdza, że każda z 5 funkcji naruszeń wykrywa obiekt sondy
+- [x] 2.1 `npx supabase test db` przechodzi, w tym `rls_catalog_guard.test.sql` — 4273ac1
+- [x] 2.2 Sonda w pliku potwierdza, że każda z 5 funkcji naruszeń wykrywa obiekt sondy — 4273ac1
 
 #### Manual
 
-- [x] 2.3 Celowe zepsucie: tabela bez RLS → czerwona asercja 1 z nazwą tabeli; cofnięte
-- [x] 2.4 Celowe zepsucie: polityka `to public` → czerwona asercja 3; cofnięte
+- [x] 2.3 Celowe zepsucie: tabela bez RLS → czerwona asercja 1 z nazwą tabeli; cofnięte — 4273ac1
+- [x] 2.4 Celowe zepsucie: polityka `to public` → czerwona asercja 3; cofnięte — 4273ac1
 
 ### Phase 3: Macierz — dane grupy
 
 #### Automated
 
-- [ ] 3.1 `npx supabase test db` przechodzi, w tym `rls_isolation_matrix.test.sql`
-- [ ] 3.2 Każda z 4 tabel ma asercje dla wszystkich 7 ról i operacji S/I/U/D
-- [ ] 3.3 Plik nie zawiera `count(*)` bez filtra po identyfikatorach fixture'ów
+- [x] 3.1 `npx supabase test db` przechodzi, w tym `rls_isolation_matrix.test.sql`
+- [x] 3.2 Każda z 4 tabel ma asercje dla wszystkich 7 ról i operacji S/I/U/D
+- [x] 3.3 Plik nie zawiera `count(*)` bez filtra po identyfikatorach fixture'ów
 
 #### Manual
 
-- [ ] 3.4 Celowe zepsucie: `children_update_own` przepuszcza admina grupy → czerwona asercja; cofnięte
-- [ ] 3.5 Celowe zepsucie: `event_drivers_delete_own` bez warunku właściciela → czerwona asercja; cofnięte
+- [x] 3.4 Celowe zepsucie: `children_update_own` przepuszcza admina grupy → czerwona asercja; cofnięte
+- [x] 3.5 Celowe zepsucie: `event_drivers_delete_own` bez warunku właściciela → czerwona asercja; cofnięte
 
 ### Phase 4: Macierz — członkostwo, profile, linki, RPC, statystyki
 
