@@ -1,7 +1,7 @@
 ---
 change_id: testing-history-durability-start-boundary
 title: Testy trwałości historii i granicy startu terminu (rollout Faza 2)
-status: implemented
+status: impl_reviewed
 created: 2026-11-18
 updated: 2026-11-18
 archived_at: null
