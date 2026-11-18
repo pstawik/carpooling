@@ -12,9 +12,10 @@
 -- Only declarations in the group the member left are touched: the same person's
 -- declarations in their other groups stay. Children rows themselves stay (the
 -- child belongs to the parent, not to the membership).
--- security definer: the trigger must delete rows the caller cannot. Members
--- are removed through security definer paths or as owner, and child_attendance
--- has no DELETE policy at all, so a security invoker function would silently
+-- security definer: the trigger must delete rows the caller cannot. Today
+-- members are removed only as owner/service_role or by cascade; a future
+-- removal RPC must keep this trigger security definer, because child_attendance
+-- has no DELETE policy at all and a security invoker function would silently
 -- delete nothing. search_path is empty and every name is schema-qualified.
 -- The function is a trigger only: execute is revoked from every client role.
 -- Idempotent under cascades: deleting a profile or a group removes its

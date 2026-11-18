@@ -16,7 +16,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(14);
+select plan(16);
 
 -- ---------------------------------------------------------------------------
 -- Schema and privileges
@@ -177,6 +177,7 @@ select is(
 select results_eq(
   $$select event_id from public.event_drivers
     where user_id = '00000000-0000-0000-0000-0000000000b1'
+      and group_id = '10000000-0000-0000-0000-000000000001'
     order by event_id$$,
   $$values ('e0000000-0000-0000-0000-000000000001'::uuid),
            ('e0000000-0000-0000-0000-000000000002'::uuid)$$,
@@ -237,6 +238,25 @@ select results_eq(
 );
 
 reset role;
+
+-- ---------------------------------------------------------------------------
+-- Profile delete: auth.users -> profiles -> group_members (fires the trigger)
+-- while event_drivers and children cascade from profiles at the same time
+-- ---------------------------------------------------------------------------
+
+-- A still drives 1 seat on F and Ala is going on F; both must go without an
+-- error when A's account is deleted.
+select lives_ok(
+  $$delete from auth.users where id = '00000000-0000-0000-0000-0000000000a1'$$,
+  'deleting A''s account (cascade through group_members and the trigger) does not raise'
+);
+
+select is(
+  (select count(*) from public.event_drivers where user_id = '00000000-0000-0000-0000-0000000000a1')
+    + (select count(*) from public.child_attendance where child_id = 'c0000000-0000-0000-0000-0000000000a1'),
+  0::bigint,
+  'after deleting A''s account: no driver declarations of A and no declarations of Ala remain'
+);
 
 select * from finish();
 rollback;

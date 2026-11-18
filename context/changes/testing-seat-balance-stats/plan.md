@@ -325,7 +325,7 @@ Migracja dodaje tylko funkcję i trigger. Nie zmienia istniejących danych: wier
 
 #### Manual
 
-- [ ] 1.5 Job `ci` na PR pokazuje krok `npm test` i jest zielony
+- [x] 1.5 Job `ci` na PR pokazuje krok `npm test` i jest zielony — 9c4e4ea
 
 ### Phase 2: Usunięcie członka czyści jego przyszłe deklaracje
 
@@ -352,8 +352,8 @@ Migracja dodaje tylko funkcję i trigger. Nie zmienia istniejących danych: wier
 
 #### Automated
 
-- [x] 4.1 `npm run lint` przechodzi (prettier dla `*.md` w lint-staged)
+- [x] 4.1 `npm run lint` przechodzi (prettier dla `*.md` w lint-staged) — d92e991
 
 #### Manual
 
-- [x] 4.2 §6.1 test-plan da się zastosować do nowej reguły liczenia bez czytania tego planu
+- [x] 4.2 §6.1 test-plan da się zastosować do nowej reguły liczenia bez czytania tego planu — d92e991

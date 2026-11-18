@@ -161,6 +161,14 @@ odpowiednia faza zostanie wdrożona; wcześniej brzmi „TBD — see §3 Phase N
   przejazdów byłego członka w statystykach zakończonych terminów (PRD
   §Access Control „Usunięcie z grupy”) jest oznaczona `todo` w
   `engagement_stats_boundaries.test.sql` i przekazana fazie 2 (ryzyko #2).
+  Znany wyścig: deklaracja zapisana równolegle z usunięciem członka może
+  ominąć trigger. Dziś to nieosiągalne dla klientów; blokada `for share`
+  jest wymaganiem FR-007 w roadmapie.
+  Otwarta decyzja dla fazy 2: dzieci usuniętego rodzica zostają w grupie,
+  a `group_child_stats` liczy ich zakres od `created_at` bez końca, więc
+  przybywa im nieobecności i w planach widnieją jako „bez deklaracji”.
+  Do wyboru: koniec zakresu w chwili usunięcia rodzica albo ukrywanie
+  dzieci osób spoza grupy (powiązane z roadmap S-07 Unknowns).
 
 ## 7. What We Deliberately Don't Test
 
