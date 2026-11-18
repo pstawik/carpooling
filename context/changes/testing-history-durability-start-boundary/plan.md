@@ -418,20 +418,20 @@ z `20261116130000_create_engagement_stats.sql:29-61`.
 
 #### Automated
 
-- [x] 4.1 `npx supabase test db` przechodzi, łącznie z `deletion_history_stats.test.sql`
-- [x] 4.2 Celowe zepsucie (w roboczej migracji polityka `events_delete_group_admin` bez `starts_at > now()`, plus dodatkowy krok usuwający P) daje czerwone porównanie migawki; po cofnięciu zielono
-- [x] 4.3 `npm run lint` przechodzi
+- [x] 4.1 `npx supabase test db` przechodzi, łącznie z `deletion_history_stats.test.sql` — 7e4ddaf
+- [x] 4.2 Celowe zepsucie (w roboczej migracji polityka `events_delete_group_admin` bez `starts_at > now()`, plus dodatkowy krok usuwający P) daje czerwone porównanie migawki; po cofnięciu zielono — 7e4ddaf
+- [x] 4.3 `npm run lint` przechodzi — 7e4ddaf
 
 #### Manual
 
-- [x] 4.4 Każdy krok ma w komentarzu ręcznie policzone wartości statystyk przed i po
+- [x] 4.4 Każdy krok ma w komentarzu ręcznie policzone wartości statystyk przed i po — 7e4ddaf
 
 ### Phase 5: Dokumentacja
 
 #### Automated
 
-- [ ] 5.1 `npm run lint` przechodzi (prettier dla `*.md`)
+- [x] 5.1 `npm run lint` przechodzi (prettier dla `*.md`)
 
 #### Manual
 
-- [ ] 5.2 §6.2 da się zastosować do nowej reguły czasu lub usuwania bez czytania tego planu
+- [x] 5.2 §6.2 da się zastosować do nowej reguły czasu lub usuwania bez czytania tego planu

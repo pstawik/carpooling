@@ -138,7 +138,39 @@ odpowiednia faza zostanie wdrożona; wcześniej brzmi „TBD — see §3 Phase N
 
 ### 6.2 Test trwałości danych i granicy czasu
 
-- TBD — see §3 Phase 2 (wzorzec: usunięcie nie zmienia zakończonych terminów; blokada sekundę przed / w chwili startu).
+- **Wyrocznia**: PRD („Zakończenie terminu”, FR-014, FR-015, §Access
+  Control „Usunięcie z grupy”) i kalendarz zmian czasu — nigdy wartość
+  odczytana z kodu. Rachunek (offset, statystyki przed/po) w komentarzu
+  przy asercji.
+- **Granica blokady (pgTAP)**: w jednej transakcji `now()` jest stałe, więc
+  termin `starts_at = now()` jest już rozpoczęty (zablokowany), a
+  `now() + interval '1 second'` jeszcze otwarty. Sprawdź każdą ścieżkę
+  zapisu osobno: INSERT, UPDATE, DELETE i ścieżkę konfliktu RPC
+  (`insert … on conflict do update` na zablokowanym wierszu daje 42501, a
+  bezpośredni UPDATE/DELETE — 0 wierszy, `is_empty(… returning …)`). Na
+  koniec, jako postgres, potwierdź, że wiersz sprzed startu jest bez zmian.
+- **Strefa i zmiana czasu (Vitest)**: baza nie zna stref — konwersja
+  Europe/Warsaw jest w `src/lib/time.ts`, więc testuj czyste funkcje.
+  Przypadki: zima (CET +1) i lato (CEST +2), luka wiosenna → `null`,
+  godzina dwuznaczna jesienią → wcześniejsza chwila (CEST), granica doby,
+  seria tygodniowa przez obie zmiany czasu. Daty 2026: 29 marca i 25
+  października.
+- **Usunięcie nie zmienia historii (pgTAP, migawka)**: jako członek grupy
+  zapisz `group_child_stats` / `group_driver_stats` do tabel tymczasowych
+  (`on commit drop`, `grant select, insert … to authenticated`), raz
+  porównaj migawkę z ręcznie policzonymi wartościami (żeby nie była pusta),
+  potem po każdym usunięciu porównuj wynik funkcji z migawką. Zakończone
+  terminy muszą wnosić nietrywialne wartości (jadące dziecko, kierowca), bo
+  inaczej zniknięcie terminu nie zmieni statystyk i test nic nie złapie.
+  Usuwane dziecko bez historii: najpierw asercja 0 / 0, potem porównanie
+  pozostałych dzieci.
+- **Dowód**: celowo zepsuj predykat (`>` → `>=` w polityce, odwrotne
+  sortowanie kandydatów, polityka usuwania bez `starts_at > now()`),
+  `npx supabase db reset`, potwierdź czerwień, cofnij.
+- **Wzorce**: `supabase/tests/declaration_lock_boundary.test.sql`,
+  `supabase/tests/deletion_history_stats.test.sql`,
+  `src/lib/time.test.ts`, `src/lib/weekly-events.test.ts`,
+  `src/lib/services/events.test.ts`.
 
 ### 6.3 Test polityki RLS dla nowej tabeli
 
@@ -169,6 +201,22 @@ odpowiednia faza zostanie wdrożona; wcześniej brzmi „TBD — see §3 Phase N
   przybywa im nieobecności i w planach widnieją jako „bez deklaracji”.
   Do wyboru: koniec zakresu w chwili usunięcia rodzica albo ukrywanie
   dzieci osób spoza grupy (powiązane z roadmap S-07 Unknowns).
+- **Faza 2** (`testing-history-durability-start-boundary`): blokada
+  deklaracji była poprawna — brakowało testów na samej granicy startu i
+  testów konwersji czasu (dodane). Faza naprawiła lukę względem PRD:
+  `group_driver_stats` pomijało byłych członków, więc ich przejazdy z
+  zakończonych terminów znikały; migracja
+  `20261118130000_keep_former_member_drives_in_stats.sql` listuje obecnych
+  członków oraz byłych z co najmniej jednym zaliczonym przejazdem (nick
+  byłego członka zwykle `null` → „Członek grupy”); `todo` z fazy 1 jest
+  teraz asercją. Świadome kompromisy bez testów: dziecko bez żadnej
+  deklaracji na zakończonych terminach można usunąć, a jego nieobecności
+  znikają; usunięcie grupy lub profilu kasuje całą historię (kaskada omija
+  RLS, brak ścieżki w aplikacji). Los dzieci usuniętego rodzica przeniesiony
+  do FR-007 w roadmapie (bez zapisanej chwili usunięcia nie ma wyroczni).
+  Do backportu w `/10x-test-plan`: dla ryzyka #4 warstwa strefy/DST to
+  Vitest, a „kontrolowany czas” w pgTAP to stałe `now()` w transakcji
+  (§2 Risk Response Guidance).
 
 ## 7. What We Deliberately Don't Test
 
