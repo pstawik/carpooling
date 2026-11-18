@@ -405,26 +405,26 @@ z `20261116130000_create_engagement_stats.sql:29-61`.
 
 #### Automated
 
-- [x] 3.1 `npx supabase db reset` stosuje migrację bez błędów
-- [x] 3.2 `npx supabase test db` przechodzi; `engagement_stats_boundaries.test.sql` nie zawiera `todo`
-- [x] 3.3 Celowe zepsucie (usunięcie gałęzi `event_drivers` z kandydatów) daje czerwoną asercję X; po cofnięciu zielono
-- [x] 3.4 `npm run lint` i `npx astro check` przechodzą
+- [x] 3.1 `npx supabase db reset` stosuje migrację bez błędów — 7af264c
+- [x] 3.2 `npx supabase test db` przechodzi; `engagement_stats_boundaries.test.sql` nie zawiera `todo` — 7af264c
+- [x] 3.3 Celowe zepsucie (usunięcie gałęzi `event_drivers` z kandydatów) daje czerwoną asercję X; po cofnięciu zielono — 7af264c
+- [x] 3.4 `npm run lint` i `npx astro check` przechodzą — 7af264c
 
 #### Manual
 
-- [x] 3.5 Lokalnie: kierowca z zaliczonym przejazdem usunięty SQL-em z `group_members`; strona statystyk grupy nadal pokazuje jego przejazdy (jako „Członek grupy”, jeśli nie dzieli innej grupy)
+- [x] 3.5 Lokalnie: kierowca z zaliczonym przejazdem usunięty SQL-em z `group_members`; strona statystyk grupy nadal pokazuje jego przejazdy (jako „Członek grupy”, jeśli nie dzieli innej grupy) — 7af264c
 
 ### Phase 4: Statystyki bez zmian po usunięciach
 
 #### Automated
 
-- [ ] 4.1 `npx supabase test db` przechodzi, łącznie z `deletion_history_stats.test.sql`
-- [ ] 4.2 Celowe zepsucie (w roboczej migracji polityka `events_delete_group_admin` bez `starts_at > now()`, plus dodatkowy krok usuwający P) daje czerwone porównanie migawki; po cofnięciu zielono
-- [ ] 4.3 `npm run lint` przechodzi
+- [x] 4.1 `npx supabase test db` przechodzi, łącznie z `deletion_history_stats.test.sql`
+- [x] 4.2 Celowe zepsucie (w roboczej migracji polityka `events_delete_group_admin` bez `starts_at > now()`, plus dodatkowy krok usuwający P) daje czerwone porównanie migawki; po cofnięciu zielono
+- [x] 4.3 `npm run lint` przechodzi
 
 #### Manual
 
-- [ ] 4.4 Każdy krok ma w komentarzu ręcznie policzone wartości statystyk przed i po
+- [x] 4.4 Każdy krok ma w komentarzu ręcznie policzone wartości statystyk przed i po
 
 ### Phase 5: Dokumentacja
 
