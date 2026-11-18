@@ -381,25 +381,25 @@ z `20261116130000_create_engagement_stats.sql:29-61`.
 
 #### Automated
 
-- [x] 1.1 `npx supabase test db` przechodzi, łącznie z `declaration_lock_boundary.test.sql`
-- [x] 1.2 Celowe zepsucie (`starts_at > now()` → `starts_at >= now()` w jednej polityce `child_attendance` i jednej `event_drivers` w roboczej migracji, `npx supabase db reset`) daje czerwone asercje dla L; po cofnięciu zielono
-- [x] 1.3 `npm run lint` przechodzi
+- [x] 1.1 `npx supabase test db` przechodzi, łącznie z `declaration_lock_boundary.test.sql` — 17f421f
+- [x] 1.2 Celowe zepsucie (`starts_at > now()` → `starts_at >= now()` w jednej polityce `child_attendance` i jednej `event_drivers` w roboczej migracji, `npx supabase db reset`) daje czerwone asercje dla L; po cofnięciu zielono — 17f421f
+- [x] 1.3 `npm run lint` przechodzi — 17f421f
 
 #### Manual
 
-- [x] 1.4 Asercje czytają się jako zdania z PRD (opis każdej asercji mówi, co i kiedy jest dozwolone)
+- [x] 1.4 Asercje czytają się jako zdania z PRD (opis każdej asercji mówi, co i kiedy jest dozwolone) — 17f421f
 
 ### Phase 2: Strefa i zmiana czasu
 
 #### Automated
 
-- [ ] 2.1 `npm test` przechodzi i raportuje testy z `time.test.ts`, `weekly-events.test.ts`, `events.test.ts`
-- [ ] 2.2 Celowe zepsucie (w `warsawLocalToUtc` sortowanie kandydatów malejąco zamiast rosnąco) daje czerwony test godziny dwuznacznej `02:30`; po cofnięciu zielono
-- [ ] 2.3 `npm run lint` i `npx astro check` przechodzą
+- [x] 2.1 `npm test` przechodzi i raportuje testy z `time.test.ts`, `weekly-events.test.ts`, `events.test.ts`
+- [x] 2.2 Celowe zepsucie (w `warsawLocalToUtc` sortowanie kandydatów malejąco zamiast rosnąco) daje czerwony test godziny dwuznacznej `02:30`; po cofnięciu zielono
+- [x] 2.3 `npm run lint` i `npx astro check` przechodzą
 
 #### Manual
 
-- [ ] 2.4 Każda oczekiwana wartość ma w komentarzu rachunek offsetu (CET +1 / CEST +2), nie wywołanie testowanej funkcji
+- [x] 2.4 Każda oczekiwana wartość ma w komentarzu rachunek offsetu (CET +1 / CEST +2), nie wywołanie testowanej funkcji
 
 ### Phase 3: Przejazdy byłych członków w statystykach (G1)
 
