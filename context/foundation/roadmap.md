@@ -214,7 +214,7 @@ PRD nie ma otwartych pytań (rozstrzygnięte 2026-11-06). Pytania przekrojowe ze
 
 ## Parked
 
-- **FR-007: Administrator grupy usuwa członka** — Why parked: wymaganie opcjonalne; przy celu „szybkość dowiezienia” odłożone, w znajomej grupie usunięcie robi administrator technicznie (PRD FR-007). Pierwszy kandydat na kolejny kamień milowy.
+- **FR-007: Administrator grupy usuwa członka** — Why parked: wymaganie opcjonalne; przy celu „szybkość dowiezienia” odłożone, w znajomej grupie usunięcie robi administrator technicznie (PRD FR-007). Pierwszy kandydat na kolejny kamień milowy. Wymaganie przy wdrożeniu (impl-review testing-seat-balance-stats F1): `set_event_driver` i `set_child_attendance` blokują wiersz `group_members` (`for share`), żeby deklaracja nie wyprzedziła usunięcia członka i nie ominęła triggera `group_members_delete_future_declarations`.
 - **FR-009: Lista członków z telefonami** — Why parked: wymaganie opcjonalne; telefon kierowcy jest i tak widoczny w planie terminu (S-08, FR-016).
 - **Powiadomienia SMS, e-mail, push i integracje z komunikatorami** — Why parked: PRD §Non-Goals.
 - **Integracja z kalendarzami i eksport kalendarza/statystyk** — Why parked: PRD §Non-Goals.

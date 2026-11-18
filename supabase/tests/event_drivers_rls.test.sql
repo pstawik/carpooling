@@ -344,7 +344,9 @@ select is(
 -- Membership edge case: a member who left
 -- ---------------------------------------------------------------------------
 
--- A leaves G1; A's E2 row stays, as it does today when a member is removed.
+-- A leaves G1. The membership trigger deletes A's declarations on future G1
+-- events (none here); A's row on the started E2 stays. The trigger itself is
+-- tested in member_removal_declarations.test.sql.
 delete from public.group_members
   where group_id = '10000000-0000-0000-0000-000000000001'
     and user_id = '00000000-0000-0000-0000-0000000000a1';

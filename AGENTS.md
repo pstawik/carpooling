@@ -23,6 +23,7 @@ CarPooling is a mobile-first web app for parents coordinating rides to kids' act
 
 - `npm run dev` — dev server on workerd; needs `.dev.vars` (copy `.env.example`) and `npx supabase start`.
 - `npm run lint` and `npx astro check` — must pass before commit.
+- `npm test` — Vitest unit tests (`src/**/*.test.ts`); `npx supabase test db` — pgTAP tests in `supabase/tests/` (needs `npx supabase start`).
 - `npm run smoke` — auth-flow smoke test against a running server.
 
 ## Coding Style
@@ -40,7 +41,7 @@ Merge Tailwind classes with `cn()` from `@/lib/utils`, never by string concatena
 
 ## Testing
 
-There is no unit-test framework yet. Verification is lint, `astro check`, build, and `npm run smoke`, matching CI (`@.github/workflows/ci.yml`).
+Unit tests use Vitest (`npm test`): `*.test.ts` next to the module under `src/`, pure functions only. Database rules (RLS, triggers, stats) are tested with pgTAP in `supabase/tests/*.test.sql` via `npx supabase test db`. Before writing a test, read `@context/foundation/test-plan.md` (§6 has the patterns). Verification is lint, `astro check`, `npm test`, build, `supabase test db` and `npm run smoke`, matching CI (`@.github/workflows/ci.yml`).
 
 ## Commits & PRs
 
