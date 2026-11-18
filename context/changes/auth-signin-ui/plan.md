@@ -43,6 +43,7 @@ Kolejność `/10x-ui`: środowisko (N/A) → wartości tokenów → widok → st
 ## Critical Implementation Details
 
 - **Reguła autouzupełniania musi działać z utility i bez nich.** W `@layer base` reguła dla `input:autofill`, `input:-webkit-autofill` i `input[data-autofill-preview]` ustawia jednocześnie `--tw-inset-shadow: inset 0 0 0 1000px var(--autofill)` (dla pól z `shadow-*`/`ring-*`, np. `ui/input` — utility nadpisuje `box-shadow` z warstwy base, ale składa tę zmienną) oraz `box-shadow: inset 0 0 0 1000px var(--autofill)` (dla pól bez takich utility, np. dzisiejszy `FormField` w spoczynku). Do tego `-webkit-text-fill-color` i `caret-color` z `--autofill-foreground`. Wartość musi być nieprzezroczysta.
+- **Addendum (impl-review F1):** zaimplementowano jako dwie osobne reguły (`input:autofill` i `input[data-autofill-preview]`), bez `:-webkit-autofill` — jedna nieobsługiwana pseudoklasa unieważnia całą listę selektorów, cele przeglądarek Tailwinda obsługują `:autofill`, a build i tak usuwa formę z prefiksem. Wspólną wartość cienia trzyma `--autofill-shadow` (F3).
 - **Podgląd w sinku:** `:autofill` nie da się wymusić CSS-em, dlatego selektor `[data-autofill-preview]` jest częścią tej samej reguły — sink renderuje pole z tym atrybutem i pokazuje dokładnie te same deklaracje.
 - **`cn()` i promienie:** przy łączeniu `focusRingClass` (`rounded-sm`) z klasami o innym promieniu `focusRingClass` stoi pierwszy (lekcja z `dashboard-ui`).
 

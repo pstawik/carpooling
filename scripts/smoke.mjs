@@ -227,6 +227,7 @@ const writeSteps = [
     { status: 302, location: "/dashboard" },
   ],
   ["signin page redirects signed-in user", () => request("/auth/signin"), { status: 302, locationExact: "/dashboard" }],
+  ["signup page redirects signed-in user", () => request("/auth/signup"), { status: 302, locationExact: "/dashboard" }],
   [
     "dashboard shows profile nick",
     () => request("/dashboard", { readBody: true }),

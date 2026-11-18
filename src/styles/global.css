@@ -26,6 +26,8 @@
   /* Autofill role; source: context/changes/auth-signin-ui/tokens.md */
   --autofill: oklch(0.94 0.04 302.321);
   --autofill-foreground: oklch(0.145 0 0);
+  /* Shared by both autofill rules in the base layer; resolves --autofill from .dark on <html>. */
+  --autofill-shadow: inset 0 0 0 1000px var(--autofill);
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
   --ring: oklch(0.708 0 0);
@@ -148,14 +150,14 @@
      Separate rules: one unsupported pseudo-class would drop a whole selector list. No :-webkit-autofill:
      Tailwind's browser targets support :autofill, and the build drops the prefixed form anyway. */
   input:autofill {
-    --tw-inset-shadow: inset 0 0 0 1000px var(--autofill);
-    box-shadow: inset 0 0 0 1000px var(--autofill);
+    --tw-inset-shadow: var(--autofill-shadow);
+    box-shadow: var(--autofill-shadow);
     -webkit-text-fill-color: var(--autofill-foreground);
     caret-color: var(--autofill-foreground);
   }
   input[data-autofill-preview] {
-    --tw-inset-shadow: inset 0 0 0 1000px var(--autofill);
-    box-shadow: inset 0 0 0 1000px var(--autofill);
+    --tw-inset-shadow: var(--autofill-shadow);
+    box-shadow: var(--autofill-shadow);
     -webkit-text-fill-color: var(--autofill-foreground);
     caret-color: var(--autofill-foreground);
   }
