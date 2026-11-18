@@ -1,0 +1,389 @@
+---
+import { createElement } from "react";
+import { CircleCheck, Info, Lock, LogIn, Mail } from "lucide-react";
+import Layout from "@/layouts/Layout.astro";
+import { FormField } from "@/components/auth/FormField";
+import { PasswordToggle } from "@/components/auth/PasswordToggle";
+import { ServerError } from "@/components/auth/ServerError";
+import { SubmitButton } from "@/components/auth/SubmitButton";
+import { cardClass, hintLinkClass, subHeadingClass } from "@/components/groups/group-page-classes";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Card } from "@/components/ui/card";
+import { authErrorMessage, noticeMessage } from "@/lib/services/auth-errors";
+import { cn } from "@/lib/utils";
+
+// Kitchen sink for sign-in and sign-up: every cell of the 7-state matrix on one page, for the visual gate,
+// plus the autofilled fields and the notices. Dev only; a production build answers 404. No Supabase queries.
+// The auth components render statically (no client:* directive, no island): onChange/onToggle are no-ops,
+// and the fields sit in a <div>, not a <form>, so the submit buttons post nothing.
+if (!import.meta.env.DEV) {
+  return Astro.rewrite("/404");
+}
+
+const noop = () => undefined;
+// The same icons as SignInForm; React elements, because FormField and SubmitButton take them as props.
+const mailIcon = createElement(Mail, { className: "size-4" });
+const lockIcon = createElement(Lock, { className: "size-4" });
+const logInIcon = createElement(LogIn, { className: "size-4" });
+const toggleHidden = createElement(PasswordToggle, { visible: false, onToggle: noop });
+const toggleVisible = createElement(PasswordToggle, { visible: true, onToggle: noop });
+
+const sampleEmail = "ania@example.com";
+const samplePassword = "sekret1";
+// The view's messages come from the same helpers the pages use, so the sink shows what the views show.
+const accountCreated = noticeMessage("account_created");
+const invalidCredentials = authErrorMessage("invalid_credentials");
+
+// The view's class constants come from group-page-classes, so the sink shows what the view shows.
+// These two style only the sink's own state labels, which the view does not have.
+const stateHeadingClass = "mb-1 text-lg font-semibold";
+const stateNoteClass = "text-muted-foreground mb-4 text-sm";
+---
+
+<Layout title="Kitchen sink: logowanie i rejestracja">
+  <div class="bg-cosmic min-h-screen p-4">
+    <div class="mx-auto w-full max-w-xl">
+      <h1 class="text-foreground mb-2 text-2xl font-bold break-words">Kitchen sink: logowanie i rejestracja</h1>
+      <p class="text-muted-foreground mb-6 text-sm">
+        Strona deweloperska: pola, przyciski i komunikaty logowania i rejestracji w 7 stanach, z polami
+        autouzupełnionymi. Komponenty są renderowane statycznie (bez wyspy), a link „Zarejestruj się” prowadzi do
+        kotwicy na tej stronie.
+      </p>
+
+      <Card role="region" aria-labelledby="state-default" className={cardClass}>
+        <h2 id="state-default" class:list={stateHeadingClass}>
+          default
+        </h2>
+        <p class:list={stateNoteClass}>
+          Tylko tokeny i komponenty z ui/ oraz stałe z group-page-classes. Karta logowania jak w widoku, z wypełnionymi
+          polami.
+        </p>
+
+        <h3 class:list={subHeadingClass}>Wypełnione</h3>
+        <Card className={cn(cardClass, "w-full max-w-sm")}>
+          <p class="text-foreground mb-6 text-center text-2xl font-bold">Logowanie</p>
+          <div class="space-y-4">
+            <FormField
+              id="default-email"
+              type="email"
+              label="E-mail"
+              value={sampleEmail}
+              onChange={noop}
+              placeholder="ty@example.com"
+              autoComplete="off"
+              inputMode="email"
+              icon={mailIcon}
+            />
+            <FormField
+              id="default-password"
+              type="password"
+              label="Hasło"
+              value={samplePassword}
+              onChange={noop}
+              placeholder="Twoje hasło"
+              autoComplete="off"
+              icon={lockIcon}
+              endContent={toggleHidden}
+            />
+            <SubmitButton pending={false} pendingText="Logowanie..." icon={logInIcon}>
+              Zaloguj się
+            </SubmitButton>
+          </div>
+          <p class="text-muted-foreground mt-4 text-center text-sm">
+            Nie masz konta?{" "}
+            <a href="#state-default" class:list={hintLinkClass}>
+              Zarejestruj się
+            </a>
+          </p>
+        </Card>
+
+        <h3 class:list={subHeadingClass}>Z placeholderem, hasło odsłonięte przełącznikiem</h3>
+        <div class="space-y-4">
+          <FormField
+            id="default-placeholder-email"
+            type="email"
+            label="E-mail"
+            value=""
+            onChange={noop}
+            placeholder="ty@example.com"
+            autoComplete="off"
+            inputMode="email"
+            icon={mailIcon}
+          />
+          <FormField
+            id="default-placeholder-password"
+            type="text"
+            label="Hasło"
+            value=""
+            onChange={noop}
+            placeholder="Twoje hasło"
+            autoComplete="off"
+            icon={lockIcon}
+            endContent={toggleVisible}
+          />
+        </div>
+      </Card>
+
+      <Card role="region" aria-labelledby="state-hover" className={cardClass}>
+        <h2 id="state-hover" class:list={stateHeadingClass}>
+          hover
+        </h2>
+        <p class:list={stateNoteClass}>
+          Najedź kursorem: przycisk „Zaloguj się” przechodzi na primary/90, ikona przełącznika hasła z muted-foreground
+          na foreground, a link „Zarejestruj się” dostaje podkreślenie.
+        </p>
+        <div class="space-y-4">
+          <FormField
+            id="hover-password"
+            type="password"
+            label="Hasło"
+            value={samplePassword}
+            onChange={noop}
+            placeholder="Twoje hasło"
+            autoComplete="off"
+            icon={lockIcon}
+            endContent={toggleHidden}
+          />
+          <SubmitButton pending={false} pendingText="Logowanie..." icon={logInIcon}>
+            Zaloguj się
+          </SubmitButton>
+        </div>
+        <p class="text-muted-foreground mt-4 text-center text-sm">
+          Nie masz konta?{" "}
+          <a href="#state-hover" class:list={hintLinkClass}>
+            Zarejestruj się
+          </a>
+        </p>
+      </Card>
+
+      <Card role="region" aria-labelledby="state-focus" className={cardClass}>
+        <h2 id="state-focus" class:list={stateHeadingClass}>
+          focus-visible
+        </h2>
+        <p class:list={stateNoteClass}>
+          Przejdź klawiszem Tab: pola, przełącznik hasła, przycisk i link pokazują obwódkę w kolorze tokenu --ring.
+          Kliknięcie myszą w przełącznik, przycisk lub link nie pokazuje obwódki.
+        </p>
+        <div class="space-y-4">
+          <FormField
+            id="focus-email"
+            type="email"
+            label="E-mail"
+            value={sampleEmail}
+            onChange={noop}
+            placeholder="ty@example.com"
+            autoComplete="off"
+            inputMode="email"
+            icon={mailIcon}
+          />
+          <FormField
+            id="focus-password"
+            type="password"
+            label="Hasło"
+            value={samplePassword}
+            onChange={noop}
+            placeholder="Twoje hasło"
+            autoComplete="off"
+            icon={lockIcon}
+            endContent={toggleHidden}
+          />
+          <SubmitButton pending={false} pendingText="Logowanie..." icon={logInIcon}>
+            Zaloguj się
+          </SubmitButton>
+        </div>
+        <p class="text-muted-foreground mt-4 text-center text-sm">
+          Nie masz konta?{" "}
+          <a href="#state-focus" class:list={hintLinkClass}>
+            Zarejestruj się
+          </a>
+        </p>
+      </Card>
+
+      <Card role="region" aria-labelledby="state-disabled" className={cardClass}>
+        <h2 id="state-disabled" class:list={stateHeadingClass}>
+          disabled
+        </h2>
+        <p class:list={stateNoteClass}>
+          Przycisk w trakcie wysyłki jest nieaktywny (disabled, wygaszony przez ui/button), więc formularz nie wyśle się
+          drugi raz. Pola zostają aktywne: formularz wysyła się natywnie i nie ma ich czego blokować.
+        </p>
+        <SubmitButton pending={true} pendingText="Logowanie..." icon={logInIcon}>
+          Zaloguj się
+        </SubmitButton>
+      </Card>
+
+      <Card role="region" aria-labelledby="state-error" className={cardClass}>
+        <h2 id="state-error" class:list={stateHeadingClass}>
+          error
+        </h2>
+        <p class:list={stateNoteClass}>
+          Błąd pola: token destructive, ikona i tekst (nie tylko kolor), aria-invalid i aria-describedby. Błąd serwera:
+          Alert destructive nad przyciskiem.
+        </p>
+        <div class="space-y-4">
+          <FormField
+            id="error-email"
+            type="email"
+            label="E-mail"
+            value="ania@example"
+            onChange={noop}
+            placeholder="ty@example.com"
+            autoComplete="off"
+            inputMode="email"
+            error="Podaj prawidłowy adres e-mail"
+            icon={mailIcon}
+          />
+          <FormField
+            id="error-password"
+            type="password"
+            label="Hasło"
+            value=""
+            onChange={noop}
+            placeholder="Twoje hasło"
+            autoComplete="off"
+            error="Podaj hasło"
+            icon={lockIcon}
+            endContent={toggleHidden}
+          />
+          <ServerError message={invalidCredentials} />
+          <SubmitButton pending={false} pendingText="Logowanie..." icon={logInIcon}>
+            Zaloguj się
+          </SubmitButton>
+        </div>
+      </Card>
+
+      <Card role="region" aria-labelledby="state-empty" className={cardClass}>
+        <h2 id="state-empty" class:list={stateHeadingClass}>
+          empty
+        </h2>
+        <p class:list={stateNoteClass}>
+          Puste pola z placeholderem: formularz nie ma danych do wczytania, więc pusty stan to po prostu niewypełniony
+          formularz.
+        </p>
+        <div class="space-y-4">
+          <FormField
+            id="empty-email"
+            type="email"
+            label="E-mail"
+            value=""
+            onChange={noop}
+            placeholder="ty@example.com"
+            autoComplete="off"
+            inputMode="email"
+            icon={mailIcon}
+          />
+          <FormField
+            id="empty-password"
+            type="password"
+            label="Hasło"
+            value=""
+            onChange={noop}
+            placeholder="Twoje hasło"
+            autoComplete="off"
+            icon={lockIcon}
+            endContent={toggleHidden}
+          />
+          <SubmitButton pending={false} pendingText="Logowanie..." icon={logInIcon}>
+            Zaloguj się
+          </SubmitButton>
+        </div>
+      </Card>
+
+      <Card role="region" aria-labelledby="state-loading" className={cardClass}>
+        <h2 id="state-loading" class:list={stateHeadingClass}>
+          loading
+        </h2>
+        <p class:list={stateNoteClass}>
+          Po wysłaniu: przycisk pokazuje spinner i „Logowanie...” w tym samym miejscu i rozmiarze, więc układ nie
+          skacze.
+        </p>
+        <div class="space-y-4">
+          <FormField
+            id="loading-email"
+            type="email"
+            label="E-mail"
+            value={sampleEmail}
+            onChange={noop}
+            placeholder="ty@example.com"
+            autoComplete="off"
+            inputMode="email"
+            icon={mailIcon}
+          />
+          <FormField
+            id="loading-password"
+            type="password"
+            label="Hasło"
+            value={samplePassword}
+            onChange={noop}
+            placeholder="Twoje hasło"
+            autoComplete="off"
+            icon={lockIcon}
+            endContent={toggleHidden}
+          />
+          <SubmitButton pending={true} pendingText="Logowanie..." icon={logInIcon}>
+            Zaloguj się
+          </SubmitButton>
+        </div>
+      </Card>
+
+      <Card role="region" aria-labelledby="state-autofill" className={cardClass}>
+        <h2 id="state-autofill" class:list={stateHeadingClass}>
+          autouzupełniony
+        </h2>
+        <p class:list={stateNoteClass}>
+          Pola wypełnione przez przeglądarkę: tło --autofill i tekst --autofill-foreground zamiast domyślnej żółci.
+          Atrybut data-autofill-preview używa tej samej reguły bazowej co :autofill w global.css, więc wygląda jak
+          prawdziwe autouzupełnienie na /auth/signin.
+        </p>
+        <div class="space-y-4">
+          <FormField
+            id="autofill-email"
+            type="email"
+            label="E-mail"
+            value={sampleEmail}
+            onChange={noop}
+            placeholder="ty@example.com"
+            autoComplete="off"
+            inputMode="email"
+            icon={mailIcon}
+            autofillPreview
+          />
+          <FormField
+            id="autofill-password"
+            type="password"
+            label="Hasło"
+            value={samplePassword}
+            onChange={noop}
+            placeholder="Twoje hasło"
+            autoComplete="off"
+            icon={lockIcon}
+            endContent={toggleHidden}
+            autofillPreview
+          />
+        </div>
+      </Card>
+
+      <Card role="region" aria-labelledby="state-notices" className={cardClass}>
+        <h2 id="state-notices" class:list={stateHeadingClass}>
+          komunikaty
+        </h2>
+        <p class:list={stateNoteClass}>
+          Komunikaty nad formularzem: sukces po rejestracji (token --success, Alert success) i zaproszenie do grupy
+          (Alert default). Oba z ikoną i role="status".
+        </p>
+        <Alert variant="success" role="status" className="mb-4">
+          <CircleCheck />
+          <AlertDescription className="break-words">{accountCreated}</AlertDescription>
+        </Alert>
+        <Alert role="status" className="mb-4">
+          <Info />
+          <AlertDescription className="break-words">Po zalogowaniu dołączysz do grupy.</AlertDescription>
+        </Alert>
+        <Alert role="status">
+          <Info />
+          <AlertDescription className="break-words">Po rejestracji dołączysz do grupy.</AlertDescription>
+        </Alert>
+      </Card>
+    </div>
+  </div>
+</Layout>

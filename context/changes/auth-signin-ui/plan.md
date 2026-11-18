@@ -357,30 +357,30 @@ N/A — brak zmian danych.
 
 #### Automated
 
-- [x] 3.1 Hardcoded-value scan na `signin.astro` i `signup.astro` zwraca 0 trafień
-- [x] 3.2 `npm run lint` przechodzi
-- [x] 3.3 `npx astro check` przechodzi bez błędów
-- [x] 3.4 `npm run build` przechodzi
-- [x] 3.5 `npm run smoke` przechodzi na uruchomionym serwerze, z nowymi krokami dla `/auth/signin` i `/auth/signup`
+- [x] 3.1 Hardcoded-value scan na `signin.astro` i `signup.astro` zwraca 0 trafień — b8ff1f0
+- [x] 3.2 `npm run lint` przechodzi — b8ff1f0
+- [x] 3.3 `npx astro check` przechodzi bez błędów — b8ff1f0
+- [x] 3.4 `npm run build` przechodzi — b8ff1f0
+- [x] 3.5 `npm run smoke` przechodzi na uruchomionym serwerze, z nowymi krokami dla `/auth/signin` i `/auth/signup` — b8ff1f0
 
 #### Manual
 
-- [x] 3.6 Na 360 px i desktopie: obie karty wyglądają jak karty w aplikacji (bez gradientu), komunikat „Konto utworzone — zaloguj się” jest zielonym `Alert`, komunikat zaproszenia — `Alert` z ikoną info
-- [x] 3.7 Tab na „Zarejestruj się” / „Zaloguj się” pokazuje obwódkę `--ring`; zalogowany wchodzący na `/auth/signin` ląduje na panelu, a z `?invite=<token>` — na stronie dołączenia do grupy
+- [x] 3.6 Na 360 px i desktopie: obie karty wyglądają jak karty w aplikacji (bez gradientu), komunikat „Konto utworzone — zaloguj się” jest zielonym `Alert`, komunikat zaproszenia — `Alert` z ikoną info — b8ff1f0
+- [x] 3.7 Tab na „Zarejestruj się” / „Zaloguj się” pokazuje obwódkę `--ring`; zalogowany wchodzący na `/auth/signin` ląduje na panelu, a z `?invite=<token>` — na stronie dołączenia do grupy — b8ff1f0
 
 ### Phase 4: Kitchen sink `/dev/ui-auth`
 
 #### Automated
 
-- [ ] 4.1 Hardcoded-value scan na `src/pages/dev/ui-auth.astro` zwraca 0 trafień
-- [ ] 4.2 `npm run lint` przechodzi
-- [ ] 4.3 `npx astro check` przechodzi bez błędów
-- [ ] 4.4 `npm run build` przechodzi, a `/dev/ui-auth` w buildzie produkcyjnym odpowiada 404
+- [x] 4.1 Hardcoded-value scan na `src/pages/dev/ui-auth.astro` zwraca 0 trafień
+- [x] 4.2 `npm run lint` przechodzi
+- [x] 4.3 `npx astro check` przechodzi bez błędów
+- [x] 4.4 `npm run build` przechodzi, a `/dev/ui-auth` w buildzie produkcyjnym odpowiada 404
 
 #### Manual
 
-- [ ] 4.5 `/dev/ui-auth` pokazuje 7 stanów + autouzupełniony + komunikaty; zrzuty na desktopie i 360 px
-- [ ] 4.6 Pole w stanie autouzupełnionym w sinku wygląda tak samo jak prawdziwe autouzupełnione pole na `/auth/signin`
+- [x] 4.5 `/dev/ui-auth` pokazuje 7 stanów + autouzupełniony + komunikaty; zrzuty na desktopie i 360 px
+- [x] 4.6 Pole w stanie autouzupełnionym w sinku wygląda tak samo jak prawdziwe autouzupełnione pole na `/auth/signin`
 
 ### Phase 5: Strażnik
 
