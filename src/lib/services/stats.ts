@@ -3,7 +3,10 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 /** Drives of one member over the group's finished events (FR-017). */
 export interface DriverStat {
   userId: string;
-  /** `null` only if the member's profile is not visible, which RLS should not allow for a member. */
+  /**
+   * `null` when the driver's profile is not visible: usually a former member who still has drives
+   * from finished events but no longer shares a group with the viewer (RLS on profiles).
+   */
   nick: string | null;
   drives: number;
 }

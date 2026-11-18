@@ -393,26 +393,26 @@ z `20261116130000_create_engagement_stats.sql:29-61`.
 
 #### Automated
 
-- [x] 2.1 `npm test` przechodzi i raportuje testy z `time.test.ts`, `weekly-events.test.ts`, `events.test.ts`
-- [x] 2.2 Celowe zepsucie (w `warsawLocalToUtc` sortowanie kandydatów malejąco zamiast rosnąco) daje czerwony test godziny dwuznacznej `02:30`; po cofnięciu zielono
-- [x] 2.3 `npm run lint` i `npx astro check` przechodzą
+- [x] 2.1 `npm test` przechodzi i raportuje testy z `time.test.ts`, `weekly-events.test.ts`, `events.test.ts` — f1a1999
+- [x] 2.2 Celowe zepsucie (w `warsawLocalToUtc` sortowanie kandydatów malejąco zamiast rosnąco) daje czerwony test godziny dwuznacznej `02:30`; po cofnięciu zielono — f1a1999
+- [x] 2.3 `npm run lint` i `npx astro check` przechodzą — f1a1999
 
 #### Manual
 
-- [x] 2.4 Każda oczekiwana wartość ma w komentarzu rachunek offsetu (CET +1 / CEST +2), nie wywołanie testowanej funkcji
+- [x] 2.4 Każda oczekiwana wartość ma w komentarzu rachunek offsetu (CET +1 / CEST +2), nie wywołanie testowanej funkcji — f1a1999
 
 ### Phase 3: Przejazdy byłych członków w statystykach (G1)
 
 #### Automated
 
-- [ ] 3.1 `npx supabase db reset` stosuje migrację bez błędów
-- [ ] 3.2 `npx supabase test db` przechodzi; `engagement_stats_boundaries.test.sql` nie zawiera `todo`
-- [ ] 3.3 Celowe zepsucie (usunięcie gałęzi `event_drivers` z kandydatów) daje czerwoną asercję X; po cofnięciu zielono
-- [ ] 3.4 `npm run lint` i `npx astro check` przechodzą
+- [x] 3.1 `npx supabase db reset` stosuje migrację bez błędów
+- [x] 3.2 `npx supabase test db` przechodzi; `engagement_stats_boundaries.test.sql` nie zawiera `todo`
+- [x] 3.3 Celowe zepsucie (usunięcie gałęzi `event_drivers` z kandydatów) daje czerwoną asercję X; po cofnięciu zielono
+- [x] 3.4 `npm run lint` i `npx astro check` przechodzą
 
 #### Manual
 
-- [ ] 3.5 Lokalnie: kierowca z zaliczonym przejazdem usunięty SQL-em z `group_members`; strona statystyk grupy nadal pokazuje jego przejazdy (jako „Członek grupy”, jeśli nie dzieli innej grupy)
+- [x] 3.5 Lokalnie: kierowca z zaliczonym przejazdem usunięty SQL-em z `group_members`; strona statystyk grupy nadal pokazuje jego przejazdy (jako „Członek grupy”, jeśli nie dzieli innej grupy)
 
 ### Phase 4: Statystyki bez zmian po usunięciach
 

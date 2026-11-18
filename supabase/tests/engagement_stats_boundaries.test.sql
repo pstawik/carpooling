@@ -5,21 +5,24 @@
 -- (inclusive); absence = explicit "not going" + no declaration.
 -- Fixtures (all inserted as postgres):
 --   G1: A (admin, parent of Ola and Kuba), B (member, parent of Zosia),
---   X (member, removed at the end of the fixture).
+--   X and Y (members, both removed at the end of the fixture).
 --   Events: P (now() - 1 day, past), N (now(), the boundary: already
 --   finished), F (now() + 1 second, future).
 --   Children: Ola created now() - 10 days; Zosia created exactly at P's
 --   start; Kuba created one second after P's start.
---   P: Ola and Zosia not going, Kuba no row (outside his range); B drives.
+--   P: Ola and Zosia not going, Kuba no row (outside his range); B and Y
+--   drive (no child went, so Y has 0 drives).
 --   N: Ola going, Zosia and Kuba no declaration; A and X drive.
 --   F: Ola and Zosia going; A and B drive.
+-- After the removal X (1 counted drive on N) stays listed and Y (0 counted
+-- drives) does not.
 -- The test runs in one transaction, so now() is constant throughout: N starts
 -- exactly at the now() the stats functions and the removal trigger see.
 begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(4);
+select plan(5);
 
 -- ---------------------------------------------------------------------------
 -- Fixtures (as postgres)
@@ -35,7 +38,10 @@ values
    '{"first_name": "Bartek", "nick": "Tata Zosi"}'::jsonb),
   ('00000000-0000-0000-0000-0000000000f1', '00000000-0000-0000-0000-000000000000',
    'authenticated', 'authenticated', 'x@example.com',
-   '{"first_name": "Xawery", "nick": "Były kierowca"}'::jsonb);
+   '{"first_name": "Xawery", "nick": "Były kierowca"}'::jsonb),
+  ('00000000-0000-0000-0000-0000000000f2', '00000000-0000-0000-0000-000000000000',
+   'authenticated', 'authenticated', 'y@example.com',
+   '{"first_name": "Yvonne", "nick": "Była bez przejazdów"}'::jsonb);
 
 insert into public.groups (id, name) values
   ('10000000-0000-0000-0000-000000000001', 'G1');
@@ -43,7 +49,8 @@ insert into public.groups (id, name) values
 insert into public.group_members (group_id, user_id, role) values
   ('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-0000000000a1', 'admin'),
   ('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-0000000000b1', 'member'),
-  ('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-0000000000f1', 'member');
+  ('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-0000000000f1', 'member'),
+  ('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-0000000000f2', 'member');
 
 -- Zosia is added exactly when P starts, Kuba one second later.
 insert into public.children (id, group_id, parent_id, name, created_at) values
@@ -76,10 +83,12 @@ insert into public.child_attendance (event_id, child_id, group_id, going) values
   ('e0000000-0000-0000-0000-000000000003', 'c0000000-0000-0000-0000-0000000000b1',
    '10000000-0000-0000-0000-000000000001', true);
 
--- P: B drives. N: A and X drive. F: A and B drive.
+-- P: B and Y drive. N: A and X drive. F: A and B drive.
 insert into public.event_drivers (event_id, user_id, group_id, seats) values
   ('e0000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-0000000000b1',
    '10000000-0000-0000-0000-000000000001', 3),
+  ('e0000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-0000000000f2',
+   '10000000-0000-0000-0000-000000000001', 2),
   ('e0000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-0000000000a1',
    '10000000-0000-0000-0000-000000000001', 3),
   ('e0000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-0000000000f1',
@@ -89,11 +98,12 @@ insert into public.event_drivers (event_id, user_id, group_id, seats) values
   ('e0000000-0000-0000-0000-000000000003', '00000000-0000-0000-0000-0000000000b1',
    '10000000-0000-0000-0000-000000000001', 2);
 
--- X leaves G1. N has already started (starts_at = now() is not > now()), so
--- the removal trigger keeps X's driver row on N.
+-- X and Y leave G1. N (starts_at = now() is not > now()) and P have already
+-- started, so the removal trigger keeps X's driver row on N and Y's on P.
 delete from public.group_members
   where group_id = '10000000-0000-0000-0000-000000000001'
-    and user_id = '00000000-0000-0000-0000-0000000000f1';
+    and user_id in ('00000000-0000-0000-0000-0000000000f1',
+                    '00000000-0000-0000-0000-0000000000f2');
 
 select results_eq(
   $$select event_id from public.event_drivers
@@ -141,16 +151,23 @@ select results_eq(
   'child stats: range includes an event starting at created_at, excludes one before it, includes the event at now()'
 );
 
--- X drove on N (Ola going) before leaving -> 1 drive. Former members are
--- not listed yet; the PRD (Access Control) keeps them in the statistics.
-select todo('faza 2 planu testów: byli członkowie zostają w statystykach (PRD Access Control)', 1);
-
+-- X drove on N (Ola going) before leaving -> 1 drive; the PRD (Access
+-- Control) keeps declarations of finished events in the statistics.
 select results_eq(
   $$select user_id, drives
     from public.group_driver_stats('10000000-0000-0000-0000-000000000001')
     where user_id = '00000000-0000-0000-0000-0000000000f1'$$,
   $$values ('00000000-0000-0000-0000-0000000000f1'::uuid, 1)$$,
   'driver stats: the former member X stays listed with 1 drive'
+);
+
+-- Y drove only on P (no child went) before leaving -> 0 drives, so the former
+-- member Y is not listed.
+select is_empty(
+  $$select user_id
+    from public.group_driver_stats('10000000-0000-0000-0000-000000000001')
+    where user_id = '00000000-0000-0000-0000-0000000000f2'$$,
+  'driver stats: the former member Y with 0 drives is not listed'
 );
 
 reset role;
