@@ -331,22 +331,22 @@ Migracja dodaje tylko funkcję i trigger. Nie zmienia istniejących danych: wier
 
 #### Automated
 
-- [x] 2.1 `npx supabase db reset` stosuje migrację bez błędów
-- [x] 2.2 `npx supabase test db` przechodzi, łącznie z `member_removal_declarations.test.sql` i dotychczasowymi plikami
-- [x] 2.3 Celowe zepsucie (`starts_at > now()` → `starts_at >= now()` w triggerze) daje czerwoną asercję dla terminu S; po cofnięciu zielono
-- [x] 2.4 `npm run lint` i `npx astro check` przechodzą
+- [x] 2.1 `npx supabase db reset` stosuje migrację bez błędów — 721a6f2
+- [x] 2.2 `npx supabase test db` przechodzi, łącznie z `member_removal_declarations.test.sql` i dotychczasowymi plikami — 721a6f2
+- [x] 2.3 Celowe zepsucie (`starts_at > now()` → `starts_at >= now()` w triggerze) daje czerwoną asercję dla terminu S; po cofnięciu zielono — 721a6f2
+- [x] 2.4 `npm run lint` i `npx astro check` przechodzą — 721a6f2
 
 #### Manual
 
-- [x] 2.5 Lokalnie: kierowca na przyszłym terminie usunięty SQL-em z `group_members`; po odświeżeniu planu terminu jego miejsca znikają z bilansu i pojawia się ostrzeżenie o niedoborze, gdy miejsc jest za mało
+- [x] 2.5 Lokalnie: kierowca na przyszłym terminie usunięty SQL-em z `group_members`; po odświeżeniu planu terminu jego miejsca znikają z bilansu i pojawia się ostrzeżenie o niedoborze, gdy miejsc jest za mało — 721a6f2
 
 ### Phase 3: Statystyki na granicach
 
 #### Automated
 
-- [ ] 3.1 `npx supabase test db` przechodzi; nowy plik raportuje test `todo` jako oczekiwaną porażkę, bez czerwieni
-- [ ] 3.2 Celowe zepsucie (`e.starts_at <= now()` → `e.starts_at < now()` w `group_child_stats`, w lokalnej kopii funkcji w transakcji testu albo w roboczej migracji) daje czerwone asercje dla N; po cofnięciu zielono
-- [ ] 3.3 Celowe zepsucie zakresu (`>=` → `>` przy `created_at`) daje czerwoną asercję Zosi; po cofnięciu zielono
+- [x] 3.1 `npx supabase test db` przechodzi; nowy plik raportuje test `todo` jako oczekiwaną porażkę, bez czerwieni
+- [x] 3.2 Celowe zepsucie (`e.starts_at <= now()` → `e.starts_at < now()` w `group_child_stats`, w lokalnej kopii funkcji w transakcji testu albo w roboczej migracji) daje czerwone asercje dla N; po cofnięciu zielono
+- [x] 3.3 Celowe zepsucie zakresu (`>=` → `>` przy `created_at`) daje czerwoną asercję Zosi; po cofnięciu zielono
 
 ### Phase 4: Dokumentacja
 
