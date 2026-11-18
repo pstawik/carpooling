@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
+import { submitClass } from "@/components/groups/group-page-classes";
 
 interface SubmitButtonProps {
   pending: boolean;
@@ -10,14 +11,10 @@ interface SubmitButtonProps {
 
 export function SubmitButton({ pending, pendingText, icon, children }: SubmitButtonProps) {
   return (
-    <Button
-      type="submit"
-      disabled={pending}
-      className="h-auto min-h-11 w-full rounded-lg bg-purple-600 px-4 py-2 font-medium text-white transition-colors hover:bg-purple-500"
-    >
+    <Button type="submit" disabled={pending} className={submitClass}>
       {pending ? (
         <span className="flex items-center gap-2">
-          <span className="size-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+          <span className="border-primary-foreground/30 border-t-primary-foreground size-4 animate-spin rounded-full border-2" />
           {pendingText}
         </span>
       ) : (

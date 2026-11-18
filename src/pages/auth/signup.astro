@@ -1,38 +1,41 @@
 ---
+import { Info } from "lucide-react";
 import Layout from "@/layouts/Layout.astro";
 import SignUpForm from "@/components/auth/SignUpForm";
+import { cardClass, hintLinkClass } from "@/components/groups/group-page-classes";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Card } from "@/components/ui/card";
 import { authErrorMessage } from "@/lib/services/auth-errors";
 import { optionalInviteToken } from "@/lib/validation/invites";
+import { cn } from "@/lib/utils";
 
 const error = authErrorMessage(Astro.url.searchParams.get("error"));
 // Only a well-formed token is carried on; anything else is dropped silently.
 const invite = optionalInviteToken(Astro.url.searchParams.get("invite"));
+
+// A signed-in user has nothing to do here: send them on, to the invite when they came with one.
+if (Astro.locals.user) {
+  return Astro.redirect(invite ? `/join/${invite}` : "/dashboard");
+}
 ---
 
 <Layout title="Rejestracja">
   <div class="bg-cosmic flex min-h-screen items-center justify-center p-4">
-    <div class="w-full max-w-sm rounded-2xl border border-white/10 bg-white/10 p-6 text-white backdrop-blur-xl sm:p-8">
-      <h1 class="mb-6 bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-center text-2xl font-bold text-transparent">
-        Rejestracja
-      </h1>
+    <Card className={cn(cardClass, "mb-0 w-full max-w-sm")}>
+      <h1 class="text-foreground mb-6 text-center text-2xl font-bold">Rejestracja</h1>
       {invite && (
-        <p
-          class="mb-4 rounded-lg border border-blue-300/30 bg-blue-900/30 px-3 py-2 text-sm text-blue-100"
-          role="status"
-        >
-          Po rejestracji dołączysz do grupy.
-        </p>
+        <Alert role="status" className="mb-4">
+          <Info />
+          <AlertDescription className="break-words">Po rejestracji dołączysz do grupy.</AlertDescription>
+        </Alert>
       )}
       <SignUpForm serverError={error} invite={invite} client:load />
-      <p class="mt-4 text-center text-sm text-blue-100/60">
+      <p class="text-muted-foreground mt-4 text-center text-sm">
         Masz już konto?{" "}
-        <a
-          href={invite ? `/auth/signin?invite=${invite}` : "/auth/signin"}
-          class="inline-flex min-h-11 items-center text-purple-300 hover:underline"
-        >
+        <a href={invite ? `/auth/signin?invite=${invite}` : "/auth/signin"} class:list={hintLinkClass}>
           Zaloguj się
         </a>
       </p>
-    </div>
+    </Card>
   </div>
 </Layout>

@@ -49,6 +49,8 @@ const readonlySteps = [
     () => request(`/groups/${randomUUID()}`),
     { status: 302, location: "/auth/signin" },
   ],
+  ["signin page renders for anonymous user", () => request("/auth/signin"), { status: 200 }],
+  ["signup page renders for anonymous user", () => request("/auth/signup"), { status: 200 }],
   // 24 random bytes in url-safe base64: a well-formed token that matches no group.
   ["unknown invite link renders 404", () => request(`/join/${randomBytes(24).toString("base64url")}`), { status: 404 }],
 ];
@@ -224,6 +226,8 @@ const writeSteps = [
     () => request("/api/auth/signup", { method: "POST", form: { ...profile, email, password } }),
     { status: 302, location: "/dashboard" },
   ],
+  ["signin page redirects signed-in user", () => request("/auth/signin"), { status: 302, locationExact: "/dashboard" }],
+  ["signup page redirects signed-in user", () => request("/auth/signup"), { status: 302, locationExact: "/dashboard" }],
   [
     "dashboard shows profile nick",
     () => request("/dashboard", { readBody: true }),

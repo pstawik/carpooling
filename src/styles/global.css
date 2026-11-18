@@ -23,6 +23,11 @@
   /* Success role; source: context/changes/event-plan-ui/tokens.md */
   --success: oklch(0.627 0.194 149.214);
   --success-foreground: oklch(0.985 0 0);
+  /* Autofill role; source: context/changes/auth-signin-ui/tokens.md */
+  --autofill: oklch(0.94 0.04 302.321);
+  --autofill-foreground: oklch(0.145 0 0);
+  /* Shared by both autofill rules in the base layer; resolves --autofill from .dark on <html>. */
+  --autofill-shadow: inset 0 0 0 1000px var(--autofill);
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
   --ring: oklch(0.708 0 0);
@@ -63,6 +68,9 @@
   /* Success role; source: context/changes/event-plan-ui/tokens.md */
   --success: oklch(0.792 0.209 151.711);
   --success-foreground: oklch(0.145 0 0);
+  /* Autofill role; source: context/changes/auth-signin-ui/tokens.md */
+  --autofill: oklch(0.36 0.12 302.321);
+  --autofill-foreground: oklch(1 0 0);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 20%);
   --ring: oklch(0.714 0.203 305.504);
@@ -104,6 +112,8 @@
   --color-destructive: var(--destructive);
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
+  --color-autofill: var(--autofill);
+  --color-autofill-foreground: var(--autofill-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -133,5 +143,22 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+  /* Autofill: browsers ignore background-color here, so an opaque inset shadow covers the UA fill.
+     --tw-inset-shadow keeps it under shadow and ring utilities (they compose it into box-shadow);
+     plain box-shadow covers inputs without them. data-autofill-preview shows the state in the kitchen sink.
+     Separate rules: one unsupported pseudo-class would drop a whole selector list. No :-webkit-autofill:
+     Tailwind's browser targets support :autofill, and the build drops the prefixed form anyway. */
+  input:autofill {
+    --tw-inset-shadow: var(--autofill-shadow);
+    box-shadow: var(--autofill-shadow);
+    -webkit-text-fill-color: var(--autofill-foreground);
+    caret-color: var(--autofill-foreground);
+  }
+  input[data-autofill-preview] {
+    --tw-inset-shadow: var(--autofill-shadow);
+    box-shadow: var(--autofill-shadow);
+    -webkit-text-fill-color: var(--autofill-foreground);
+    caret-color: var(--autofill-foreground);
   }
 }

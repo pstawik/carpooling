@@ -21,6 +21,15 @@ const CLEANED_VIEWS = [
   "src/pages/dev/ui-stats.astro",
   "src/pages/dashboard.astro",
   "src/pages/dev/ui-dashboard.astro",
+  "src/pages/auth/signin.astro",
+  "src/pages/auth/signup.astro",
+  "src/components/auth/FormField.tsx",
+  "src/components/auth/PasswordToggle.tsx",
+  "src/components/auth/ServerError.tsx",
+  "src/components/auth/SignInForm.tsx",
+  "src/components/auth/SignUpForm.tsx",
+  "src/components/auth/SubmitButton.tsx",
+  "src/pages/dev/ui-auth.astro",
 ];
 
 // The /10x-ui hardcoded-value scan, widened: side borders, ring-offset, placeholder/caret/accent/decoration,
