@@ -372,21 +372,21 @@ N/A — brak zmian danych.
 
 #### Automated
 
-- [x] 4.1 Hardcoded-value scan na `src/pages/dev/ui-auth.astro` zwraca 0 trafień
-- [x] 4.2 `npm run lint` przechodzi
-- [x] 4.3 `npx astro check` przechodzi bez błędów
-- [x] 4.4 `npm run build` przechodzi, a `/dev/ui-auth` w buildzie produkcyjnym odpowiada 404
+- [x] 4.1 Hardcoded-value scan na `src/pages/dev/ui-auth.astro` zwraca 0 trafień — 2d0302a
+- [x] 4.2 `npm run lint` przechodzi — 2d0302a
+- [x] 4.3 `npx astro check` przechodzi bez błędów — 2d0302a
+- [x] 4.4 `npm run build` przechodzi, a `/dev/ui-auth` w buildzie produkcyjnym odpowiada 404 — 2d0302a
 
 #### Manual
 
-- [x] 4.5 `/dev/ui-auth` pokazuje 7 stanów + autouzupełniony + komunikaty; zrzuty na desktopie i 360 px
-- [x] 4.6 Pole w stanie autouzupełnionym w sinku wygląda tak samo jak prawdziwe autouzupełnione pole na `/auth/signin`
+- [x] 4.5 `/dev/ui-auth` pokazuje 7 stanów + autouzupełniony + komunikaty; zrzuty na desktopie i 360 px — 2d0302a
+- [x] 4.6 Pole w stanie autouzupełnionym w sinku wygląda tak samo jak prawdziwe autouzupełnione pole na `/auth/signin` — 2d0302a
 
 ### Phase 5: Strażnik
 
 #### Automated
 
-- [ ] 5.1 `npm run lint` przechodzi (w tym `check-ui-literals: 0 hits in 22 files`)
-- [ ] 5.2 `npx astro check` przechodzi bez błędów
-- [ ] 5.3 `npm run build` przechodzi
-- [ ] 5.4 `npm run smoke` przechodzi na uruchomionym serwerze
+- [x] 5.1 `npm run lint` przechodzi (w tym `check-ui-literals: 0 hits in 22 files`)
+- [x] 5.2 `npx astro check` przechodzi bez błędów
+- [x] 5.3 `npm run build` przechodzi
+- [x] 5.4 `npm run smoke` przechodzi na uruchomionym serwerze
