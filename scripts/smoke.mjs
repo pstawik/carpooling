@@ -61,6 +61,8 @@ const profile = { first_name: "Rodzic", nick: "Smoke", phone: "600 123 456" };
 const adminEmail = process.env.SMOKE_ADMIN_EMAIL ?? "admin@example.com";
 const adminPassword = process.env.SMOKE_ADMIN_PASSWORD ?? "Admin-Passw0rd!";
 const groupName = `Smoke ${Date.now()}`;
+// A valid group form sent by a non-admin and anonymously; it must get 404 and never create a group.
+const probeGroupName = `Smoke probe ${Date.now()}`;
 // A second account that is in no group, to prove isolation.
 const strangerEmail = `smoke-stranger-${Date.now()}@example.com`;
 // A brand-new account that signs up straight from the invite link.
@@ -246,8 +248,23 @@ const writeSteps = [
   ],
   ["dashboard renders for signed-in user", () => request("/dashboard"), { status: 200 }],
   ["regular user gets 404 on admin groups", () => request("/admin/groups"), { status: 404 }],
+  [
+    "regular user gets 404 creating a group",
+    () => request("/api/admin/groups", { method: "POST", form: { name: probeGroupName, admin_emails: email } }),
+    { status: 404 },
+  ],
+  [
+    "regular user gets 404 adding a group admin",
+    () => request("/api/admin/groups/admins", { method: "POST", form: { group_id: randomUUID(), email } }),
+    { status: 404 },
+  ],
   ["signout clears session", () => request("/api/auth/signout", { method: "POST" }), { status: 302, location: "/" }],
   ["dashboard redirects after signout", () => request("/dashboard"), { status: 302, location: "/auth/signin" }],
+  [
+    "anonymous user gets 404 creating a group",
+    () => request("/api/admin/groups", { method: "POST", form: { name: probeGroupName, admin_emails: email } }),
+    { status: 404 },
+  ],
   [
     "seed app admin signs in",
     () => request("/api/auth/signin", { method: "POST", form: { email: adminEmail, password: adminPassword } }),
@@ -271,6 +288,11 @@ const writeSteps = [
     "admin groups page lists the new group",
     () => request("/admin/groups", { readBody: true }),
     { status: 200, contains: groupName },
+  ],
+  [
+    "admin groups page does not list the probe group",
+    () => request("/admin/groups", { readBody: true }),
+    { status: 200, notContains: probeGroupName },
   ],
   ["admin signs out", () => request("/api/auth/signout", { method: "POST" }), { status: 302, location: "/" }],
   [
