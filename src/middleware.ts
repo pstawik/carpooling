@@ -1,8 +1,20 @@
 import { defineMiddleware } from "astro:middleware";
+import { authErrorLogFields, classifyAuthError } from "@/lib/auth-error";
 import { createClient } from "@/lib/supabase";
 import type { Profile } from "@/types";
 
 const PROTECTED_ROUTES = ["/dashboard", "/admin", "/groups"];
+
+function isProtectedRoute(pathname: string) {
+  return PROTECTED_ROUTES.some((route) => pathname.startsWith(route));
+}
+
+function serviceUnavailable() {
+  return new Response("Usługa chwilowo niedostępna", {
+    status: 503,
+    headers: { "Retry-After": "30", "Content-Type": "text/plain; charset=utf-8" },
+  });
+}
 
 // Pages that render app-admin-only UI; every other path skips the is_app_admin lookup.
 function needsAppAdminFlag(pathname: string) {
@@ -19,8 +31,23 @@ export const onRequest = defineMiddleware(async (context, next) => {
   if (supabase) {
     const {
       data: { user },
+      error: authError,
     } = await supabase.auth.getUser();
     context.locals.user = user ?? null;
+
+    const authErrorClass = classifyAuthError(authError);
+    if (authErrorClass === "session_rejected") {
+      // eslint-disable-next-line no-console -- surfaces in Cloudflare Worker logs
+      console.warn("auth session rejected:", authErrorLogFields(authError, context.url.pathname));
+    } else if (authErrorClass === "outage") {
+      // eslint-disable-next-line no-console -- surfaces in Cloudflare Worker logs
+      console.error("auth getUser failed:", authErrorLogFields(authError, context.url.pathname));
+      // An Auth outage must not look like a sign-out: API calls and protected pages get a 503.
+      // Public pages carry on with user = null.
+      if (context.url.pathname.startsWith("/api/") || isProtectedRoute(context.url.pathname)) {
+        return serviceUnavailable();
+      }
+    }
 
     // API endpoints never render the profile; skip the extra round trip there.
     if (user && !context.url.pathname.startsWith("/api/")) {
@@ -48,7 +75,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     }
   }
 
-  if (PROTECTED_ROUTES.some((route) => context.url.pathname.startsWith(route))) {
+  if (isProtectedRoute(context.url.pathname)) {
     if (!context.locals.user) {
       return context.redirect("/auth/signin");
     }
