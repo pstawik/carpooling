@@ -6,7 +6,7 @@
 >
 > Refresh: re-run `/10x-test-plan --refresh` when stale (see §8).
 >
-> Last updated: 2026-11-18
+> Last updated: 2026-11-19
 
 ## 1. Strategy
 
@@ -54,7 +54,7 @@ Cloudflare) należą do obserwowalności, nie do testów — poza tą mapą.
 | #1 | Przy liczbie dzieci „jedzie” większej niż suma miejsc plan zawsze pokazuje ostrzeżenie o niedoborze; dzieci bez deklaracji nie zwiększają zapotrzebowania, ale są oznaczone; kierowca usunięty z grupy nie dokłada miejsc | „Bilans = suma po wszystkich wierszach” — wiersze byłych członków i wycofane deklaracje nie mogą się liczyć | Gdzie liczony jest bilans (SQL czy TS), jakie wiersze wchodzą do sumy, jak traktowane są deklaracje byłych członków | pgTAP lub unit (zależnie od miejsca logiki) | Oczekiwana wartość przepisana ze wzoru w kodzie (problem wyroczni) — liczby mają pochodzić z ręcznie policzonych przykładów wg PRD |
 | #2 | Po usunięciu dziecka, terminu lub członka deklaracje i statystyki zakończonych terminów pozostają bez zmian; znikają tylko deklaracje przyszłych terminów | „Kaskada jest w porządku, bo przyszłe deklaracje i tak trzeba usunąć” — PRD wymaga zachowania zakończonych | Reguły usuwania (kaskady, ograniczenia) dla dzieci, terminów, członkostwa; czy obecne zachowanie to świadomy kompromis do rozstrzygnięcia | pgTAP integration | Test zatwierdzający obecne zachowanie zamiast wymagania PRD; liczniki zakładające pustą bazę |
 | #3 | Dla każdej tabeli × operacji × roli (spoza grupy, członek innej grupy, członek tej grupy nie-właściciel, właściciel, admin grupy, admin aplikacji) dostęp jest dokładnie taki, jak w PRD; każda tabela ma włączony RLS; po regeneracji stary link nie działa | „Zalogowany = uprawniony”; „przetestowany SELECT = UPDATE/DELETE też szczelne” | Lista tabel i polityk per operacja, funkcje `security definer`, granty, istniejące pokrycie w `supabase/tests/` | pgTAP + strażnik katalogowy RLS | Tylko ścieżka szczęśliwa; liczenie wszystkich wierszy przy niepustej bazie; kopiowanie warunku polityki do asercji |
-| #4 | Zapis deklaracji dziecka i kierowcy przechodzi sekundę przed startem i jest odrzucany od chwili startu, także w dniach zmiany czasu i dla godzin w czasie lokalnym grupy | „Zegar serwera w UTC = czas terminu”; „zablokowany przycisk w UI = blokada” | Jak przechowywany jest start (typ, strefa), który zegar egzekwuje blokadę (baza czy Worker), odpowiedź na pytanie #14 z roadmapy | pgTAP z kontrolowanym czasem | Testy oparte o bieżący `now()` (niestabilne); sprawdzanie wyłącznie stanu UI |
+| #4 | Zapis deklaracji dziecka i kierowcy przechodzi sekundę przed startem i jest odrzucany od chwili startu, także w dniach zmiany czasu i dla godzin w czasie lokalnym grupy | „Zegar serwera w UTC = czas terminu”; „zablokowany przycisk w UI = blokada” | Jak przechowywany jest start (typ, strefa), który zegar egzekwuje blokadę (baza czy Worker), gdzie odbywa się konwersja strefy (pytanie #14 z roadmapy rozstrzygnięte: Europe/Warsaw) | granica startu: pgTAP ze stałym `now()` w transakcji (`starts_at = now()` vs `now() + 1 s`); strefa i zmiana czasu: unit (Vitest) na czystych funkcjach konwersji | Testy zależne od zegara ściennego (`Date.now()`, przesunięcia względem bieżącej godziny); sprawdzanie wyłącznie stanu UI |
 | #5 | Gdy zapytanie lub RPC zwróci błąd, a wejście jest złośliwe lub brzegowe (zły format, rok poza zakresem, puste ciało), użytkownik dostaje jawny komunikat błędu (4xx lub przekierowanie z błędem), nigdy 500 ani komunikat sukcesu | „Końcowe 302 = sukces” | Mapowanie błędów RPC na komunikaty, schematy zod na granicy API, zachowanie stron przy błędzie zapytania | unit (mapowanie, zod) + kroki smoke | Mockowanie wnętrza klienta Supabase; asercja tylko na kod statusu bez sprawdzenia celu przekierowania i stanu danych |
 | #6 | Dla zestawu zakończonych i niezakończonych terminów statystyki zwracają liczby zgodne z ręcznie policzonym przykładem: nieobecność = jawne „nie jedzie” + brak deklaracji, przejazdy kierowcy tylko z zakończonych terminów | „Zakończony = data w przeszłości wg zegara Workera” | Gdzie liczone są statystyki, która definicja „zakończony” obowiązuje, jak traktowani są byli członkowie | pgTAP | Lustrzane odbicie implementacji; fixture bez dzieci bez deklaracji i bez terminów na granicy |
 
@@ -67,16 +67,16 @@ aktualizuje go, gdy na dysku pojawiają się artefakty.
 | # | Phase name | Goal (one line) | Risks covered | Test types | Status | Change folder |
 |---|------------|-----------------|---------------|------------|--------|---------------|
 | 1 | Bilans i statystyki na danych granicznych | Udowodnić, że ostrzeżenie o niedoborze i statystyki są zgodne z ręcznie policzonymi przykładami z PRD | #1, #6 | pgTAP lub unit (bootstrap Vitest, jeśli logika jest w TS) | complete | context/archive/2026-11-18-testing-seat-balance-stats/ |
-| 2 | Trwałość historii i granica startu terminu | Udowodnić, że usunięcia nie zmieniają zakończonych terminów, a blokada działa dokładnie od chwili startu | #2, #4 | pgTAP z kontrolowanym czasem | change opened | context/changes/testing-history-durability-start-boundary/ |
-| 3 | Macierz izolacji RLS | Udowodnić izolację grup i własności deklaracji dla każdej tabeli, operacji i roli oraz wymusić RLS na nowych tabelach | #3 | pgTAP + strażnik katalogowy | not started | — |
-| 4 | Ścieżki błędów i walidacja wejścia w API | Udowodnić, że błędy backendu i złe wejście dają jawny błąd, nie 500 ani pozorny sukces | #5 | unit + smoke | not started | — |
+| 2 | Trwałość historii i granica startu terminu | Udowodnić, że usunięcia nie zmieniają zakończonych terminów, a blokada działa dokładnie od chwili startu | #2, #4 | pgTAP z kontrolowanym czasem | complete | context/archive/2026-11-18-testing-history-durability-start-boundary/ |
+| 3 | Macierz izolacji RLS | Udowodnić izolację grup i własności deklaracji dla każdej tabeli, operacji i roli oraz wymusić RLS na nowych tabelach | #3 | pgTAP + strażnik katalogowy | planned | context/changes/testing-rls-isolation-matrix/ |
+| 4 | Ścieżki błędów i walidacja wejścia w API | Udowodnić, że błędy backendu i złe wejście dają jawny błąd, nie 500 ani pozorny sukces; w smoke także F9: zwykły zalogowany użytkownik POST `/api/admin/groups` → 404 (`archive/2026-11-10-app-admin-creates-group/follow-ups/review-fixes.md:10`) | #5 | unit + smoke | not started | — |
 | 5 | Bramki jakości | Wpiąć nowe testy w CI i hook po edycji, żeby podłoga nie spadła | cross-cutting | gates, post-edit hook | not started | — |
 
 ## 4. Stack
 
 | Layer | Tool | Version | Notes |
 |-------|------|---------|-------|
-| DB integration (RLS, reguły, statystyki) | pgTAP przez `supabase test db` | Supabase CLI (lokalny stack) | 10 plików w `supabase/tests/`; uruchamiane w CI |
+| DB integration (RLS, reguły, statystyki) | pgTAP przez `supabase test db` | Supabase CLI (lokalny stack) | 14 plików w `supabase/tests/`; uruchamiane w CI |
 | HTTP smoke | `scripts/smoke.mjs` (Node) | n/a | przepływy auth i zapisów na działającym serwerze; uruchamiany w CI |
 | unit (TS) | Vitest przez `npm test` (`vitest run`) | 5.1.0 | czyste funkcje z `src/lib/`; `src/**/*.test.ts`, środowisko `node`, `vitest.config.ts` niezależny od `astro.config.mjs` (bez workerd); uruchamiany w CI (job `ci`) |
 | e2e | none — świadomie | — | żadne ryzyko z §2 nie wymaga przeglądarki |
@@ -97,7 +97,7 @@ aktualizuje go, gdy na dysku pojawiają się artefakty.
 | build | CI | required | błędy budowania Workera |
 | smoke (`npm run smoke`) | CI | required | zepsute przepływy HTTP |
 | unit (TS, `npm test`) | local + CI | required (aktywna od §3 Phase 1) | regresje logiki i mapowania błędów |
-| strażnik RLS na każdej tabeli | CI (w pgTAP) | required after §3 Phase 3 | tabela bez RLS lub bez polityk |
+| strażnik RLS na każdej tabeli | CI (w pgTAP) | required (aktywna od §3 Phase 3) | tabela bez RLS lub bez polityk |
 | post-edit hook | local (agent loop) | recommended after §3 Phase 5 | regresje w chwili edycji |
 
 ## 6. Cookbook Patterns
@@ -174,7 +174,59 @@ odpowiednia faza zostanie wdrożona; wcześniej brzmi „TBD — see §3 Phase N
 
 ### 6.3 Test polityki RLS dla nowej tabeli
 
-- TBD — see §3 Phase 3 (wzorzec: macierz rola × operacja, niezależność od zawartości bazy).
+- **Wyrocznia**: PRD (§Guardrails „Izolacja danych grup”, §Access Control
+  „Zasady”) — nigdy warunek polityki przepisany do asercji. Oczekiwanie to
+  dosłowne id z fixture'a plus „widzi / nie widzi nic / 42501”. Komórka, w
+  której PRD milczy („?”), asertuje decyzję z archiwum z cytatem w opisie.
+  Format opisu asercji:
+  `'<rola> <operacja> <tabela>: <oczekiwanie> (PRD :NN | decyzja: <plik>)'`
+  (ścieżki względem `context/`).
+- **Tabela ról na fixture'ach**: `anon` (niezalogowany), O (zalogowany, bez
+  grupy), C (admin innej grupy), X (admin aplikacji, nie członek), M (członek
+  bez praw do cudzych wierszy), A (admin grupy działający na wierszach B),
+  B (właściciel: rodzic, kierowca, deklarujący), F (były członek). Każda rola
+  to użytkownik z fixture'a; plik ma własne prefiksy UUID (`5a` użytkownicy,
+  `5b` grupy, `5c` dzieci, `5e` terminy) i e-maile `rlsm-<rola>@example.test`.
+  Nagłówek pliku zawiera tabelę pokrycia tabela/operacja × rola.
+- **Każda operacja osobno**: S, I, U i D asertowane oddzielnie dla każdej
+  roli — odmowa SELECT nic nie mówi o UPDATE ani DELETE.
+- **Odmowa + stan**: UPDATE/DELETE odfiltrowany przez RLS →
+  `is_empty(… returning …)`, potem po `reset role`, jako postgres, sprawdź,
+  że wiersz z fixture'a jest bez zmian. Brak uprawnienia lub nieudany
+  `WITH CHECK` → `throws_ok(…, '42501')`. Gdy funkcja ma własne wewnętrzne
+  sprawdzenie zwracające 42501, przypnij warstwę grantów komunikatem błędu
+  (np. `'permission denied for function admin_list_groups'`) — celowe
+  zepsucie grantu pokazało, że bez komunikatu macierz zostaje zielona.
+- **Brak liczenia tabel**: każde zapytanie zawężone do id z fixture'a;
+  żadna tabela nie jest liczona w całości, więc test nie zależy od
+  zawartości bazy.
+- **Strażnik katalogowy**: `rls_catalog_guard.test.sql` czyta katalogi
+  systemowe, nie listę tabel. Pięć sprawdzeń (funkcje naruszeń w
+  `pg_temp`): RLS na każdej tabeli `public`; co najmniej jedna polityka
+  (allow-lista: `app_admins`); żadnej polityki dla `public`/`anon`; każda
+  funkcja `security definer` przypina `search_path`; `anon` ma EXECUTE tylko
+  na allow-liście (`invite_group_name(text)`). Na końcu sonda tworzy w
+  wycofywanej transakcji celowo zepsute obiekty i dowodzi, że każde
+  sprawdzenie je wykrywa.
+- **Nowa tabela → wiersz w macierzy + strażnik musi przejść**:
+  1. migracja z włączonym RLS i politykami per operacja i rola (AGENTS.md);
+  2. strażnik musi przejść — tabela celowo bez polityk trafia na allow-listę
+     z uzasadnieniem; nowa funkcja wywoływalna przez `anon` trafia na
+     allow-listę `anon` z uzasadnieniem;
+  3. w macierzy nowa sekcja: wszystkie role × S/I/U/D, aktualizacja tabeli
+     pokrycia w nagłówku i `plan(N)`;
+  4. dowód celowym zepsuciem: poluzuj politykę w tymczasowej migracji,
+     `npx supabase db reset`, potwierdź czerwień oczekiwanej asercji, usuń
+     migrację i ponów `db reset`.
+- **Granty**: RLS nie zastępuje grantów kolumn — np.
+  `20261118140000_harden_children_insert_and_anon_profiles.sql` zawęża
+  INSERT na `children` do `id, group_id, parent_id, name` i odbiera `anon`
+  SELECT na `profiles`. Skutek: nowa kolumna, którą klient ma ustawiać
+  (w `children`, `child_attendance`, `event_drivers` — wszystkie mają INSERT
+  per kolumna), wymaga w tej samej migracji jawnego `grant insert (<kolumna>)`
+  oraz asercji `has_column_privilege` w teście tabeli.
+- **Wzorce**: `supabase/tests/rls_isolation_matrix.test.sql` (macierz),
+  `supabase/tests/rls_catalog_guard.test.sql` (strażnik).
 
 ### 6.4 Test endpointu API (błędy i wejście)
 
@@ -216,7 +268,7 @@ odpowiednia faza zostanie wdrożona; wcześniej brzmi „TBD — see §3 Phase N
   do FR-007 w roadmapie (bez zapisanej chwili usunięcia nie ma wyroczni).
   Do backportu w `/10x-test-plan`: dla ryzyka #4 warstwa strefy/DST to
   Vitest, a „kontrolowany czas” w pgTAP to stałe `now()` w transakcji
-  (§2 Risk Response Guidance).
+  (§2 Risk Response Guidance) — wprowadzone 2026-11-18.
 
 ## 7. What We Deliberately Don't Test
 

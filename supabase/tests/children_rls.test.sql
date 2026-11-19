@@ -6,7 +6,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(43);
+select plan(45);
 
 -- ---------------------------------------------------------------------------
 -- Schema and privileges
@@ -69,6 +69,12 @@ select is(
   'authenticated may not UPDATE children.parent_id'
 );
 
+select is(
+  has_column_privilege('authenticated', 'public.children', 'created_at', 'insert'),
+  false,
+  'authenticated may not INSERT children.created_at'
+);
+
 -- ---------------------------------------------------------------------------
 -- Fixtures (as postgres)
 -- ---------------------------------------------------------------------------
@@ -127,6 +133,13 @@ select throws_ok(
   $$insert into public.children (group_id, parent_id, name)
     values ('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-0000000000a1', '   ')$$,
   '23514', null, 'a blank name violates children_name_length'
+);
+
+select throws_ok(
+  $$insert into public.children (group_id, parent_id, name, created_at)
+    values ('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-0000000000a1',
+            'Zuza', now() - interval '1 year')$$,
+  '42501', null, 'A cannot set created_at on their own child (statistics range)'
 );
 
 select results_eq(
