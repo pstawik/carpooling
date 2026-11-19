@@ -414,21 +414,21 @@ public.children to authenticated` i `grant select on public.profiles to anon`.
 
 #### Automated
 
-- [x] 4.1 `npx supabase test db` przechodzi
-- [x] 4.2 Pozycje F9 1–3 mają odpowiadające asercje w pliku macierzy
+- [x] 4.1 `npx supabase test db` przechodzi — 3b593dc
+- [x] 4.2 Pozycje F9 1–3 mają odpowiadające asercje w pliku macierzy — 3b593dc
 
 #### Manual
 
-- [x] 4.3 Celowe zepsucie: `profiles_select_group_peers` na `using (true)` → czerwone asercje telefonu; cofnięte
-- [x] 4.4 Celowe zepsucie: `admin_list_groups` wykonywalne przez anon → czerwona asercja i strażnik; cofnięte
+- [x] 4.3 Celowe zepsucie: `profiles_select_group_peers` na `using (true)` → czerwone asercje telefonu; cofnięte — 3b593dc
+- [x] 4.4 Celowe zepsucie: `admin_list_groups` wykonywalne przez anon → czerwona asercja i strażnik; cofnięte — 3b593dc
 
 ### Phase 5: Domknięcie — cookbook, F9, bramka
 
 #### Automated
 
-- [ ] 5.1 Pełna weryfikacja jak w CI: lint, astro check, npm test, build, supabase test db, smoke
-- [ ] 5.2 `context/foundation/test-plan.md` §6.3 nie zawiera już „TBD”
+- [x] 5.1 Pełna weryfikacja jak w CI: lint, astro check, npm test, build, supabase test db, smoke
+- [x] 5.2 `context/foundation/test-plan.md` §6.3 nie zawiera już „TBD”
 
 #### Manual
 
-- [ ] 5.3 Przegląd §6.3: nowa osoba dodająca tabelę wie, co dopisać do macierzy i strażnika
+- [x] 5.3 Przegląd §6.3: nowa osoba dodająca tabelę wie, co dopisać do macierzy i strażnika

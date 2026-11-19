@@ -17,3 +17,5 @@ After creating the folder, follow the downstream continuation rule.
 Please create git issues for this change.
 
 Issue: https://github.com/pstawik/carpooling/issues/65
+
+F9 z `archive/2026-11-10-app-admin-creates-group/follow-ups/review-fixes.md`: pozycje 1–3 (linie 7–9) są pokryte przez `supabase/tests/rls_isolation_matrix.test.sql` (asercje oznaczone „F9”), a pozycja 4 (smoke: zwykły użytkownik POST `/api/admin/groups` → 404) przeszła do fazy 4 planu testów (`context/foundation/test-plan.md` §3). Plik w archiwum świadomie zostaje nietknięty (AGENTS.md).
