@@ -573,11 +573,11 @@ mapperów bez zmiany zachowania (faza 3).
 
 #### Automated
 
-- [x] 5.1 `npm run lint`, `npx astro check`, `npm test`, `npm run build` przechodzą
-- [x] 5.2 `npx supabase test db` przechodzi
-- [x] 5.3 `npm run smoke` przechodzi przeciw `npm run preview` (build produkcyjny, jak w CI)
-- [x] 5.4 §6.4 w `context/foundation/test-plan.md` nie zawiera już „TBD”
+- [x] 5.1 `npm run lint`, `npx astro check`, `npm test`, `npm run build` przechodzą — 7460524
+- [x] 5.2 `npx supabase test db` przechodzi — 7460524
+- [x] 5.3 `npm run smoke` przechodzi przeciw `npm run preview` (build produkcyjny, jak w CI) — 7460524
+- [x] 5.4 §6.4 w `context/foundation/test-plan.md` nie zawiera już „TBD” — 7460524
 
 #### Manual
 
-- [x] 5.5 Przegląd §6.4: osoba dodająca nowy endpoint wie, jaki krok smoke i jakie testy Vitest dopisać
+- [x] 5.5 Przegląd §6.4: osoba dodająca nowy endpoint wie, jaki krok smoke i jakie testy Vitest dopisać — 7460524

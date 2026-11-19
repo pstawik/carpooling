@@ -1,7 +1,7 @@
 ---
 change_id: testing-api-error-paths
 title: Testy ścieżek błędów i walidacji wejścia w API
-status: implementing
+status: implemented
 created: 2026-11-19
 updated: 2026-11-19
 archived_at: null
