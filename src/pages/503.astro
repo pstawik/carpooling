@@ -1,0 +1,28 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import { cardClass, primaryLinkButtonClass } from "@/components/groups/group-page-classes";
+import { Card } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
+
+// The middleware reaches this via next("/503") when Supabase Auth is down on a protected route.
+Astro.response.status = 503;
+Astro.response.headers.set("Retry-After", "30");
+
+// After a rewrite Astro.url is /503; originPathname is the page the user asked for.
+// A direct visit has nowhere to go back to, so it retries the dashboard.
+const retryHref = Astro.originPathname === "/503" ? "/dashboard" : Astro.originPathname;
+---
+
+<Layout title="Usługa chwilowo niedostępna">
+  <div class="bg-cosmic flex min-h-screen items-center justify-center p-4">
+    <Card className={cn(cardClass, "mb-0 w-full max-w-sm text-center")}>
+      <h1 class="text-foreground mb-4 text-2xl font-bold">Usługa chwilowo niedostępna</h1>
+      <p class="text-muted-foreground">
+        Nie udało się sprawdzić Twojej sesji. To nie jest wylogowanie. Spróbuj ponownie za chwilę.
+      </p>
+      <a href={retryHref} class:list={cn(primaryLinkButtonClass, "mt-6 w-full")}>
+        Spróbuj ponownie
+      </a>
+    </Card>
+  </div>
+</Layout>

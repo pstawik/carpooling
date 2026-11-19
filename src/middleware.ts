@@ -44,8 +44,12 @@ export const onRequest = defineMiddleware(async (context, next) => {
       console.error("auth getUser failed:", authErrorLogFields(authError, context.url.pathname));
       // An Auth outage must not look like a sign-out: API calls and protected pages get a 503.
       // Public pages carry on with user = null.
-      if (context.url.pathname.startsWith("/api/") || isProtectedRoute(context.url.pathname)) {
+      if (context.url.pathname.startsWith("/api/")) {
         return serviceUnavailable();
+      }
+      if (isProtectedRoute(context.url.pathname)) {
+        // next(), not context.rewrite(): a rewrite re-runs this middleware and calls getUser() again.
+        return next("/503");
       }
     }
 

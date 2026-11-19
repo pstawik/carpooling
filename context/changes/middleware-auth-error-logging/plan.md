@@ -297,30 +297,30 @@ Brak zmian w bazie i RLS.
 
 #### Automated
 
-- [x] 1.1 Test klasyfikacji przechodzi: `npx vitest run src/lib/auth-error.test.ts`
-- [x] 1.2 Wszystkie testy jednostkowe przechodzą: `npm test`
-- [x] 1.3 Lint przechodzi: `npm run lint`
-- [x] 1.4 Sprawdzenie typów przechodzi: `npx astro check`
-- [x] 1.5 Build przechodzi: `npm run build`
+- [x] 1.1 Test klasyfikacji przechodzi: `npx vitest run src/lib/auth-error.test.ts` — a7d97b6
+- [x] 1.2 Wszystkie testy jednostkowe przechodzą: `npm test` — a7d97b6
+- [x] 1.3 Lint przechodzi: `npm run lint` — a7d97b6
+- [x] 1.4 Sprawdzenie typów przechodzi: `npx astro check` — a7d97b6
+- [x] 1.5 Build przechodzi: `npm run build` — a7d97b6
 
 #### Manual
 
-- [x] 1.6 `npm run smoke` przechodzi na działającym serwerze (rejestracja, logowanie i wylogowanie bez zmian)
-- [x] 1.7 Przy zatrzymanym kontenerze Auth (`docker stop supabase_auth_<projekt>`), zalogowany POST na `/api/groups/events/attendance` daje 503 z `Retry-After`, a w logu `wrangler dev` jest linia `auth getUser failed:` bez e-maila i tokenów
+- [x] 1.6 `npm run smoke` przechodzi na działającym serwerze (rejestracja, logowanie i wylogowanie bez zmian) — a7d97b6
+- [x] 1.7 Przy zatrzymanym kontenerze Auth (`docker stop supabase_auth_<projekt>`), zalogowany POST na `/api/groups/events/attendance` daje 503 z `Retry-After`, a w logu `wrangler dev` jest linia `auth getUser failed:` bez e-maila i tokenów — a7d97b6
 
 ### Phase 2: Strona 503
 
 #### Automated
 
-- [ ] 2.1 Lint, łącznie z `check-ui-literals`, przechodzi: `npm run lint`
-- [ ] 2.2 Sprawdzenie typów przechodzi: `npx astro check`
-- [ ] 2.3 Testy jednostkowe przechodzą: `npm test`
-- [ ] 2.4 Build przechodzi: `npm run build`
+- [x] 2.1 Lint, łącznie z `check-ui-literals`, przechodzi: `npm run lint`
+- [x] 2.2 Sprawdzenie typów przechodzi: `npx astro check`
+- [x] 2.3 Testy jednostkowe przechodzą: `npm test`
+- [x] 2.4 Build przechodzi: `npm run build`
 
 #### Manual
 
-- [ ] 2.5 Przy zatrzymanym kontenerze Auth zalogowany użytkownik na `/dashboard` i `/groups/<id>` widzi stronę 503 (status 503 w DevTools), a nie `/auth/signin`. W logu jest jedna linia `auth getUser failed:` na żądanie.
-- [ ] 2.6 Po ponownym uruchomieniu kontenera „Spróbuj ponownie” wraca na tę samą stronę zalogowanym
-- [ ] 2.7 Strona 503 na 360 px: bez przewijania w poziomie, przycisk co najmniej 44 px, kolory z tokenów
-- [ ] 2.8 Wylogowany użytkownik na `/dashboard` przy działającym Auth dalej dostaje 302 na `/auth/signin`, bez linii w logu
-- [ ] 2.9 `npm run smoke` przechodzi
+- [x] 2.5 Przy zatrzymanym kontenerze Auth zalogowany użytkownik na `/dashboard` i `/groups/<id>` widzi stronę 503 (status 503 w DevTools), a nie `/auth/signin`. W logu jest jedna linia `auth getUser failed:` na żądanie.
+- [x] 2.6 Po ponownym uruchomieniu kontenera „Spróbuj ponownie” wraca na tę samą stronę zalogowanym
+- [x] 2.7 Strona 503 na 360 px: bez przewijania w poziomie, przycisk co najmniej 44 px, kolory z tokenów
+- [x] 2.8 Wylogowany użytkownik na `/dashboard` przy działającym Auth dalej dostaje 302 na `/auth/signin`, bez linii w logu
+- [x] 2.9 `npm run smoke` przechodzi
