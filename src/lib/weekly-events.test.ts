@@ -42,4 +42,10 @@ describe("weeklyDates", () => {
   it(`a range longer than MAX_SERIES_DAYS (${MAX_SERIES_DAYS}): 2026-01-01 to 2027-01-03 is 367 days -> []`, () => {
     expect(weeklyDates("2026-01-01", "2027-01-03", MONDAY)).toEqual([]);
   });
+
+  // weekly-event-generator F1: the attack input yields 0 dates, no CPU loop
+  // (context/archive/2026-11-13-weekly-event-generator/reviews/impl-review.md:40).
+  it("an unparsable end (99999-0x1-01) -> [] (F1)", () => {
+    expect(weeklyDates("2026-01-01", "99999-0x1-01", MONDAY)).toEqual([]);
+  });
 });

@@ -523,27 +523,27 @@ mapperów bez zmiany zachowania (faza 3).
 
 #### Automated
 
-- [x] 1.1 Przed poprawką `npm run smoke` raportuje FAIL z 500 dla obu nowych kroków nie-admina i dla kroku anonima
-- [x] 1.2 Po poprawce `npm run smoke` przechodzi w całości
-- [x] 1.3 `npm run lint`, `npx astro check`, `npm test` przechodzą
+- [x] 1.1 Przed poprawką `npm run smoke` raportuje FAIL z 500 dla obu nowych kroków nie-admina i dla kroku anonima — 16c0d18
+- [x] 1.2 Po poprawce `npm run smoke` przechodzi w całości — 16c0d18
+- [x] 1.3 `npm run lint`, `npx astro check`, `npm test` przechodzą — 16c0d18
 
 #### Manual
 
-- [x] 1.4 Wynik czerwonego biegu (nazwy kroków + `-> 500`) jest zapisany w opisie commita lub PR
+- [x] 1.4 Wynik czerwonego biegu (nazwy kroków + `-> 500`) jest zapisany w opisie commita lub PR — 16c0d18
 
 ### Phase 2: Vitest — czyste mappery i schematy
 
 #### Automated
 
-- [ ] 2.1 `npm test` przechodzi z nowymi plikami testów
-- [ ] 2.2 `npm run lint` i `npx astro check` przechodzą
-- [ ] 2.3 Celowe zepsucie: usunięcie `.filter(Number.isFinite)` w `src/lib/time.ts` daje czerwony test roku 9999; cofnięte
-- [ ] 2.4 Celowe zepsucie: usunięcie `seriesCheckOptions` z `generateEventsSchema` daje czerwony test `99999-0x1-01`; cofnięte
-- [ ] 2.5 Celowe zepsucie: `groupRpcFailure` zwracające `forbidden` dla każdego P0001 daje czerwony test; cofnięte
+- [x] 2.1 `npm test` przechodzi z nowymi plikami testów
+- [x] 2.2 `npm run lint` i `npx astro check` przechodzą
+- [x] 2.3 Celowe zepsucie: usunięcie `.filter(Number.isFinite)` w `src/lib/time.ts` daje czerwony test roku 9999; cofnięte
+- [x] 2.4 Celowe zepsucie: usunięcie `seriesCheckOptions` z `generateEventsSchema` daje czerwony test `99999-0x1-01`; cofnięte
+- [x] 2.5 Celowe zepsucie: `groupRpcFailure` zwracające `forbidden` dla każdego P0001 daje czerwony test; cofnięte
 
 #### Manual
 
-- [ ] 2.6 Przegląd: żadna oczekiwana wartość w nowych testach nie jest wyliczana funkcją pod testem ani importowaną stałą z modułu pod testem
+- [x] 2.6 Przegląd: żadna oczekiwana wartość w nowych testach nie jest wyliczana funkcją pod testem ani importowaną stałą z modułu pod testem
 
 ### Phase 3: Eksport mapperów zapisu i ich testy
 
