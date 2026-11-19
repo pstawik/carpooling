@@ -11,7 +11,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(10);
+select plan(16);
 
 -- ---------------------------------------------------------------------------
 -- Violation queries
@@ -101,8 +101,9 @@ as $$
   order by 1
 $$;
 
--- 4. Security definer functions without search_path in proconfig.
---    (set search_path = '' is stored as search_path="", so match the prefix.)
+-- 4. Security definer functions whose search_path is not pinned to empty.
+--    set search_path = '' is stored as search_path=""; any other value
+--    (e.g. public) is mutable and can be shadowed, so only "" passes.
 create function pg_temp.secdef_functions_without_search_path()
 returns setof text
 language sql
@@ -114,7 +115,7 @@ as $$
     and not exists (
       select 1
       from unnest(coalesce(f.proconfig, '{}'::text[])) cfg
-      where cfg like 'search_path=%'
+      where cfg = 'search_path=""'
     )
   order by 1
 $$;
@@ -131,6 +132,41 @@ as $$
   from pg_temp.public_functions() f
   where pg_catalog.has_function_privilege('anon', f.oid, 'execute')
     and f.oid not in ('public.invite_group_name(text)'::regprocedure)
+  order by 1
+$$;
+
+-- 6. Views and materialized views that bypass RLS. A view runs with its
+--    owner's rights unless security_invoker is set, so a postgres-owned view
+--    would read the tables under it past their policies; a materialized view
+--    has no RLS at all. No views exist today.
+create function pg_temp.views_bypassing_rls()
+returns setof text
+language sql
+stable
+as $$
+  select format('%I.%I', n.nspname, c.relname)
+  from pg_catalog.pg_class c
+  join pg_catalog.pg_namespace n on n.oid = c.relnamespace
+  where n.nspname = 'public'
+    and (
+      c.relkind = 'm'
+      or (
+        c.relkind = 'v'
+        and not exists (
+          select 1
+          from unnest(coalesce(c.reloptions, '{}'::text[])) opt
+          where lower(opt) in ('security_invoker=true', 'security_invoker=on',
+                               'security_invoker=1', 'security_invoker=yes')
+        )
+      )
+    )
+    and not exists (
+      select 1
+      from pg_catalog.pg_depend d
+      where d.classid = 'pg_catalog.pg_class'::regclass
+        and d.objid = c.oid
+        and d.deptype = 'e'
+    )
   order by 1
 $$;
 
@@ -155,12 +191,17 @@ select is_empty(
 
 select is_empty(
   'select * from pg_temp.secdef_functions_without_search_path()',
-  'every security definer function in public pins search_path'
+  'every security definer function in public pins search_path to empty'
 );
 
 select is_empty(
   'select * from pg_temp.anon_executable_functions()',
   'anon can execute only allow-listed functions in public'
+);
+
+select is_empty(
+  'select * from pg_temp.views_bypassing_rls()',
+  'no public view runs without security_invoker and no materialized view exists'
 );
 
 -- ---------------------------------------------------------------------------
@@ -191,6 +232,18 @@ select ok(
   'probe: secdef_functions_without_search_path() detects a security definer function without search_path'
 );
 
+create function public.rls_guard_probe_path_fn()
+returns integer
+language sql
+security definer
+set search_path = public
+as $$ select 1 $$;
+
+select ok(
+  'public.rls_guard_probe_path_fn()' in (select * from pg_temp.secdef_functions_without_search_path()),
+  'probe: secdef_functions_without_search_path() detects a security definer function with search_path = public'
+);
+
 select ok(
   'public.rls_guard_probe_fn()' in (select * from pg_temp.anon_executable_functions()),
   'probe: anon_executable_functions() detects a function anon can execute'
@@ -208,7 +261,44 @@ select ok(
   'probe: policies_for_public_or_anon() detects a policy granted to role public'
 );
 
+create policy rls_guard_probe_anon on public.rls_guard_probe
+  for select to anon using (true);
+
+select ok(
+  exists (
+    select 1
+    from pg_temp.policies_for_public_or_anon() v
+    where v like 'public.rls_guard_probe: rls_guard_probe_anon %'
+  ),
+  'probe: policies_for_public_or_anon() detects a policy granted to role anon'
+);
+
+create view public.rls_guard_probe_view as select id from public.rls_guard_probe;
+create view public.rls_guard_probe_invoker_view with (security_invoker = true)
+  as select id from public.rls_guard_probe;
+create materialized view public.rls_guard_probe_matview as select id from public.rls_guard_probe;
+
+select ok(
+  'public.rls_guard_probe_view' in (select * from pg_temp.views_bypassing_rls()),
+  'probe: views_bypassing_rls() detects a view without security_invoker'
+);
+
+select ok(
+  'public.rls_guard_probe_invoker_view' not in (select * from pg_temp.views_bypassing_rls()),
+  'probe: views_bypassing_rls() accepts a view with security_invoker = true'
+);
+
+select ok(
+  'public.rls_guard_probe_matview' in (select * from pg_temp.views_bypassing_rls()),
+  'probe: views_bypassing_rls() detects a materialized view'
+);
+
+drop materialized view public.rls_guard_probe_matview;
+drop view public.rls_guard_probe_invoker_view;
+drop view public.rls_guard_probe_view;
+drop policy rls_guard_probe_anon on public.rls_guard_probe;
 drop policy rls_guard_probe_public on public.rls_guard_probe;
+drop function public.rls_guard_probe_path_fn();
 drop function public.rls_guard_probe_fn();
 drop table public.rls_guard_probe;
 

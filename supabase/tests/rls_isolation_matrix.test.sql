@@ -64,7 +64,7 @@
 --   profiles S (B phone)        42501  N  N  N      Y  Y      F: Y, then N after removal
 --   groups S (G1)               42501  N  N  Y      Y  -
 --   group_members S (G1)        42501  N  N  Y      Y  -
---   groups I/U/D                -      -  -  42501  -  -      (only via create_group)
+--   groups I/U/D                -      -  -  42501  -  42501  (only via create_group)
 --   group_members I/U/D         -      -  -  42501  -  42501  (only via RPCs)
 --   app_admins S/I/U/D          -      -  -  42501  -  -
 --   group_invites S (G1)        42501  N  N  N      N  Y
@@ -79,7 +79,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(206);
+select plan(209);
 
 -- ---------------------------------------------------------------------------
 -- Fixtures (as postgres)
@@ -1593,6 +1593,21 @@ select throws_ok(
 set local "request.jwt.claims" to '{"sub": "5a000000-0000-0000-0000-0000000000a1", "role": "authenticated"}';
 
 select throws_ok(
+  $$insert into public.groups (name) values ('RLSM A direct')$$,
+  '42501', null, 'A I groups: 42501, only the app admin creates groups (PRD :80)'
+);
+
+select throws_ok(
+  $$update public.groups set name = 'RLSM A' where id = '5b000000-0000-0000-0000-000000000001'$$,
+  '42501', null, 'A U groups (G1): 42501, no client write path (F9; PRD :140 manages only events and members)'
+);
+
+select throws_ok(
+  $$delete from public.groups where id = '5b000000-0000-0000-0000-000000000001'$$,
+  '42501', null, 'A D groups (G1): 42501, no client write path (F9)'
+);
+
+select throws_ok(
   $$insert into public.group_members (group_id, user_id, role)
     values ('5b000000-0000-0000-0000-000000000001', '5a000000-0000-0000-0000-0000000000e1', 'member')$$,
   '42501', null, 'A I group_members (O into G1): 42501, members join only by invite (PRD :84, :141)'
@@ -1633,7 +1648,8 @@ select throws_ok(
 
 select throws_ok(
   $$select public.regenerate_group_invite('5b000000-0000-0000-0000-000000000001')$$,
-  '42501', null, 'anon regenerate_group_invite (G1): 42501 (PRD :82)'
+  '42501', 'permission denied for function regenerate_group_invite',
+  'anon regenerate_group_invite (G1): no EXECUTE privilege (PRD :82)'
 );
 
 reset role;
@@ -1795,12 +1811,14 @@ set local "request.jwt.claims" to '{"role": "anon"}';
 
 select throws_ok(
   $$select * from public.group_driver_stats('5b000000-0000-0000-0000-000000000001')$$,
-  '42501', null, 'anon group_driver_stats (G1): 42501 (PRD :146)'
+  '42501', 'permission denied for function group_driver_stats',
+  'anon group_driver_stats (G1): no EXECUTE privilege (PRD :146)'
 );
 
 select throws_ok(
   $$select * from public.group_child_stats('5b000000-0000-0000-0000-000000000001')$$,
-  '42501', null, 'anon group_child_stats (G1): 42501 (PRD :146)'
+  '42501', 'permission denied for function group_child_stats',
+  'anon group_child_stats (G1): no EXECUTE privilege (PRD :146)'
 );
 
 reset role;

@@ -229,6 +229,7 @@ sekcja na tabelę; opis asercji w formacie `'<rola> <operacja> <tabela>: <oczeki
 Komórki „?” z cytatem: admin grupy nie edytuje cudzych dzieci (`archive/2026-11-12-parent-adds-child/plan.md:40`),
 admin aplikacji nie czyta terminów (`archive/2026-11-12-group-admin-manages-events/plan.md:38`),
 brak DELETE deklaracji obecności (`archive/2026-11-13-child-attendance-declaration/plan.md:36`).
+_Notatka (impl-review F6): właściwa linia to `:37` („polityki DELETE dla rodzica nie ma”); implementacja cytuje `:37`._
 
 ### Success Criteria:
 

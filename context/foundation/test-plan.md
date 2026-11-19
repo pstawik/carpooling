@@ -76,7 +76,7 @@ aktualizuje go, gdy na dysku pojawiają się artefakty.
 
 | Layer | Tool | Version | Notes |
 |-------|------|---------|-------|
-| DB integration (RLS, reguły, statystyki) | pgTAP przez `supabase test db` | Supabase CLI (lokalny stack) | 12 plików w `supabase/tests/`; uruchamiane w CI |
+| DB integration (RLS, reguły, statystyki) | pgTAP przez `supabase test db` | Supabase CLI (lokalny stack) | 14 plików w `supabase/tests/`; uruchamiane w CI |
 | HTTP smoke | `scripts/smoke.mjs` (Node) | n/a | przepływy auth i zapisów na działającym serwerze; uruchamiany w CI |
 | unit (TS) | Vitest przez `npm test` (`vitest run`) | 5.1.0 | czyste funkcje z `src/lib/`; `src/**/*.test.ts`, środowisko `node`, `vitest.config.ts` niezależny od `astro.config.mjs` (bez workerd); uruchamiany w CI (job `ci`) |
 | e2e | none — świadomie | — | żadne ryzyko z §2 nie wymaga przeglądarki |
@@ -221,7 +221,10 @@ odpowiednia faza zostanie wdrożona; wcześniej brzmi „TBD — see §3 Phase N
 - **Granty**: RLS nie zastępuje grantów kolumn — np.
   `20261118140000_harden_children_insert_and_anon_profiles.sql` zawęża
   INSERT na `children` do `id, group_id, parent_id, name` i odbiera `anon`
-  SELECT na `profiles`.
+  SELECT na `profiles`. Skutek: nowa kolumna, którą klient ma ustawiać
+  (w `children`, `child_attendance`, `event_drivers` — wszystkie mają INSERT
+  per kolumna), wymaga w tej samej migracji jawnego `grant insert (<kolumna>)`
+  oraz asercji `has_column_privilege` w teście tabeli.
 - **Wzorce**: `supabase/tests/rls_isolation_matrix.test.sql` (macierz),
   `supabase/tests/rls_catalog_guard.test.sql` (strażnik).
 
