@@ -109,10 +109,18 @@ describe("generateEventsSchema", () => {
     return result.success ? null : eventSeriesFieldError(input, result.error.issues);
   }
 
+  // Every user mistake shares one code, so the reported field shows which guard caught the input.
+  function reportedFields(input: Record<string, unknown>) {
+    const result = generateEventsSchema.safeParse(input);
+    return result.success ? [] : [...new Set(result.error.issues.map((issue) => issue.path[0]))];
+  }
+
   // weekly-event-generator F1: the attack input yields 0 dates in ~0 ms, and the range checks run
   // only on well-formed dates (context/archive/2026-11-13-weekly-event-generator/reviews/impl-review.md:40).
   it("date_to = 99999-0x1-01 -> failure in < 100 ms, only date_to reported, invalid_event_series (F1)", () => {
     const input = { ...BASE, date_from: "2026-01-01", date_to: "99999-0x1-01" };
+    // Untimed warm-up: keep zod's first-parse setup out of the budget, so only the attack input is timed.
+    generateEventsSchema.safeParse({ ...BASE, date_from: "2026-01-01", date_to: "2026-02-01" });
     const started = performance.now();
     const result = generateEventsSchema.safeParse(input);
     const elapsedMs = performance.now() - started;
@@ -132,18 +140,17 @@ describe("generateEventsSchema", () => {
     );
   });
 
-  it("2026-01-01 to 2027-01-03 (367 days) -> invalid_event_series", () => {
-    expect(seriesError({ ...BASE, date_from: "2026-01-01", date_to: "2027-01-03" })).toEqual({
-      groupId: GROUP_ID,
-      code: "invalid_event_series",
-    });
+  it("2026-01-01 to 2027-01-03 (367 days) -> invalid_event_series on date_to (range cap)", () => {
+    const input = { ...BASE, date_from: "2026-01-01", date_to: "2027-01-03" };
+    expect(seriesError(input)).toEqual({ groupId: GROUP_ID, code: "invalid_event_series" });
+    // The 366-day cap reports date_to; a weekday issue would mean only the bounded weeklyDates caught it.
+    expect(reportedFields(input)).toEqual(["date_to"]);
   });
 
-  it("2026-02-30 (not a calendar day) -> invalid_event_series", () => {
-    expect(seriesError({ ...BASE, date_from: "2026-02-30", date_to: "2026-03-30" })).toEqual({
-      groupId: GROUP_ID,
-      code: "invalid_event_series",
-    });
+  it("2026-02-30 (not a calendar day) -> invalid_event_series on date_from", () => {
+    const input = { ...BASE, date_from: "2026-02-30", date_to: "2026-03-30" };
+    expect(seriesError(input)).toEqual({ groupId: GROUP_ID, code: "invalid_event_series" });
+    expect(reportedFields(input)).toEqual(["date_from"]);
   });
 
   it("malformed group_id -> null (404)", () => {

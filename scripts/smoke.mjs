@@ -292,14 +292,19 @@ const writeSteps = [
     { status: 404 },
   ],
   [
-    "anonymous create group with a JSON body is rejected",
+    "anonymous create group with a JSON body renders 404",
     postJson("/api/admin/groups", { name: probeGroupName, admin_emails: email }),
-    { status: 302, locationExact: "/admin/groups?error=invalid_input" },
+    { status: 404 },
   ],
   [
     "seed app admin signs in",
     () => request("/api/auth/signin", { method: "POST", form: { email: adminEmail, password: adminPassword } }),
     { status: 302, locationExact: "/dashboard" },
+  ],
+  [
+    "app admin create group with a JSON body is rejected",
+    postJson("/api/admin/groups", { name: probeGroupName, admin_emails: email }),
+    { status: 302, locationExact: "/admin/groups?error=invalid_input" },
   ],
   [
     "create group rejects unknown e-mail",
