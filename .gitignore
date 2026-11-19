@@ -35,3 +35,11 @@ pnpm-debug.log*
 # macOS-specific files
 
 # jetbrains setting folder
+
+# Playwright
+playwright/.auth/
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+.playwright-cli/
