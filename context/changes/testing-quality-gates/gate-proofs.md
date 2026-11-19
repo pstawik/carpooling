@@ -33,3 +33,19 @@ Zepsucie → komenda → exit. „Przywrócono” = `git checkout -- <plik>` (mi
 - Strona PR: przycisk merge zablokowany (potwierdził użytkownik).
 - Stan końcowy: `CLOSED`, `mergedAt` = null; gałąź usunięta zdalnie i lokalnie, worktree usunięty.
 - Uwaga: job `smoke` padł na pgTAP, więc krok `npm run smoke` w tym PR się nie wykonał; jego czerwień jest udowodniona lokalnie (tabela wyżej).
+
+## Hooki (lokalnie, 2026-11-19)
+
+Skrypty w `scripts/hooks/` (lintowane), podpięte w `.claude/settings.json`. Przebiegi na spreparowanym stdin (JSON jak z Claude Code, `cwd` jako ścieżka Windows).
+
+| Hook | Wejście | Exit | Wynik |
+| --- | --- | --- | --- |
+| post-edit-vitest | `src/lib/services/group-errors.ts` (zielone testy) | 0 | cisza |
+| post-edit-vitest | `README.md` | 0 | pominięty |
+| post-edit-vitest | `group-errors.test.ts:28` oczekuje `{ kind: "nope" }` | 2 | stderr: `Vitest related to … is red:` + `1 failed` (przywrócono `git checkout`) |
+| stop-lint | czyste drzewo (tylko nowe pliki hooków) | 0 | ESLint + `check-ui-literals` zielone, ~12 s |
+| stop-lint | `stop_hook_active: true` | 0 | pominięty |
+| stop-lint | `invite.ts:16` bez `clone()` | 2 | stderr: `eslint failed:` z komunikatem reguły `no-restricted-syntax` |
+| stop-lint | `bg-purple-600` w `Topbar.astro` | 2 | stderr: `check-ui-literals failed:` |
+
+Uwaga: pierwszy przebieg stop-lint złapał błąd prettiera w samym `stop-lint.mjs` (naprawiony `prettier --write`). Pierwszy przebieg post-edit dał fałszywy exit 2 przez ścieżkę `/c/...` w moim stdin (Git Bash); prawdziwy payload ma ścieżkę Windows i działa.

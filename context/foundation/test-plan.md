@@ -98,7 +98,8 @@ aktualizuje go, gdy na dysku pojawiają się artefakty.
 | smoke (`npm run smoke`) | CI | required | zepsute przepływy HTTP |
 | unit (TS, `npm test`) | local + CI | required (aktywna od §3 Phase 1) | regresje logiki i mapowania błędów |
 | strażnik RLS na każdej tabeli | CI (w pgTAP) | required (aktywna od §3 Phase 3) | tabela bez RLS lub bez polityk |
-| post-edit hook | local (agent loop) | recommended after §3 Phase 5 | regresje w chwili edycji |
+| post-edit hook (`.claude/settings.json`) | local (agent loop) | active from §3 Phase 5 | po edycji `src/**/*.{ts,tsx}`: `vitest related` (exit 2 przy czerwieni); na koniec tury (Stop): ESLint zmienionych plików + `check-ui-literals` |
+| reguła ESLint `clone()` w `src/pages/api` | local + CI (`npm run lint`) | required (aktywna od §3 Phase 5) | odczyt ciała żądania bez `clone()` → 500 `RewriteWithBodyUsed` |
 
 ## 6. Cookbook Patterns
 
@@ -254,7 +255,7 @@ odpowiednia faza zostanie wdrożona; wcześniej brzmi „TBD — see §3 Phase N
 - **Nowy endpoint → checklist**:
   1. czytaj `context.request.clone().formData()` w `try/catch` — Astro rzuca
      `RewriteWithBodyUsed` (500), gdy `rewrite` następuje po przeczytaniu
-     oryginalnego ciała;
+     oryginalnego ciała (pilnuje tego `npm run lint`);
   2. krok smoke na ścieżce 404 (spreparowane id albo rola bez prawa) i krok
      na każdym przekierowaniu z `locationExact` i dokładnym kodem — prefiks
      `location` przepuszcza `?error=` jako sukces;
@@ -324,6 +325,17 @@ odpowiednia faza zostanie wdrożona; wcześniej brzmi „TBD — see §3 Phase N
   `context/changes/testing-api-error-paths/research.md` („Korekty do planu
   testów”: 404 dla odmowy, dokładny kod w asercji) oraz kandydat na bramkę
   fazy 5 — reguła lint „`clone()` przed `rewrite`” w `src/pages/api/`.
+- **Faza 5** (`testing-quality-gates`): nie dodano jobów CI — `ci` i `smoke`
+  już pokrywają każdą warstwę. Dodano regułę ESLint `clone()` w
+  `src/pages/api` (3 endpointy auth/join przepisane) oraz hooki agenta w
+  `.claude/settings.json` (po edycji: `vitest related`; Stop: ESLint +
+  `check-ui-literals`). Dowody w
+  `context/changes/testing-quality-gates/gate-proofs.md`: 7 warstw czerwieni
+  lokalnie z exit 1 i zielone po przywróceniu; PR dowodowy #72 z czerwonymi
+  `ci` i `smoke` oraz `mergeStateStatus=BLOCKED` (zamknięty bez merge); oba
+  hooki udowodnione na zepsutym i zielonym pliku. Świadomie poza zakresem:
+  strażnik „każdy endpoint z `rewrite` ma krok 404 w smoke” (punkt
+  checklisty §6.4) oraz ESLint/pgTAP/smoke po każdej edycji.
 
 ## 7. What We Deliberately Don't Test
 

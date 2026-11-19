@@ -370,26 +370,26 @@ odwracana przez `npx supabase db reset`.
 
 #### Automated
 
-- [x] 2.1 Każda z 7 warstw w `gate-proofs.md` ma exit ≠ 0 na zepsuciu i exit 0 po przywróceniu
-- [x] 2.2 PR dowodowy: `statusCheckRollup` pokazuje `ci` i `smoke` jako FAILURE
-- [x] 2.3 PR dowodowy po `gh pr ready`: `mergeStateStatus` = `BLOCKED`
-- [x] 2.4 PR dowodowy zamknięty bez merge, gałąź `testing-quality-gates-red-proof` usunięta lokalnie i zdalnie
-- [x] 2.5 `git status` po fazie nie zawiera żadnego zepsucia
+- [x] 2.1 Każda z 7 warstw w `gate-proofs.md` ma exit ≠ 0 na zepsuciu i exit 0 po przywróceniu — 6dafbc4
+- [x] 2.2 PR dowodowy: `statusCheckRollup` pokazuje `ci` i `smoke` jako FAILURE — 6dafbc4
+- [x] 2.3 PR dowodowy po `gh pr ready`: `mergeStateStatus` = `BLOCKED` — 6dafbc4
+- [x] 2.4 PR dowodowy zamknięty bez merge, gałąź `testing-quality-gates-red-proof` usunięta lokalnie i zdalnie — 6dafbc4
+- [x] 2.5 `git status` po fazie nie zawiera żadnego zepsucia — 6dafbc4
 
 #### Manual
 
-- [x] 2.6 Na stronie PR przycisk merge jest zablokowany z komunikatem o wymaganych checkach
+- [x] 2.6 Na stronie PR przycisk merge jest zablokowany z komunikatem o wymaganych checkach — 6dafbc4
 
 ### Phase 3: Hook agenta i domknięcie planu testów
 
 #### Automated
 
-- [ ] 3.1 `scripts/hooks/post-edit-vitest.mjs`: exit 2 na pliku z czerwonym testem, exit 0 na zielonym i na `README.md`
-- [ ] 3.2 `scripts/hooks/stop-lint.mjs`: exit 2 przy błędzie ESLint w zmienionym pliku, exit 0 przy `stop_hook_active: true` i na czystym drzewie
-- [ ] 3.3 `npm run lint` przechodzi (skrypty hooków lintowane w `scripts/`)
-- [ ] 3.4 `.claude/settings.json` jest poprawnym JSON-em z hookami PostToolUse i Stop
+- [x] 3.1 `scripts/hooks/post-edit-vitest.mjs`: exit 2 na pliku z czerwonym testem, exit 0 na zielonym i na `README.md`
+- [x] 3.2 `scripts/hooks/stop-lint.mjs`: exit 2 przy błędzie ESLint w zmienionym pliku, exit 0 przy `stop_hook_active: true` i na czystym drzewie
+- [x] 3.3 `npm run lint` przechodzi (skrypty hooków lintowane w `scripts/`)
+- [x] 3.4 `.claude/settings.json` jest poprawnym JSON-em z hookami PostToolUse i Stop
 
 #### Manual
 
-- [ ] 3.5 W nowej sesji Claude Code edycja z czerwonym testem pokazuje agentowi wynik hooka, a agent na niego reaguje
-- [ ] 3.6 Czas hooka po edycji akceptowalny w codziennej pracy (~5 s)
+- [x] 3.5 W nowej sesji Claude Code edycja z czerwonym testem pokazuje agentowi wynik hooka, a agent na niego reaguje
+- [x] 3.6 Czas hooka po edycji akceptowalny w codziennej pracy (~5 s)
