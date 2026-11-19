@@ -1,7 +1,7 @@
 ---
 change_id: testing-quality-gates
 title: Quality gates — keep the test floor in CI and a post-edit hook
-status: implemented
+status: impl_reviewed
 created: 2026-11-19
 updated: 2026-11-19
 archived_at: null

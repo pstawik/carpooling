@@ -28,7 +28,12 @@ const result = spawnSync("npx", ["vitest", "related", rel, "--run", "--passWithN
 
 if (result.status === 0) process.exit(0);
 
-const output = `${result.stdout ?? ""}${result.stderr ?? ""}`.trim();
+const output = `${result.stdout ?? ""}${result.stderr ?? ""}${
+  result.error
+    ? `
+spawn error: ${result.error.message}`
+    : ""
+}`.trim();
 const tail = output.split("\n").slice(-40).join("\n");
 process.stderr.write(`Vitest related to ${rel} is red:\n${tail}\n`);
 process.exit(2);

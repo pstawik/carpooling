@@ -25,7 +25,7 @@ const lines = (r) =>
     : [];
 
 const changed = new Set([
-  ...lines(run("git", ["diff", "--name-only", "HEAD"])),
+  ...lines(run("git", ["diff", "--name-only", "--diff-filter=d", "HEAD"])),
   ...lines(run("git", ["ls-files", "--others", "--exclude-standard"])),
 ]);
 const files = [...changed].filter((f) => /\.(ts|tsx|astro|mjs)$/.test(f) && !f.startsWith(".claude/"));
