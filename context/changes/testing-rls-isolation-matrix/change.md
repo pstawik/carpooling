@@ -1,9 +1,9 @@
 ---
 change_id: testing-rls-isolation-matrix
 title: RLS isolation matrix tests (test-plan rollout Phase 3)
-status: implementing
+status: implemented
 created: 2026-11-18
-updated: 2026-11-18
+updated: 2026-11-19
 archived_at: null
 ---
 

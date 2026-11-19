@@ -426,9 +426,9 @@ public.children to authenticated` i `grant select on public.profiles to anon`.
 
 #### Automated
 
-- [x] 5.1 Pełna weryfikacja jak w CI: lint, astro check, npm test, build, supabase test db, smoke
-- [x] 5.2 `context/foundation/test-plan.md` §6.3 nie zawiera już „TBD”
+- [x] 5.1 Pełna weryfikacja jak w CI: lint, astro check, npm test, build, supabase test db, smoke — 541732d
+- [x] 5.2 `context/foundation/test-plan.md` §6.3 nie zawiera już „TBD” — 541732d
 
 #### Manual
 
-- [x] 5.3 Przegląd §6.3: nowa osoba dodająca tabelę wie, co dopisać do macierzy i strażnika
+- [x] 5.3 Przegląd §6.3: nowa osoba dodająca tabelę wie, co dopisać do macierzy i strażnika — 541732d
