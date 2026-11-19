@@ -356,29 +356,29 @@ odwracana przez `npx supabase db reset`.
 
 #### Automated
 
-- [x] 1.1 `npm run lint` przechodzi na wszystkich 15 endpointach
-- [x] 1.2 `npx astro check` przechodzi
-- [x] 1.3 `npm test` przechodzi
-- [x] 1.4 Usunięcie `.clone()` w `src/pages/api/groups/invite.ts` daje czerwony `npx eslint src/pages/api/groups/invite.ts` z komunikatem reguły
-- [x] 1.5 Alias `const req = context.request; req.formData()` daje czerwony `npx eslint` na tym pliku
+- [x] 1.1 `npm run lint` przechodzi na wszystkich 15 endpointach — 920d699
+- [x] 1.2 `npx astro check` przechodzi — 920d699
+- [x] 1.3 `npm test` przechodzi — 920d699
+- [x] 1.4 Usunięcie `.clone()` w `src/pages/api/groups/invite.ts` daje czerwony `npx eslint src/pages/api/groups/invite.ts` z komunikatem reguły — 920d699
+- [x] 1.5 Alias `const req = context.request; req.formData()` daje czerwony `npx eslint` na tym pliku — 920d699
 
 #### Manual
 
-- [x] 1.6 Smoke dla signin/signup/join zielony lokalnie (`npm run smoke` na działającym serwerze) albo w jobie `smoke` PR
+- [x] 1.6 Smoke dla signin/signup/join zielony lokalnie (`npm run smoke` na działającym serwerze) albo w jobie `smoke` PR — 920d699
 
 ### Phase 2: Dowód czerwieni CI
 
 #### Automated
 
-- [ ] 2.1 Każda z 7 warstw w `gate-proofs.md` ma exit ≠ 0 na zepsuciu i exit 0 po przywróceniu
-- [ ] 2.2 PR dowodowy: `statusCheckRollup` pokazuje `ci` i `smoke` jako FAILURE
-- [ ] 2.3 PR dowodowy po `gh pr ready`: `mergeStateStatus` = `BLOCKED`
-- [ ] 2.4 PR dowodowy zamknięty bez merge, gałąź `testing-quality-gates-red-proof` usunięta lokalnie i zdalnie
-- [ ] 2.5 `git status` po fazie nie zawiera żadnego zepsucia
+- [x] 2.1 Każda z 7 warstw w `gate-proofs.md` ma exit ≠ 0 na zepsuciu i exit 0 po przywróceniu
+- [x] 2.2 PR dowodowy: `statusCheckRollup` pokazuje `ci` i `smoke` jako FAILURE
+- [x] 2.3 PR dowodowy po `gh pr ready`: `mergeStateStatus` = `BLOCKED`
+- [x] 2.4 PR dowodowy zamknięty bez merge, gałąź `testing-quality-gates-red-proof` usunięta lokalnie i zdalnie
+- [x] 2.5 `git status` po fazie nie zawiera żadnego zepsucia
 
 #### Manual
 
-- [ ] 2.6 Na stronie PR przycisk merge jest zablokowany z komunikatem o wymaganych checkach
+- [x] 2.6 Na stronie PR przycisk merge jest zablokowany z komunikatem o wymaganych checkach
 
 ### Phase 3: Hook agenta i domknięcie planu testów
 
