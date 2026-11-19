@@ -535,25 +535,25 @@ mapperów bez zmiany zachowania (faza 3).
 
 #### Automated
 
-- [x] 2.1 `npm test` przechodzi z nowymi plikami testów
-- [x] 2.2 `npm run lint` i `npx astro check` przechodzą
-- [x] 2.3 Celowe zepsucie: usunięcie `.filter(Number.isFinite)` w `src/lib/time.ts` daje czerwony test roku 9999; cofnięte
-- [x] 2.4 Celowe zepsucie: usunięcie `seriesCheckOptions` z `generateEventsSchema` daje czerwony test `99999-0x1-01`; cofnięte
-- [x] 2.5 Celowe zepsucie: `groupRpcFailure` zwracające `forbidden` dla każdego P0001 daje czerwony test; cofnięte
+- [x] 2.1 `npm test` przechodzi z nowymi plikami testów — 3bc281c
+- [x] 2.2 `npm run lint` i `npx astro check` przechodzą — 3bc281c
+- [x] 2.3 Celowe zepsucie: usunięcie `.filter(Number.isFinite)` w `src/lib/time.ts` daje czerwony test roku 9999; cofnięte — 3bc281c
+- [x] 2.4 Celowe zepsucie: usunięcie `seriesCheckOptions` z `generateEventsSchema` daje czerwony test `99999-0x1-01`; cofnięte — 3bc281c
+- [x] 2.5 Celowe zepsucie: `groupRpcFailure` zwracające `forbidden` dla każdego P0001 daje czerwony test; cofnięte — 3bc281c
 
 #### Manual
 
-- [x] 2.6 Przegląd: żadna oczekiwana wartość w nowych testach nie jest wyliczana funkcją pod testem ani importowaną stałą z modułu pod testem
+- [x] 2.6 Przegląd: żadna oczekiwana wartość w nowych testach nie jest wyliczana funkcją pod testem ani importowaną stałą z modułu pod testem — 3bc281c
 
 ### Phase 3: Eksport mapperów zapisu i ich testy
 
 #### Automated
 
-- [ ] 3.1 `npm test` przechodzi
-- [ ] 3.2 `npm run lint` i `npx astro check` przechodzą
-- [ ] 3.3 `npm run smoke` przechodzi (zachowanie endpointów bez zmian)
-- [ ] 3.4 Celowe zepsucie: `childWriteResult` traktujące `rows = []` jako sukces daje czerwony test; cofnięte
-- [ ] 3.5 Celowe zepsucie: `driverWriteResult` mapujące nieznany kod na `invalid_seats` daje czerwony test; cofnięte
+- [x] 3.1 `npm test` przechodzi
+- [x] 3.2 `npm run lint` i `npx astro check` przechodzą
+- [x] 3.3 `npm run smoke` przechodzi (zachowanie endpointów bez zmian)
+- [x] 3.4 Celowe zepsucie: `childWriteResult` traktujące `rows = []` jako sukces daje czerwony test; cofnięte
+- [x] 3.5 Celowe zepsucie: `driverWriteResult` mapujące nieznany kod na `invalid_seats` daje czerwony test; cofnięte
 
 ### Phase 4: Smoke — ścieżki błędu handlerów
 

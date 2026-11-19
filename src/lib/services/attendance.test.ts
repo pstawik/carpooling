@@ -1,5 +1,6 @@
+import type { PostgrestError } from "@supabase/supabase-js";
 import { describe, expect, it } from "vitest";
-import { buildChildPlan } from "@/lib/services/attendance";
+import { attendanceWriteResult, buildChildPlan } from "@/lib/services/attendance";
 import type { GroupChild } from "@/lib/services/children";
 import { buildSeatBalance } from "@/lib/services/drivers";
 
@@ -54,5 +55,41 @@ describe("buildChildPlan", () => {
       missing: 1,
       status: "shortage",
     });
+  });
+});
+
+// A plain PostgREST error object, as the client returns it; no Supabase client is involved.
+function pgError(code: string, message: string): PostgrestError {
+  return { code, message, details: "", hint: "" } as unknown as PostgrestError;
+}
+
+// Code meanings: set_child_attendance raises 42501 for an inaccessible child/event or a started
+// event (20261113120000_create_child_attendance.sql:148,165); a child and an event from different
+// groups break child_attendance_event_fkey / child_attendance_child_fkey, the composite
+// (id, group_id) foreign keys (20261113120000_create_child_attendance.sql:45-48) -> 23503.
+describe("attendanceWriteResult", () => {
+  it("no error -> ok", () => {
+    expect(attendanceWriteResult(null)).toEqual({ ok: true });
+  });
+
+  it("42501 -> forbidden (RPC refused the child/event), error passed through", () => {
+    const error = pgError("42501", "child not found or not accessible");
+    const result = attendanceWriteResult(error);
+    expect(result).toEqual({ ok: false, failure: "forbidden", error });
+    expect(result.ok ? null : result.error).toBe(error);
+  });
+
+  it("23503 -> not_found (composite same-group foreign key), error passed through", () => {
+    const error = pgError("23503", "insert or update violates foreign key constraint");
+    const result = attendanceWriteResult(error);
+    expect(result).toEqual({ ok: false, failure: "not_found", error });
+    expect(result.ok ? null : result.error).toBe(error);
+  });
+
+  it("08006 (not in the list) -> unknown, never success or not_found", () => {
+    const error = pgError("08006", "connection failure");
+    const result = attendanceWriteResult(error);
+    expect(result).toEqual({ ok: false, failure: "unknown", error });
+    expect(result.ok ? null : result.error).toBe(error);
   });
 });

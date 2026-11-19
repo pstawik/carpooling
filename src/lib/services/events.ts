@@ -27,7 +27,7 @@ const idSchema = z.uuid();
  * simply matches 0 rows, so callers ask for `.select("id")` and pass the returned rows here: an
  * empty result is reported as `event_not_found`.
  */
-function writeResult(error: PostgrestError | null, rows?: unknown[] | null): EventWriteResult {
+export function eventWriteResult(error: PostgrestError | null, rows?: unknown[] | null): EventWriteResult {
   if (error) {
     if (error.code === "42501") return { ok: false, failure: "forbidden", error };
     if (error.code === "23505") return { ok: false, failure: "duplicate_event", error };
@@ -106,7 +106,7 @@ export async function addEvent(
 ): Promise<EventWriteResult> {
   // created_by is filled by the column default (auth.uid()); RLS rejects any other value.
   const { error } = await supabase.from("events").insert({ group_id: groupId, starts_at: startsAt, note });
-  return writeResult(error);
+  return eventWriteResult(error);
 }
 
 export type EventGenerateResult =
@@ -137,7 +137,7 @@ export async function generateEvents(
     .from("events")
     .upsert(rows, { onConflict: "group_id,starts_at", ignoreDuplicates: true })
     .select("id");
-  const result = writeResult(error);
+  const result = eventWriteResult(error);
   if (!result.ok) return result;
   const created = (data ?? []).length;
   return { ok: true, created, skipped: dates.length - created };
@@ -153,7 +153,7 @@ export async function updateEvent(
     .eq("id", eventId)
     .eq("group_id", groupId)
     .select("id");
-  return writeResult(error, data);
+  return eventWriteResult(error, data);
 }
 
 export async function deleteEvent(
@@ -161,5 +161,5 @@ export async function deleteEvent(
   { groupId, eventId }: { groupId: string; eventId: string },
 ): Promise<EventWriteResult> {
   const { data, error } = await supabase.from("events").delete().eq("id", eventId).eq("group_id", groupId).select("id");
-  return writeResult(error, data);
+  return eventWriteResult(error, data);
 }
