@@ -312,15 +312,15 @@ Brak zmian w bazie i RLS.
 
 #### Automated
 
-- [x] 2.1 Lint, łącznie z `check-ui-literals`, przechodzi: `npm run lint`
-- [x] 2.2 Sprawdzenie typów przechodzi: `npx astro check`
-- [x] 2.3 Testy jednostkowe przechodzą: `npm test`
-- [x] 2.4 Build przechodzi: `npm run build`
+- [x] 2.1 Lint, łącznie z `check-ui-literals`, przechodzi: `npm run lint` — fa9dcdb
+- [x] 2.2 Sprawdzenie typów przechodzi: `npx astro check` — fa9dcdb
+- [x] 2.3 Testy jednostkowe przechodzą: `npm test` — fa9dcdb
+- [x] 2.4 Build przechodzi: `npm run build` — fa9dcdb
 
 #### Manual
 
-- [x] 2.5 Przy zatrzymanym kontenerze Auth zalogowany użytkownik na `/dashboard` i `/groups/<id>` widzi stronę 503 (status 503 w DevTools), a nie `/auth/signin`. W logu jest jedna linia `auth getUser failed:` na żądanie.
-- [x] 2.6 Po ponownym uruchomieniu kontenera „Spróbuj ponownie” wraca na tę samą stronę zalogowanym
-- [x] 2.7 Strona 503 na 360 px: bez przewijania w poziomie, przycisk co najmniej 44 px, kolory z tokenów
-- [x] 2.8 Wylogowany użytkownik na `/dashboard` przy działającym Auth dalej dostaje 302 na `/auth/signin`, bez linii w logu
-- [x] 2.9 `npm run smoke` przechodzi
+- [x] 2.5 Przy zatrzymanym kontenerze Auth zalogowany użytkownik na `/dashboard` i `/groups/<id>` widzi stronę 503 (status 503 w DevTools), a nie `/auth/signin`. W logu jest jedna linia `auth getUser failed:` na żądanie. — fa9dcdb
+- [x] 2.6 Po ponownym uruchomieniu kontenera „Spróbuj ponownie” wraca na tę samą stronę zalogowanym — fa9dcdb
+- [x] 2.7 Strona 503 na 360 px: bez przewijania w poziomie, przycisk co najmniej 44 px, kolory z tokenów — fa9dcdb
+- [x] 2.8 Wylogowany użytkownik na `/dashboard` przy działającym Auth dalej dostaje 302 na `/auth/signin`, bez linii w logu — fa9dcdb
+- [x] 2.9 `npm run smoke` przechodzi — fa9dcdb
