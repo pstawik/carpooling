@@ -8,7 +8,7 @@ import { inviteTokenSchema } from "@/lib/validation/invites";
 export const POST: APIRoute = async (context) => {
   let form: FormData;
   try {
-    form = await context.request.formData();
+    form = await context.request.clone().formData();
   } catch {
     // Not a form-encoded or multipart body (e.g. JSON): reject without a 500.
     return context.redirect("/join/invalid");

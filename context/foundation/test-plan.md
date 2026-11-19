@@ -41,7 +41,7 @@ listę* — nigdy konkretny plik jako „miejsce awarii” (patrz §1, zasada 3)
 | 2 | Usunięcie dziecka, terminu lub członka kasuje deklaracje zakończonych terminów, więc statystyki zmieniają się wstecz | High | High | interview Q2; PRD §Business Logic „Zakończenie terminu”, §Access Control „Usunięcie z grupy”; `archive/2026-11-13-child-attendance-declaration` impl-review F1; `archive/2026-11-12-group-admin-manages-events` plan-review F1, impl-review F4; roadmap S-09 Unknowns |
 | 3 | Nowa lub zmieniona polityka RLS poluzowuje izolację: osoba spoza grupy czyta dzieci, telefony lub deklaracje, członek zapisuje cudzą deklarację (IDOR), a stary link zaproszeniowy nadal wpuszcza | High | Medium | interview Q3; PRD §Guardrails „Izolacja danych grup”, §Access Control „Zasady”; AGENTS.md Hard Rules; `archive/2026-11-13-child-attendance-declaration` impl-review F3; `archive/2026-11-10-app-admin-creates-group` impl-review F9; `archive/2026-11-16-group-engagement-stats` impl-review F2, F4; roadmap S-03 Risk |
 | 4 | Deklarację da się zmienić po rozpoczęciu terminu albo blokada włącza się o złej godzinie (strefa czasowa, zmiana czasu, sama granica startu) | High | Medium | PRD §Business Logic „Zakończenie terminu”, FR-014, FR-015; roadmap Open Question #14; `archive/2026-11-13-weekly-event-generator` impl-review F4; `archive/2026-11-12-group-admin-manages-events` impl-review F3; `archive/2026-11-16-group-engagement-stats` impl-review F1 |
-| 5 | Błąd backendu lub złośliwe/brzegowe wejście kończy się 500 albo pozornym sukcesem — rodzic myśli, że deklaracja lub dołączenie się zapisało | Medium | High | `archive/2026-11-12-join-group-by-invite-link` impl-review F2; `archive/2026-11-13-child-attendance-declaration` impl-review F6; `archive/2026-11-12-group-admin-manages-events` impl-review F1; `archive/2026-11-13-weekly-event-generator` impl-review F1; `archive/2026-11-09-signup-with-profile` impl-review F6; hot-spot dirs `src/pages/api/` (31 commits/30d), `src/lib/validation/` (14 commits/30d) |
+| 5 | Błąd backendu lub złośliwe/brzegowe wejście kończy się 500 albo pozornym sukcesem — rodzic myśli, że deklaracja lub dołączenie się zapisało | Medium | High | `archive/2026-11-12-join-group-by-invite-link` impl-review F2; `archive/2026-11-13-child-attendance-declaration` impl-review F6; `archive/2026-11-12-group-admin-manages-events` impl-review F1; `archive/2026-11-13-weekly-event-generator` impl-review F1; `archive/2026-11-09-signup-with-profile` impl-review F6; hot-spot dirs `src/pages/api/` (31 commits/30d), `src/lib/validation/` (14 commits/30d); `archive/2026-11-19-testing-api-error-paths` — luka smoke F9 potwierdzona jako żywy 500 dla nie-admina (naprawione) |
 | 6 | Statystyki liczą źle: nieobecność ≠ jawne „nie jedzie” + brak deklaracji, wchodzą terminy niezakończone albo przejazdy kierowców są liczone błędnie | Medium | Medium | interview Q4; PRD FR-017, §Business Logic „Zaangażowanie”; `archive/2026-11-16-group-engagement-stats` impl-review F1, F2 |
 
 Awarie wysokiego wpływu i niskiego prawdopodobieństwa (awaria Supabase lub
@@ -55,7 +55,7 @@ Cloudflare) należą do obserwowalności, nie do testów — poza tą mapą.
 | #2 | Po usunięciu dziecka, terminu lub członka deklaracje i statystyki zakończonych terminów pozostają bez zmian; znikają tylko deklaracje przyszłych terminów | „Kaskada jest w porządku, bo przyszłe deklaracje i tak trzeba usunąć” — PRD wymaga zachowania zakończonych | Reguły usuwania (kaskady, ograniczenia) dla dzieci, terminów, członkostwa; czy obecne zachowanie to świadomy kompromis do rozstrzygnięcia | pgTAP integration | Test zatwierdzający obecne zachowanie zamiast wymagania PRD; liczniki zakładające pustą bazę |
 | #3 | Dla każdej tabeli × operacji × roli (spoza grupy, członek innej grupy, członek tej grupy nie-właściciel, właściciel, admin grupy, admin aplikacji) dostęp jest dokładnie taki, jak w PRD; każda tabela ma włączony RLS; po regeneracji stary link nie działa | „Zalogowany = uprawniony”; „przetestowany SELECT = UPDATE/DELETE też szczelne” | Lista tabel i polityk per operacja, funkcje `security definer`, granty, istniejące pokrycie w `supabase/tests/` | pgTAP + strażnik katalogowy RLS | Tylko ścieżka szczęśliwa; liczenie wszystkich wierszy przy niepustej bazie; kopiowanie warunku polityki do asercji |
 | #4 | Zapis deklaracji dziecka i kierowcy przechodzi sekundę przed startem i jest odrzucany od chwili startu, także w dniach zmiany czasu i dla godzin w czasie lokalnym grupy | „Zegar serwera w UTC = czas terminu”; „zablokowany przycisk w UI = blokada” | Jak przechowywany jest start (typ, strefa), który zegar egzekwuje blokadę (baza czy Worker), gdzie odbywa się konwersja strefy (pytanie #14 z roadmapy rozstrzygnięte: Europe/Warsaw) | granica startu: pgTAP ze stałym `now()` w transakcji (`starts_at = now()` vs `now() + 1 s`); strefa i zmiana czasu: unit (Vitest) na czystych funkcjach konwersji | Testy zależne od zegara ściennego (`Date.now()`, przesunięcia względem bieżącej godziny); sprawdzanie wyłącznie stanu UI |
-| #5 | Gdy zapytanie lub RPC zwróci błąd, a wejście jest złośliwe lub brzegowe (zły format, rok poza zakresem, puste ciało), użytkownik dostaje jawny komunikat błędu (4xx lub przekierowanie z błędem), nigdy 500 ani komunikat sukcesu | „Końcowe 302 = sukces” | Mapowanie błędów RPC na komunikaty, schematy zod na granicy API, zachowanie stron przy błędzie zapytania | unit (mapowanie, zod) + kroki smoke | Mockowanie wnętrza klienta Supabase; asercja tylko na kod statusu bez sprawdzenia celu przekierowania i stanu danych |
+| #5 | Gdy zapytanie lub RPC zwróci błąd, a wejście jest złośliwe lub brzegowe (zły format, rok poza zakresem, puste ciało), użytkownik dostaje jawny błąd, nigdy 500 ani komunikat sukcesu: odmowa uprawnień (42501, spreparowane id) → 404, błąd pola → 302 z dokładnym kodem z białej listy (asercja sprawdza kod, nie samo `?error=`), nieznany błąd bazy → `?error=unknown` | „Końcowe 302 = sukces” | Mapowanie błędów RPC na komunikaty, schematy zod na granicy API, zachowanie stron przy błędzie zapytania | unit (mapowanie, zod) + kroki smoke | Mockowanie wnętrza klienta Supabase; asercja tylko na kod statusu bez sprawdzenia celu przekierowania i stanu danych |
 | #6 | Dla zestawu zakończonych i niezakończonych terminów statystyki zwracają liczby zgodne z ręcznie policzonym przykładem: nieobecność = jawne „nie jedzie” + brak deklaracji, przejazdy kierowcy tylko z zakończonych terminów | „Zakończony = data w przeszłości wg zegara Workera” | Gdzie liczone są statystyki, która definicja „zakończony” obowiązuje, jak traktowani są byli członkowie | pgTAP | Lustrzane odbicie implementacji; fixture bez dzieci bez deklaracji i bez terminów na granicy |
 
 ## 3. Phased Rollout
@@ -69,8 +69,8 @@ aktualizuje go, gdy na dysku pojawiają się artefakty.
 | 1 | Bilans i statystyki na danych granicznych | Udowodnić, że ostrzeżenie o niedoborze i statystyki są zgodne z ręcznie policzonymi przykładami z PRD | #1, #6 | pgTAP lub unit (bootstrap Vitest, jeśli logika jest w TS) | complete | context/archive/2026-11-18-testing-seat-balance-stats/ |
 | 2 | Trwałość historii i granica startu terminu | Udowodnić, że usunięcia nie zmieniają zakończonych terminów, a blokada działa dokładnie od chwili startu | #2, #4 | pgTAP z kontrolowanym czasem | complete | context/archive/2026-11-18-testing-history-durability-start-boundary/ |
 | 3 | Macierz izolacji RLS | Udowodnić izolację grup i własności deklaracji dla każdej tabeli, operacji i roli oraz wymusić RLS na nowych tabelach | #3 | pgTAP + strażnik katalogowy | complete | context/archive/2026-11-18-testing-rls-isolation-matrix/ |
-| 4 | Ścieżki błędów i walidacja wejścia w API | Udowodnić, że błędy backendu i złe wejście dają jawny błąd, nie 500 ani pozorny sukces; w smoke także F9: zwykły zalogowany użytkownik POST `/api/admin/groups` → 404 (`archive/2026-11-10-app-admin-creates-group/follow-ups/review-fixes.md:10`) | #5 | unit + smoke | planned | context/changes/testing-api-error-paths/ |
-| 5 | Bramki jakości | Wpiąć nowe testy w CI i hook po edycji, żeby podłoga nie spadła | cross-cutting | gates, post-edit hook | not started | — |
+| 4 | Ścieżki błędów i walidacja wejścia w API | Udowodnić, że błędy backendu i złe wejście dają jawny błąd, nie 500 ani pozorny sukces; w smoke także F9: zwykły zalogowany użytkownik POST `/api/admin/groups` → 404 (`archive/2026-11-10-app-admin-creates-group/follow-ups/review-fixes.md:10`) | #5 | unit + smoke | complete | context/archive/2026-11-19-testing-api-error-paths/ |
+| 5 | Bramki jakości | Wpiąć nowe testy w CI i hook po edycji, żeby podłoga nie spadła | cross-cutting | gates, post-edit hook | change opened | context/changes/testing-quality-gates/ |
 
 ## 4. Stack
 
@@ -98,7 +98,8 @@ aktualizuje go, gdy na dysku pojawiają się artefakty.
 | smoke (`npm run smoke`) | CI | required | zepsute przepływy HTTP |
 | unit (TS, `npm test`) | local + CI | required (aktywna od §3 Phase 1) | regresje logiki i mapowania błędów |
 | strażnik RLS na każdej tabeli | CI (w pgTAP) | required (aktywna od §3 Phase 3) | tabela bez RLS lub bez polityk |
-| post-edit hook | local (agent loop) | recommended after §3 Phase 5 | regresje w chwili edycji |
+| post-edit hook (`.claude/settings.json`) | local (agent loop) | active from §3 Phase 5 | po edycji `src/**/*.{ts,tsx}`: `vitest related` (exit 2 przy czerwieni); na koniec tury (Stop): ESLint zmienionych plików + `check-ui-literals` |
+| reguła ESLint `clone()` w `src/pages/api` | local + CI (`npm run lint`) | required (aktywna od §3 Phase 5) | odczyt ciała żądania bez `clone()` → 500 `RewriteWithBodyUsed` |
 
 ## 6. Cookbook Patterns
 
@@ -254,7 +255,7 @@ odpowiednia faza zostanie wdrożona; wcześniej brzmi „TBD — see §3 Phase N
 - **Nowy endpoint → checklist**:
   1. czytaj `context.request.clone().formData()` w `try/catch` — Astro rzuca
      `RewriteWithBodyUsed` (500), gdy `rewrite` następuje po przeczytaniu
-     oryginalnego ciała;
+     oryginalnego ciała (pilnuje tego `npm run lint`);
   2. krok smoke na ścieżce 404 (spreparowane id albo rola bez prawa) i krok
      na każdym przekierowaniu z `locationExact` i dokładnym kodem — prefiks
      `location` przepuszcza `?error=` jako sukces;
@@ -324,6 +325,17 @@ odpowiednia faza zostanie wdrożona; wcześniej brzmi „TBD — see §3 Phase N
   `context/changes/testing-api-error-paths/research.md` („Korekty do planu
   testów”: 404 dla odmowy, dokładny kod w asercji) oraz kandydat na bramkę
   fazy 5 — reguła lint „`clone()` przed `rewrite`” w `src/pages/api/`.
+- **Faza 5** (`testing-quality-gates`): nie dodano jobów CI — `ci` i `smoke`
+  już pokrywają każdą warstwę. Dodano regułę ESLint `clone()` w
+  `src/pages/api` (3 endpointy auth/join przepisane) oraz hooki agenta w
+  `.claude/settings.json` (po edycji: `vitest related`; Stop: ESLint +
+  `check-ui-literals`). Dowody w
+  `context/changes/testing-quality-gates/gate-proofs.md`: 7 warstw czerwieni
+  lokalnie z exit 1 i zielone po przywróceniu; PR dowodowy #72 z czerwonymi
+  `ci` i `smoke` oraz `mergeStateStatus=BLOCKED` (zamknięty bez merge); oba
+  hooki udowodnione na zepsutym i zielonym pliku. Świadomie poza zakresem:
+  strażnik „każdy endpoint z `rewrite` ma krok 404 w smoke” (punkt
+  checklisty §6.4) oraz ESLint/pgTAP/smoke po każdej edycji.
 
 ## 7. What We Deliberately Don't Test
 

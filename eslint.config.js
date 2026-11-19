@@ -77,6 +77,22 @@ const scriptsConfig = defineConfig({
   rules: { "no-console": "off" },
 });
 
+const apiBodyConfig = defineConfig({
+  files: ["src/pages/api/**/*.ts"],
+  rules: {
+    "no-restricted-syntax": [
+      "error",
+      {
+        selector:
+          "CallExpression[callee.type='MemberExpression'][callee.property.name=/^(formData|json|text|arrayBuffer|blob)$/]" +
+          ":not([callee.object.type='CallExpression'][callee.object.callee.property.name='clone'])",
+        message:
+          'Read the request body via context.request.clone().<method>() — rewrite("/404") after reading the original body throws RewriteWithBodyUsed (500). See context/foundation/test-plan.md §6.4.',
+      },
+    ],
+  },
+});
+
 export default defineConfig(
   includeIgnoreFile(gitignorePath),
   // Agent skills from 10x-cli ship their own scripts; they are not app code.
@@ -87,5 +103,6 @@ export default defineConfig(
   eslintPluginAstro.configs["flat/jsx-a11y-recommended"],
   astroConfig,
   scriptsConfig,
+  apiBodyConfig,
   eslintPluginPrettier,
 );

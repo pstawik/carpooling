@@ -41,6 +41,8 @@ Merge Tailwind classes with `cn()` from `@/lib/utils`, never by string concatena
 
 ## Testing
 
+Agent hooks in `.claude/settings.json` (scripts in `scripts/hooks/`) run `vitest related` after each edit of `src/**/*.{ts,tsx}` and ESLint plus `check-ui-literals` on changed files when a turn ends; in `src/pages/api` read the request body only via `context.request.clone().<method>()` (lint enforces it).
+
 Unit tests use Vitest (`npm test`): `*.test.ts` next to the module under `src/`, pure functions only. Database rules (RLS, triggers, stats) are tested with pgTAP in `supabase/tests/*.test.sql` via `npx supabase test db`. Before writing a test, read `@context/foundation/test-plan.md` (§6 has the patterns). Verification is lint, `astro check`, `npm test`, build, `supabase test db` and `npm run smoke`, matching CI (`@.github/workflows/ci.yml`).
 
 ## Commits & PRs
