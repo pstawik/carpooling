@@ -108,7 +108,7 @@ delete from public.group_members
 select results_eq(
   $$select event_id from public.event_drivers
     where user_id = '00000000-0000-0000-0000-0000000000f1'$$,
-  $$values ('e0000000-0000-0000-0000-000000000002'::uuid)$$,
+  $$values ('e0000000-0000-0000-0000-000000000099'::uuid)$$,
   'precondition: X''s driver declaration on the started N survives the removal'
 );
 

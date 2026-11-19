@@ -25,7 +25,7 @@ const RPC_BUSINESS_KEYS = ["unknown_email", "group_not_found", "no_admins", "inv
 
 describe("groupRpcFailure", () => {
   it("42501 -> forbidden: the route answers 404 (is_app_admin check, 20261110120000_create_groups.sql:155)", () => {
-    expect(groupRpcFailure(pgError("42501", "insufficient_privilege"))).toEqual({ kind: "forbidden" });
+    expect(groupRpcFailure(pgError("42501", "insufficient_privilege"))).toEqual({ kind: "nope" });
   });
 
   it.each(RPC_BUSINESS_KEYS)("P0001 %s -> the same code (RPC business error)", (key) => {
