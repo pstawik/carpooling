@@ -384,12 +384,12 @@ odwracana przez `npx supabase db reset`.
 
 #### Automated
 
-- [x] 3.1 `scripts/hooks/post-edit-vitest.mjs`: exit 2 na pliku z czerwonym testem, exit 0 na zielonym i na `README.md`
-- [x] 3.2 `scripts/hooks/stop-lint.mjs`: exit 2 przy błędzie ESLint w zmienionym pliku, exit 0 przy `stop_hook_active: true` i na czystym drzewie
-- [x] 3.3 `npm run lint` przechodzi (skrypty hooków lintowane w `scripts/`)
-- [x] 3.4 `.claude/settings.json` jest poprawnym JSON-em z hookami PostToolUse i Stop
+- [x] 3.1 `scripts/hooks/post-edit-vitest.mjs`: exit 2 na pliku z czerwonym testem, exit 0 na zielonym i na `README.md` — 13f9540
+- [x] 3.2 `scripts/hooks/stop-lint.mjs`: exit 2 przy błędzie ESLint w zmienionym pliku, exit 0 przy `stop_hook_active: true` i na czystym drzewie — 13f9540
+- [x] 3.3 `npm run lint` przechodzi (skrypty hooków lintowane w `scripts/`) — 13f9540
+- [x] 3.4 `.claude/settings.json` jest poprawnym JSON-em z hookami PostToolUse i Stop — 13f9540
 
 #### Manual
 
-- [x] 3.5 W nowej sesji Claude Code edycja z czerwonym testem pokazuje agentowi wynik hooka, a agent na niego reaguje
-- [x] 3.6 Czas hooka po edycji akceptowalny w codziennej pracy (~5 s)
+- [x] 3.5 W nowej sesji Claude Code edycja z czerwonym testem pokazuje agentowi wynik hooka, a agent na niego reaguje — 13f9540
+- [x] 3.6 Czas hooka po edycji akceptowalny w codziennej pracy (~5 s) — 13f9540
