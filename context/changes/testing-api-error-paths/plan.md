@@ -559,25 +559,25 @@ mapperów bez zmiany zachowania (faza 3).
 
 #### Automated
 
-- [x] 4.1 `npm run smoke` przechodzi w całości
-- [x] 4.2 `npm run lint` przechodzi
-- [x] 4.3 Celowe zepsucie: `request.formData()` bez `clone()` w `src/pages/api/groups/children/update.ts` daje FAIL `-> 500` kroku 404; cofnięte
-- [x] 4.4 Celowe zepsucie: usunięcie `try/catch` wokół `formData()` w `src/pages/api/auth/signup.ts` daje FAIL kroku JSON; cofnięte
+- [x] 4.1 `npm run smoke` przechodzi w całości — 590f921
+- [x] 4.2 `npm run lint` przechodzi — 590f921
+- [x] 4.3 Celowe zepsucie: `request.formData()` bez `clone()` w `src/pages/api/groups/children/update.ts` daje FAIL `-> 500` kroku 404; cofnięte — 590f921
+- [x] 4.4 Celowe zepsucie: usunięcie `try/catch` wokół `formData()` w `src/pages/api/auth/signup.ts` daje FAIL kroku JSON; cofnięte — 590f921
 
 #### Manual
 
-- [x] 4.5 Każdy nowy krok z ciałem nie-formularzowym trafia w gałąź `catch` (sprawdzone w biegu: odpowiedź to kod z `catch`, nie kod walidacji pola)
-- [x] 4.6 Żaden zaostrzony krok nie zrobił się czerwony; jeśli tak, przyczyna jest opisana jako błąd aplikacji, a asercja nie została poluzowana
+- [x] 4.5 Każdy nowy krok z ciałem nie-formularzowym trafia w gałąź `catch` (sprawdzone w biegu: odpowiedź to kod z `catch`, nie kod walidacji pola) — 590f921
+- [x] 4.6 Żaden zaostrzony krok nie zrobił się czerwony; jeśli tak, przyczyna jest opisana jako błąd aplikacji, a asercja nie została poluzowana — 590f921
 
 ### Phase 5: Weryfikacja jak w CI i cookbook
 
 #### Automated
 
-- [ ] 5.1 `npm run lint`, `npx astro check`, `npm test`, `npm run build` przechodzą
-- [ ] 5.2 `npx supabase test db` przechodzi
-- [ ] 5.3 `npm run smoke` przechodzi przeciw `npm run preview` (build produkcyjny, jak w CI)
-- [ ] 5.4 §6.4 w `context/foundation/test-plan.md` nie zawiera już „TBD”
+- [x] 5.1 `npm run lint`, `npx astro check`, `npm test`, `npm run build` przechodzą
+- [x] 5.2 `npx supabase test db` przechodzi
+- [x] 5.3 `npm run smoke` przechodzi przeciw `npm run preview` (build produkcyjny, jak w CI)
+- [x] 5.4 §6.4 w `context/foundation/test-plan.md` nie zawiera już „TBD”
 
 #### Manual
 
-- [ ] 5.5 Przegląd §6.4: osoba dodająca nowy endpoint wie, jaki krok smoke i jakie testy Vitest dopisać
+- [x] 5.5 Przegląd §6.4: osoba dodająca nowy endpoint wie, jaki krok smoke i jakie testy Vitest dopisać
