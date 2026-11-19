@@ -98,7 +98,7 @@ aktualizuje go, gdy na dysku pojawiają się artefakty.
 | smoke (`npm run smoke`) | CI | required | zepsute przepływy HTTP |
 | unit (TS, `npm test`) | local + CI | required (aktywna od §3 Phase 1) | regresje logiki i mapowania błędów |
 | strażnik RLS na każdej tabeli | CI (w pgTAP) | required (aktywna od §3 Phase 3) | tabela bez RLS lub bez polityk |
-| post-edit hook (`.claude/settings.json`) | local (agent loop) | active from §3 Phase 5 | po edycji `src/**/*.{ts,tsx}`: `vitest related` (exit 2 przy czerwieni); na koniec tury (Stop): ESLint zmienionych plików + `check-ui-literals` |
+| post-edit hook (`.claude/settings.json`) | local (agent loop) | active from §3 Phase 5 | po edycji (`Write|Edit`): ESLint edytowanego pliku, dla `src/**/*.{ts,tsx}` także `vitest related` (exit 2 przy czerwieni); na koniec tury (Stop, jedna próba naprawy): ESLint zmienionych plików + `check-ui-literals` + `vitest run src` + `astro check`; dowód: `scripts/__tests__/agent-hooks.test.mjs` (`npm test`) |
 | reguła ESLint `clone()` w `src/pages/api` | local + CI (`npm run lint`) | required (aktywna od §3 Phase 5) | odczyt ciała żądania bez `clone()` → 500 `RewriteWithBodyUsed` |
 
 ## 6. Cookbook Patterns
@@ -336,6 +336,9 @@ odpowiednia faza zostanie wdrożona; wcześniej brzmi „TBD — see §3 Phase N
   hooki udowodnione na zepsutym i zielonym pliku. Świadomie poza zakresem:
   strażnik „każdy endpoint z `rewrite` ma krok 404 w smoke” (punkt
   checklisty §6.4) oraz ESLint/pgTAP/smoke po każdej edycji.
+  Następnie (`/10x-configure-hook`): hooki przepisane na `scripts/hooks/post-edit.mjs`
+  i `end-of-turn.mjs` (checkout z `git rev-parse`, ESLint po edycji, Stop z testami
+  i `astro check`) oraz test dowodowy `scripts/__tests__/agent-hooks.test.mjs`.
 
 ## 7. What We Deliberately Don't Test
 
