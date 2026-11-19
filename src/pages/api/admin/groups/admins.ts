@@ -3,11 +3,17 @@ import { createClient } from "@/lib/supabase";
 import { addGroupAdminIssueCode, adminGroupsErrorUrl, groupRpcFailure } from "@/lib/services/group-errors";
 import { addGroupAdminSchema } from "@/lib/validation/groups";
 
-// Authorization lives in the add_group_admin RPC (is_app_admin); no pre-check here.
+// Authorization lives in the add_group_admin RPC (is_app_admin). Anonymous callers get the same 404
+// before the body is parsed, so a malformed body does not reveal the endpoint either.
 export const POST: APIRoute = async (context) => {
+  if (!context.locals.user) {
+    return context.rewrite("/404");
+  }
+
   let form: FormData;
   try {
-    form = await context.request.formData();
+    // Read a clone: Astro refuses rewrite("/404") once the original body has been consumed.
+    form = await context.request.clone().formData();
   } catch {
     // Not a form-encoded or multipart body (e.g. JSON): reject without a 500.
     return context.redirect(adminGroupsErrorUrl("invalid_input"));

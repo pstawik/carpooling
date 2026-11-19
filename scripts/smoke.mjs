@@ -21,7 +21,8 @@ function storeCookies(response) {
   }
 }
 
-async function request(path, { method = "GET", form, readBody = false } = {}) {
+// `rawBody` is sent verbatim (e.g. JSON); its Content-Type is set only when `contentType` is given.
+async function request(path, { method = "GET", form, rawBody, contentType, readBody = false } = {}) {
   const response = await fetch(BASE_URL + path, {
     method,
     redirect: "manual",
@@ -29,13 +30,25 @@ async function request(path, { method = "GET", form, readBody = false } = {}) {
       Cookie: cookieHeader(),
       Origin: BASE_URL,
       ...(form ? { "Content-Type": "application/x-www-form-urlencoded" } : {}),
+      ...(contentType ? { "Content-Type": contentType } : {}),
     },
-    body: form ? new URLSearchParams(form).toString() : undefined,
+    body: form ? new URLSearchParams(form).toString() : rawBody,
   });
   storeCookies(response);
   const body = readBody ? await response.text() : "";
   return { status: response.status, location: response.headers.get("location") ?? "", body };
 }
+
+/**
+ * POSTs a JSON body: not a form, so the endpoint's `formData()` throws and its `catch` answers.
+ * `value` may be a function, for ids captured by earlier steps.
+ */
+const postJson = (path, value) => () =>
+  request(path, {
+    method: "POST",
+    rawBody: JSON.stringify(typeof value === "function" ? value() : value),
+    contentType: "application/json",
+  });
 
 // SMOKE_READONLY=1 skips every step that creates users or sessions — use it against production,
 // where throwaway sign-ups would pollute auth.users and profiles with test accounts.
@@ -61,6 +74,8 @@ const profile = { first_name: "Rodzic", nick: "Smoke", phone: "600 123 456" };
 const adminEmail = process.env.SMOKE_ADMIN_EMAIL ?? "admin@example.com";
 const adminPassword = process.env.SMOKE_ADMIN_PASSWORD ?? "Admin-Passw0rd!";
 const groupName = `Smoke ${Date.now()}`;
+// A valid group form sent by a non-admin and anonymously; it must get 404 and never create a group.
+const probeGroupName = `Smoke probe ${Date.now()}`;
 // A second account that is in no group, to prove isolation.
 const strangerEmail = `smoke-stranger-${Date.now()}@example.com`;
 // A brand-new account that signs up straight from the invite link.
@@ -217,14 +232,19 @@ async function dashboardWithGroupLink() {
 
 const writeSteps = [
   [
+    "signup with a JSON body is rejected",
+    postJson("/api/auth/signup", { ...profile, email, password }),
+    { status: 302, locationExact: "/auth/signup?error=invalid_input" },
+  ],
+  [
     "signup rejects missing nick",
     () => request("/api/auth/signup", { method: "POST", form: { first_name: profile.first_name, email, password } }),
-    { status: 302, location: "/auth/signup?error=" },
+    { status: 302, locationExact: "/auth/signup?error=invalid_nick" },
   ],
   [
     "signup creates account and signs in",
     () => request("/api/auth/signup", { method: "POST", form: { ...profile, email, password } }),
-    { status: 302, location: "/dashboard" },
+    { status: 302, locationExact: "/dashboard" },
   ],
   ["signin page redirects signed-in user", () => request("/auth/signin"), { status: 302, locationExact: "/dashboard" }],
   ["signup page redirects signed-in user", () => request("/auth/signup"), { status: 302, locationExact: "/dashboard" }],
@@ -233,25 +253,58 @@ const writeSteps = [
     () => request("/dashboard", { readBody: true }),
     { status: 200, contains: profile.nick },
   ],
-  ["signout clears session", () => request("/api/auth/signout", { method: "POST" }), { status: 302, location: "/" }],
+  [
+    "signout clears session",
+    () => request("/api/auth/signout", { method: "POST" }),
+    { status: 302, locationExact: "/" },
+  ],
   [
     "signin rejects wrong password",
     () => request("/api/auth/signin", { method: "POST", form: { email, password: "wrong" } }),
-    { status: 302, location: "/auth/signin?error=" },
+    { status: 302, locationExact: "/auth/signin?error=invalid_credentials" },
   ],
   [
     "signin accepts correct password",
     () => request("/api/auth/signin", { method: "POST", form: { email, password } }),
-    { status: 302, location: "/dashboard" },
+    { status: 302, locationExact: "/dashboard" },
   ],
   ["dashboard renders for signed-in user", () => request("/dashboard"), { status: 200 }],
   ["regular user gets 404 on admin groups", () => request("/admin/groups"), { status: 404 }],
-  ["signout clears session", () => request("/api/auth/signout", { method: "POST" }), { status: 302, location: "/" }],
+  [
+    "regular user gets 404 creating a group",
+    () => request("/api/admin/groups", { method: "POST", form: { name: probeGroupName, admin_emails: email } }),
+    { status: 404 },
+  ],
+  [
+    "regular user gets 404 adding a group admin",
+    () => request("/api/admin/groups/admins", { method: "POST", form: { group_id: randomUUID(), email } }),
+    { status: 404 },
+  ],
+  [
+    "signout clears session",
+    () => request("/api/auth/signout", { method: "POST" }),
+    { status: 302, locationExact: "/" },
+  ],
   ["dashboard redirects after signout", () => request("/dashboard"), { status: 302, location: "/auth/signin" }],
+  [
+    "anonymous user gets 404 creating a group",
+    () => request("/api/admin/groups", { method: "POST", form: { name: probeGroupName, admin_emails: email } }),
+    { status: 404 },
+  ],
+  [
+    "anonymous create group with a JSON body renders 404",
+    postJson("/api/admin/groups", { name: probeGroupName, admin_emails: email }),
+    { status: 404 },
+  ],
   [
     "seed app admin signs in",
     () => request("/api/auth/signin", { method: "POST", form: { email: adminEmail, password: adminPassword } }),
-    { status: 302, location: "/dashboard" },
+    { status: 302, locationExact: "/dashboard" },
+  ],
+  [
+    "app admin create group with a JSON body is rejected",
+    postJson("/api/admin/groups", { name: probeGroupName, admin_emails: email }),
+    { status: 302, locationExact: "/admin/groups?error=invalid_input" },
   ],
   [
     "create group rejects unknown e-mail",
@@ -272,11 +325,16 @@ const writeSteps = [
     () => request("/admin/groups", { readBody: true }),
     { status: 200, contains: groupName },
   ],
-  ["admin signs out", () => request("/api/auth/signout", { method: "POST" }), { status: 302, location: "/" }],
+  [
+    "admin groups page does not list the probe group",
+    () => request("/admin/groups", { readBody: true }),
+    { status: 200, notContains: probeGroupName },
+  ],
+  ["admin signs out", () => request("/api/auth/signout", { method: "POST" }), { status: 302, locationExact: "/" }],
   [
     "designated admin signs in",
     () => request("/api/auth/signin", { method: "POST", form: { email, password } }),
-    { status: 302, location: "/dashboard" },
+    { status: 302, locationExact: "/dashboard" },
   ],
   ["dashboard lists the new group", dashboardWithGroupLink, { status: 200, contains: groupName }],
   ["group page renders for member", () => request(groupPath, { readBody: true }), { status: 200, contains: groupName }],
@@ -286,7 +344,7 @@ const writeSteps = [
     { status: 302, location: () => `${groupPath}?message=invite_ready` },
   ],
   ["group page shows the invite link", groupPageWithInviteToken, { status: 200, contains: "/join/" }],
-  ["member signs out", () => request("/api/auth/signout", { method: "POST" }), { status: 302, location: "/" }],
+  ["member signs out", () => request("/api/auth/signout", { method: "POST" }), { status: 302, locationExact: "/" }],
   [
     "anonymous invite page shows the group name",
     () => request(`/join/${inviteToken}`, { readBody: true }),
@@ -295,7 +353,7 @@ const writeSteps = [
   [
     "stranger signs up",
     () => request("/api/auth/signup", { method: "POST", form: { ...profile, email: strangerEmail, password } }),
-    { status: 302, location: "/dashboard" },
+    { status: 302, locationExact: "/dashboard" },
   ],
   [
     "stranger dashboard does not list the group",
@@ -303,7 +361,7 @@ const writeSteps = [
     { status: 200, notContains: groupName },
   ],
   ["stranger gets 404 on the group page", () => request(groupPath), { status: 404 }],
-  ["stranger signs out", () => request("/api/auth/signout", { method: "POST" }), { status: 302, location: "/" }],
+  ["stranger signs out", () => request("/api/auth/signout", { method: "POST" }), { status: 302, locationExact: "/" }],
   [
     "new user signs up with invite and joins",
     () =>
@@ -314,7 +372,7 @@ const writeSteps = [
     { status: 302, location: () => `${groupPath}?message=joined` },
   ],
   ["group page renders for new member", () => request(groupPath), { status: 200 }],
-  ["new member signs out", () => request("/api/auth/signout", { method: "POST" }), { status: 302, location: "/" }],
+  ["new member signs out", () => request("/api/auth/signout", { method: "POST" }), { status: 302, locationExact: "/" }],
   [
     "stranger signs in with invite and joins",
     () =>
@@ -325,6 +383,11 @@ const writeSteps = [
     "joining again reports already member",
     () => request("/api/groups/join", { method: "POST", form: { token: inviteToken } }),
     { status: 302, location: () => `${groupPath}?message=already_member` },
+  ],
+  [
+    "joining with an empty body redirects to the invalid join page",
+    () => request("/api/groups/join", { method: "POST" }),
+    { status: 302, locationExact: "/join/invalid" },
   ],
   ["member adds a child", addChildForm(childName), { status: 302, location: () => `${groupPath}?message=child_added` }],
   [
@@ -379,6 +442,26 @@ const writeSteps = [
     { status: 404 },
   ],
   [
+    "adding a child with a JSON body renders 404",
+    postJson("/api/groups/children", () => ({ group_id: groupId(), name: childName })),
+    { status: 404 },
+  ],
+  [
+    "renaming a child with a malformed child id renders 404",
+    () =>
+      request("/api/groups/children/update", {
+        method: "POST",
+        form: { group_id: groupId(), child_id: "not-a-uuid", name: childRenamed },
+      }),
+    { status: 404 },
+  ],
+  [
+    "deleting a child with a malformed child id renders 404",
+    () =>
+      request("/api/groups/children/delete", { method: "POST", form: { group_id: groupId(), child_id: "not-a-uuid" } }),
+    { status: 404 },
+  ],
+  [
     "member sees the Terminy card",
     () => request(groupPath, { readBody: true }),
     { status: 200, contains: 'id="terminy"' },
@@ -395,11 +478,16 @@ const writeSteps = [
     { status: 200, notContains: "Generuj terminy cotygodniowe" },
   ],
   ["member cannot generate events", generateEventsForm(), { status: 404 }],
-  ["stranger signs out", () => request("/api/auth/signout", { method: "POST" }), { status: 302, location: "/" }],
+  [
+    "member cannot generate an invite link",
+    () => request("/api/groups/invite", { method: "POST", form: { group_id: groupId() } }),
+    { status: 404 },
+  ],
+  ["stranger signs out", () => request("/api/auth/signout", { method: "POST" }), { status: 302, locationExact: "/" }],
   [
     "designated admin signs in again",
     () => request("/api/auth/signin", { method: "POST", form: { email, password } }),
-    { status: 302, location: "/dashboard" },
+    { status: 302, locationExact: "/dashboard" },
   ],
   ["group admin adds an event", addEventForm(), { status: 302, location: () => `${groupPath}?message=event_added` }],
   [
@@ -444,6 +532,21 @@ const writeSteps = [
     "group page no longer shows the event",
     () => request(groupPath, { readBody: true }),
     { status: 200, notContains: eventNote },
+  ],
+  [
+    "editing an event with a malformed event id renders 404",
+    () =>
+      request("/api/groups/events/update", {
+        method: "POST",
+        form: { group_id: groupId(), event_id: "not-a-uuid", date: eventDate, time: "17:30", note: eventNoteEdited },
+      }),
+    { status: 404 },
+  ],
+  [
+    "deleting an event with a malformed event id renders 404",
+    () =>
+      request("/api/groups/events/delete", { method: "POST", form: { group_id: groupId(), event_id: "not-a-uuid" } }),
+    { status: 404 },
   ],
   [
     "adding an event with a malformed group id renders 404",
@@ -535,11 +638,11 @@ const writeSteps = [
     { status: 200, contains: () => `href="${planPath()}"` },
   ],
   ["another member cannot declare the child", declareForm({ going: "true" }), { status: 404 }],
-  ["admin signs out", () => request("/api/auth/signout", { method: "POST" }), { status: 302, location: "/" }],
+  ["admin signs out", () => request("/api/auth/signout", { method: "POST" }), { status: 302, locationExact: "/" }],
   [
     "parent signs in again",
     () => request("/api/auth/signin", { method: "POST", form: { email: strangerEmail, password } }),
-    { status: 302, location: "/dashboard" },
+    { status: 302, locationExact: "/dashboard" },
   ],
   [
     "plan shows the child without a declaration",
@@ -624,16 +727,16 @@ const writeSteps = [
     () => request(statsPath(), { readBody: true }),
     { status: 200, contains: ["Statystyki", "Brak zakończonych terminów"] },
   ],
-  ["parent signs out", () => request("/api/auth/signout", { method: "POST" }), { status: 302, location: "/" }],
+  ["parent signs out", () => request("/api/auth/signout", { method: "POST" }), { status: 302, locationExact: "/" }],
   [
     "outsider signs up",
     () => request("/api/auth/signup", { method: "POST", form: { ...profile, email: outsiderEmail, password } }),
-    { status: 302, location: "/dashboard" },
+    { status: 302, locationExact: "/dashboard" },
   ],
   ["outsider gets 404 on the plan page", () => request(planPath()), { status: 404 }],
   ["outsider gets 404 on the stats page", () => request(statsPath()), { status: 404 }],
   ["outsider cannot declare as a driver", driverForm({ seats: "2" }), { status: 404 }],
-  ["outsider signs out", () => request("/api/auth/signout", { method: "POST" }), { status: 302, location: "/" }],
+  ["outsider signs out", () => request("/api/auth/signout", { method: "POST" }), { status: 302, locationExact: "/" }],
 ];
 
 const steps = READONLY ? readonlySteps : [...readonlySteps, ...writeSteps];

@@ -22,7 +22,7 @@ type ChildRow = Pick<Child, "id" | "name" | "parent_id"> & { profiles: { nick: s
  * DELETE on a row the caller may not write simply match 0 rows, so callers ask for `.select("id")`
  * and pass the returned rows here: an empty result is reported as `child_not_found`.
  */
-function writeResult(error: PostgrestError | null, rows?: unknown[] | null): ChildWriteResult {
+export function childWriteResult(error: PostgrestError | null, rows?: unknown[] | null): ChildWriteResult {
   if (error) {
     if (error.code === "42501") return { ok: false, failure: "forbidden", error };
     if (error.code === "23505") return { ok: false, failure: "duplicate_child", error };
@@ -52,7 +52,7 @@ export async function addChild(
   { groupId, parentId, name }: { groupId: string; parentId: string; name: string },
 ): Promise<ChildWriteResult> {
   const { error } = await supabase.from("children").insert({ group_id: groupId, parent_id: parentId, name });
-  return writeResult(error);
+  return childWriteResult(error);
 }
 
 export async function renameChild(
@@ -65,7 +65,7 @@ export async function renameChild(
     .eq("id", childId)
     .eq("group_id", groupId)
     .select("id");
-  return writeResult(error, data);
+  return childWriteResult(error, data);
 }
 
 /**
@@ -84,7 +84,7 @@ export async function deleteChild(
     .eq("id", childId)
     .eq("group_id", groupId)
     .select("id");
-  const result = writeResult(error, data);
+  const result = childWriteResult(error, data);
   if (result.ok || result.failure !== "child_not_found") return result;
 
   const { data: own, error: readError } = await supabase

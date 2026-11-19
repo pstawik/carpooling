@@ -42,10 +42,23 @@ export async function listEventAttendance(supabase: SupabaseClient, eventId: str
 }
 
 /**
+ * Maps the `set_child_attendance` RPC error. The RPC raises 42501 for someone else's or an
+ * invisible child, a foreign group and an event that already started; a child and an event from
+ * different groups break the composite foreign key (23503).
+ */
+export function attendanceWriteResult(error: PostgrestError | null): AttendanceWriteResult {
+  if (error) {
+    if (error.code === "42501") return { ok: false, failure: "forbidden", error };
+    if (error.code === "23503") return { ok: false, failure: "not_found", error };
+    return { ok: false, failure: "unknown", error };
+  }
+  return { ok: true };
+}
+
+/**
  * Declares one child going or not going. Writes only through the `set_child_attendance` RPC: a
- * PostgREST upsert would need UPDATE on the key columns, which is not granted. The RPC raises 42501
- * for someone else's or an invisible child, a foreign group and an event that already started; a
- * child and an event from different groups break the composite foreign key (23503).
+ * PostgREST upsert would need UPDATE on the key columns, which is not granted. Error codes are
+ * mapped by `attendanceWriteResult`.
  */
 export async function setChildAttendance(
   supabase: SupabaseClient,
@@ -56,12 +69,7 @@ export async function setChildAttendance(
     p_child_id: childId,
     p_going: going,
   });
-  if (error) {
-    if (error.code === "42501") return { ok: false, failure: "forbidden", error };
-    if (error.code === "23503") return { ok: false, failure: "not_found", error };
-    return { ok: false, failure: "unknown", error };
-  }
-  return { ok: true };
+  return attendanceWriteResult(error);
 }
 
 /**

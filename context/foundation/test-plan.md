@@ -68,8 +68,8 @@ aktualizuje go, gdy na dysku pojawiają się artefakty.
 |---|------------|-----------------|---------------|------------|--------|---------------|
 | 1 | Bilans i statystyki na danych granicznych | Udowodnić, że ostrzeżenie o niedoborze i statystyki są zgodne z ręcznie policzonymi przykładami z PRD | #1, #6 | pgTAP lub unit (bootstrap Vitest, jeśli logika jest w TS) | complete | context/archive/2026-11-18-testing-seat-balance-stats/ |
 | 2 | Trwałość historii i granica startu terminu | Udowodnić, że usunięcia nie zmieniają zakończonych terminów, a blokada działa dokładnie od chwili startu | #2, #4 | pgTAP z kontrolowanym czasem | complete | context/archive/2026-11-18-testing-history-durability-start-boundary/ |
-| 3 | Macierz izolacji RLS | Udowodnić izolację grup i własności deklaracji dla każdej tabeli, operacji i roli oraz wymusić RLS na nowych tabelach | #3 | pgTAP + strażnik katalogowy | planned | context/changes/testing-rls-isolation-matrix/ |
-| 4 | Ścieżki błędów i walidacja wejścia w API | Udowodnić, że błędy backendu i złe wejście dają jawny błąd, nie 500 ani pozorny sukces; w smoke także F9: zwykły zalogowany użytkownik POST `/api/admin/groups` → 404 (`archive/2026-11-10-app-admin-creates-group/follow-ups/review-fixes.md:10`) | #5 | unit + smoke | not started | — |
+| 3 | Macierz izolacji RLS | Udowodnić izolację grup i własności deklaracji dla każdej tabeli, operacji i roli oraz wymusić RLS na nowych tabelach | #3 | pgTAP + strażnik katalogowy | complete | context/archive/2026-11-18-testing-rls-isolation-matrix/ |
+| 4 | Ścieżki błędów i walidacja wejścia w API | Udowodnić, że błędy backendu i złe wejście dają jawny błąd, nie 500 ani pozorny sukces; w smoke także F9: zwykły zalogowany użytkownik POST `/api/admin/groups` → 404 (`archive/2026-11-10-app-admin-creates-group/follow-ups/review-fixes.md:10`) | #5 | unit + smoke | planned | context/changes/testing-api-error-paths/ |
 | 5 | Bramki jakości | Wpiąć nowe testy w CI i hook po edycji, żeby podłoga nie spadła | cross-cutting | gates, post-edit hook | not started | — |
 
 ## 4. Stack
@@ -230,7 +230,49 @@ odpowiednia faza zostanie wdrożona; wcześniej brzmi „TBD — see §3 Phase N
 
 ### 6.4 Test endpointu API (błędy i wejście)
 
-- TBD — see §3 Phase 4 (wzorzec: błąd RPC i złe wejście → jawny błąd, nie 500 ani sukces).
+- **Kontrakt odpowiedzi** (każdy endpoint `src/pages/api/**`): brak prawa
+  (RLS/RPC 42501, spreparowane id) → **404** przez `rewrite("/404")`; błąd
+  pola wpisanego przez użytkownika → **302 z kodem z białej listy**
+  (`group-errors.ts`, `auth-errors.ts`); nieznany błąd bazy →
+  `console.error` + **302 `?error=unknown`**; nigdy 500 ani komunikat
+  sukcesu.
+- **Wyrocznia**: ograniczenie `check` z migracji (długości, zakres miejsc),
+  decyzja z archiwum (granice lat, atak na serię dat), kontrakt „404 = brak
+  prawa” — wpisane w teście dosłownie, ze źródłem w komentarzu. Nigdy lista
+  ani stała importowana z modułu pod testem, nigdy wartość liczona testowaną
+  funkcją.
+- **Warstwa**:
+  - mapper błędu i schemat zod → Vitest obok modułu (czysta funkcja, obiekt
+    błędu `{ code, message, details }` rzutowany na `PostgrestError`, issues z
+    prawdziwego `safeParse`; klienta Supabase nie mockujemy). Mapowanie
+    wplecione w funkcję z klientem wydziel do eksportowanej czystej funkcji
+    (`childWriteResult`, `eventWriteResult`, `attendanceWriteResult`,
+    `driverWriteResult`);
+  - czytanie ciała, `rewrite`, status HTTP → smoke (`scripts/smoke.mjs`),
+    bo tylko on uruchamia Astro. Gałęzi `unknown` smoke nie wywoła — ona
+    należy do Vitest.
+- **Nowy endpoint → checklist**:
+  1. czytaj `context.request.clone().formData()` w `try/catch` — Astro rzuca
+     `RewriteWithBodyUsed` (500), gdy `rewrite` następuje po przeczytaniu
+     oryginalnego ciała;
+  2. krok smoke na ścieżce 404 (spreparowane id albo rola bez prawa) i krok
+     na każdym przekierowaniu z `locationExact` i dokładnym kodem — prefiks
+     `location` przepuszcza `?error=` jako sukces;
+  3. testy Vitest dla nowych kodów błędów i granic pól (wartość na granicy i
+     o 1 za nią).
+- **Ciało nie-formularzowe**: JSON z `Content-Type: application/json` albo
+  POST bez ciała (bez nagłówka). Pusty formularz urlencoded parsuje się
+  poprawnie i omija `catch`; pusty string w `fetch` dostaje `text/plain`.
+- **Czasy w schematach**: `vi.useFakeTimers()` + `vi.setSystemTime`; pole
+  czasu ma rozdzielczość minuty, a marża startu to 60 s (warunek ostry).
+- **Dowód**: celowe zepsucie w worktree — usuń `clone()` albo `try/catch` i
+  potwierdź, że dokładnie jeden krok smoke daje `-> 500`; zmień gałąź
+  mappera (np. P0001 → `forbidden`, `rows = []` → sukces) i potwierdź
+  czerwony Vitest; przywróć `git checkout -- <plik>`.
+- **Wzorce**: `src/lib/services/group-errors.test.ts`,
+  `src/lib/services/children.test.ts`, `src/lib/validation/events.test.ts`
+  (granice lat, seria `99999-0x1-01` z budżetem < 100 ms),
+  `scripts/smoke.mjs` (`postJson`, kroki „… renders 404”, F9).
 
 ### 6.5 Per-rollout-phase notes
 
@@ -269,6 +311,19 @@ odpowiednia faza zostanie wdrożona; wcześniej brzmi „TBD — see §3 Phase N
   Do backportu w `/10x-test-plan`: dla ryzyka #4 warstwa strefy/DST to
   Vitest, a „kontrolowany czas” w pgTAP to stałe `now()` w transakcji
   (§2 Risk Response Guidance) — wprowadzone 2026-11-18.
+- **Faza 4** (`testing-api-error-paths`): smoke F9 ujawnił żywy błąd —
+  `POST /api/admin/groups` i `/admins` dawały 500 zamiast 404 nie-adminowi i
+  anonimowi (ciało czytane bez `clone()` przed `rewrite("/404")`); naprawione
+  po czerwonym kroku. Mappery zapisu w 4 serwisach są teraz eksportowanymi
+  czystymi funkcjami z testami. Każdy z 12 endpointów z `rewrite` ma krok 404
+  w smoke, a przekierowania logowania, rejestracji i wylogowania są
+  asertowane dokładnie. Świadomie poza zakresem: 500 stron przy awarii
+  głównego zapytania (decyzja ACCEPTED, child-attendance-declaration F6),
+  brak komunikatu po nieudanym dołączeniu (decyzja produktowa). Do backportu
+  w `/10x-test-plan`: korekty §2 dla ryzyka #5 z
+  `context/changes/testing-api-error-paths/research.md` („Korekty do planu
+  testów”: 404 dla odmowy, dokładny kod w asercji) oraz kandydat na bramkę
+  fazy 5 — reguła lint „`clone()` przed `rewrite`” w `src/pages/api/`.
 
 ## 7. What We Deliberately Don't Test
 

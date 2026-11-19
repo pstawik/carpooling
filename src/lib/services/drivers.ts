@@ -51,22 +51,29 @@ export async function listEventDrivers(supabase: SupabaseClient, eventId: string
 }
 
 /**
- * Declares the signed-in member a driver with `seats`, or changes the seats of their declaration.
- * Writes only through the `set_event_driver` RPC: a PostgREST upsert would need UPDATE on the key
- * columns, which is not granted. The RPC raises 42501 for a foreign or invisible event and one that
- * already started; seats outside 1-8 break the table's check (23514).
+ * Maps the `set_event_driver` RPC error. The RPC raises 42501 for a foreign or invisible event and
+ * one that already started; seats outside 1-8 break the table's check (23514).
  */
-export async function setEventDriver(
-  supabase: SupabaseClient,
-  { eventId, seats }: { eventId: string; seats: number },
-): Promise<DriverWriteResult> {
-  const { error } = await supabase.rpc("set_event_driver", { p_event_id: eventId, p_seats: seats });
+export function driverWriteResult(error: PostgrestError | null): DriverWriteResult {
   if (error) {
     if (error.code === "42501") return { ok: false, failure: "forbidden", error };
     if (error.code === "23514") return { ok: false, failure: "invalid_seats", error };
     return { ok: false, failure: "unknown", error };
   }
   return { ok: true };
+}
+
+/**
+ * Declares the signed-in member a driver with `seats`, or changes the seats of their declaration.
+ * Writes only through the `set_event_driver` RPC: a PostgREST upsert would need UPDATE on the key
+ * columns, which is not granted. Error codes are mapped by `driverWriteResult`.
+ */
+export async function setEventDriver(
+  supabase: SupabaseClient,
+  { eventId, seats }: { eventId: string; seats: number },
+): Promise<DriverWriteResult> {
+  const { error } = await supabase.rpc("set_event_driver", { p_event_id: eventId, p_seats: seats });
+  return driverWriteResult(error);
 }
 
 /**
