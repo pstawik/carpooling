@@ -270,30 +270,30 @@ członkostwa” (app admin poza swoją grupą albo zepsute RLS).
 
 #### Automated
 
-- [x] 1.1 Testy jednostkowe przechodzą, w tym nowy `src/lib/refusal-log.test.ts`: `npm test`
-- [x] 1.2 Lint (z `check-ui-literals`) przechodzi: `npm run lint`
-- [x] 1.3 Typy przechodzą: `npx astro check`
-- [x] 1.4 Build przechodzi: `npm run build`
-- [x] 1.5 Smoke przechodzi bez zmian w `scripts/smoke.mjs` (odpowiedzi 404 bez zmian): `npm run smoke`
+- [x] 1.1 Testy jednostkowe przechodzą, w tym nowy `src/lib/refusal-log.test.ts`: `npm test` — 2c6f8ee
+- [x] 1.2 Lint (z `check-ui-literals`) przechodzi: `npm run lint` — 2c6f8ee
+- [x] 1.3 Typy przechodzą: `npx astro check` — 2c6f8ee
+- [x] 1.4 Build przechodzi: `npm run build` — 2c6f8ee
+- [x] 1.5 Smoke przechodzi bez zmian w `scripts/smoke.mjs` (odpowiedzi 404 bez zmian): `npm run smoke` — 2c6f8ee
 
 #### Manual
 
-- [x] 1.6 Spreparowany `event_id` na attendance daje 404 i wpis `warn` bez PII
-- [x] 1.7 Odebrane `EXECUTE` na `set_event_driver` daje 404 i wpis `error` dla „jadę” na nadchodzącym terminie
-- [x] 1.8 Zaczęty termin dalej daje `driver_locked` / `attendance_locked` bez wpisu odmowy
+- [x] 1.6 Spreparowany `event_id` na attendance daje 404 i wpis `warn` bez PII — 2c6f8ee
+- [x] 1.7 Odebrane `EXECUTE` na `set_event_driver` daje 404 i wpis `error` dla „jadę” na nadchodzącym terminie — 2c6f8ee
+- [x] 1.8 Zaczęty termin dalej daje `driver_locked` / `attendance_locked` bez wpisu odmowy — 2c6f8ee
 
 ### Phase 2: Brak własnego członkostwa (G-2)
 
 #### Automated
 
-- [ ] 2.1 Testy jednostkowe przechodzą, w tym nowy `src/lib/services/groups.test.ts`: `npm test`
-- [ ] 2.2 Lint przechodzi: `npm run lint`
-- [ ] 2.3 Typy przechodzą: `npx astro check`
-- [ ] 2.4 Build przechodzi: `npm run build`
-- [ ] 2.5 Smoke przechodzi bez zmian: `npm run smoke`
+- [x] 2.1 Testy jednostkowe przechodzą, w tym nowy `src/lib/services/groups.test.ts`: `npm test`
+- [x] 2.2 Lint przechodzi: `npm run lint`
+- [x] 2.3 Typy przechodzą: `npx astro check`
+- [x] 2.4 Build przechodzi: `npm run build`
+- [x] 2.5 Smoke przechodzi bez zmian: `npm run smoke`
 
 #### Manual
 
-- [ ] 2.6 Ukryty wiersz członkostwa daje 404 i wpis `error` od `getGroupWithAdmins`
-- [ ] 2.7 Nie-członek app admin dostaje 404 bez wpisu odmowy
-- [ ] 2.8 Członek na własnej grupie widzi stronę bez wpisu
+- [x] 2.6 Ukryty wiersz członkostwa daje 404 i wpis `error` od `getGroupWithAdmins`
+- [x] 2.7 Nie-członek app admin dostaje 404 bez wpisu odmowy
+- [x] 2.8 Członek na własnej grupie widzi stronę bez wpisu
