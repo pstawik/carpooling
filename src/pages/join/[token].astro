@@ -18,7 +18,8 @@ const token = parsed.success ? parsed.data : null;
 const supabase = createClient(Astro.request.headers, Astro.cookies);
 let groupName: string | null = null;
 let lookupFailed = false;
-if (token && !supabase) {
+const notConfigured = Boolean(token) && !supabase;
+if (notConfigured) {
   // Without Supabase the token can't be checked: answer 503, not a misleading 404. createClient
   // already logged `config_missing` once per isolate, so no second log here.
   lookupFailed = true;
@@ -57,11 +58,16 @@ const secondaryClass =
         <>
           <h1 class:list={headingClass}>Coś poszło nie tak</h1>
           <p class="text-blue-100/80" role="alert">
-            Nie udało się sprawdzić zaproszenia — spróbuj ponownie za chwilę.
+            {notConfigured
+              ? `Nie da się teraz sprawdzić zaproszenia: ${groupErrorMessage("not_configured", null)}.`
+              : "Nie udało się sprawdzić zaproszenia — spróbuj ponownie za chwilę."}
           </p>
-          <a href={Astro.url.pathname} class:list={[secondaryClass, "mt-6"]}>
-            Spróbuj ponownie
-          </a>
+          {/* Retrying can't help until the secrets are set, so the link shows only for a failed lookup. */}
+          {!notConfigured && (
+            <a href={Astro.url.pathname} class:list={[secondaryClass, "mt-6"]}>
+              Spróbuj ponownie
+            </a>
+          )}
         </>
       ) : !groupName || !token ? (
         <>

@@ -1,7 +1,7 @@
 ---
 change_id: observability-followups
 title: Observability followups
-status: implemented
+status: impl_reviewed
 created: 2026-11-20
 updated: 2026-11-20
 archived_at: null
