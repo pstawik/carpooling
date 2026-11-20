@@ -182,14 +182,14 @@ Brak migracji. Zmiana treści komunikatów może wymagać aktualizacji ewentualn
 
 #### Automated
 
-- [x] 2.1 Wszystkie testy jednostkowe przechodzą: `npm test`
-- [x] 2.2 Lint przechodzi: `npm run lint`
-- [x] 2.3 Typy przechodzą: `npx astro check`
-- [x] 2.4 Build przechodzi: `npm run build`
-- [x] 2.5 Smoke test przechodzi: `npm run smoke`
-- [x] 2.6 W `src/` nie zostaje log z samym `message`: `grep -rn 'instanceof Error ? .*\.message' src` nic nie zwraca
+- [x] 2.1 Wszystkie testy jednostkowe przechodzą: `npm test` — 2af0610
+- [x] 2.2 Lint przechodzi: `npm run lint` — 2af0610
+- [x] 2.3 Typy przechodzą: `npx astro check` — 2af0610
+- [x] 2.4 Build przechodzi: `npm run build` — 2af0610
+- [x] 2.5 Smoke test przechodzi: `npm run smoke` — 2af0610
+- [x] 2.6 W `src/` nie zostaje log z samym `message`: `grep -rn 'instanceof Error ? .*\.message' src` nic nie zwraca — 2af0610
 
 #### Manual
 
-- [x] 2.7 Przy zatrzymanej bazie `/dashboard` loguje `listMyGroups failed:` z obiektem błędu
-- [x] 2.8 Przy zatrzymanej bazie log zawiera `profile lookup failed: <code> <message>`
+- [x] 2.7 Przy zatrzymanej bazie `/dashboard` loguje `listMyGroups failed:` z obiektem błędu — 2af0610
+- [x] 2.8 Przy zatrzymanej bazie log zawiera `profile lookup failed: <code> <message>` — 2af0610
