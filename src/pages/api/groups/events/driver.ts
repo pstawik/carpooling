@@ -1,5 +1,6 @@
 import type { APIRoute } from "astro";
 import { createClient } from "@/lib/supabase";
+import { logError } from "@/lib/error-log";
 import { logUnexpectedRefusal } from "@/lib/refusal-log";
 import { setEventDriver, withdrawEventDriver } from "@/lib/services/drivers";
 import { getGroupEvent, hasStarted, type GroupEventItem } from "@/lib/services/events";
@@ -31,6 +32,7 @@ export const POST: APIRoute = async (context) => {
   }
   const { group_id: groupId, event_id: eventId, action } = result.data;
   const planUrl = `/groups/${groupId}/terminy/${eventId}`;
+  const logIds = { userId: user.id, groupId, eventId };
 
   let seats = 0;
   if (action === "set") {
@@ -57,8 +59,7 @@ export const POST: APIRoute = async (context) => {
         return context.redirect(`${planUrl}?error=invalid_driver_seats#twoj-przejazd`);
       }
       if (outcome.failure === "unknown") {
-        // eslint-disable-next-line no-console -- surfaces in Cloudflare Worker logs
-        console.error("setEventDriver failed:", outcome.error?.code, outcome.error?.message);
+        logError("error", "write_failed", "setEventDriver", outcome.error, logIds);
         // `unknown` shows at the top of the plan, so don't jump past it to #twoj-przejazd.
         return context.redirect(`${planUrl}?error=unknown`);
       }
@@ -68,8 +69,7 @@ export const POST: APIRoute = async (context) => {
   } else {
     const outcome = await withdrawEventDriver(supabase, { eventId, userId: user.id });
     if (!outcome.ok) {
-      // eslint-disable-next-line no-console -- surfaces in Cloudflare Worker logs
-      console.error("withdrawEventDriver failed:", outcome.error.code, outcome.error.message);
+      logError("error", "write_failed", "withdrawEventDriver", outcome.error, logIds);
       return context.redirect(`${planUrl}?error=unknown`);
     }
     refused = !outcome.deleted;
@@ -81,14 +81,12 @@ export const POST: APIRoute = async (context) => {
     try {
       event = await getGroupEvent(supabase, groupId, eventId);
     } catch (error) {
-      // eslint-disable-next-line no-console -- surfaces in Cloudflare Worker logs
-      console.error("getGroupEvent failed:", error);
+      logError("error", "read_failed", "getGroupEvent", error, logIds);
       return context.redirect(`${planUrl}?error=unknown`);
     }
-    const refusalIds = { userId: user.id, groupId, eventId };
     const op = action === "set" ? "setEventDriver" : "withdrawEventDriver";
     if (!event) {
-      logUnexpectedRefusal("warn", op, refusalError, refusalIds);
+      logUnexpectedRefusal("warn", op, refusalError, logIds);
       return context.rewrite("/404");
     }
     if (hasStarted(event, new Date())) {
@@ -96,7 +94,7 @@ export const POST: APIRoute = async (context) => {
     }
     // A set refused on an upcoming event should not happen for a member: answer 404 but log an error.
     if (action === "set") {
-      logUnexpectedRefusal("error", op, refusalError, refusalIds);
+      logUnexpectedRefusal("error", op, refusalError, logIds);
       return context.rewrite("/404");
     }
     // Withdraw on an upcoming event with nothing to delete: a double click or a stale page.

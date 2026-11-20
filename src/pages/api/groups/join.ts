@@ -28,5 +28,5 @@ export const POST: APIRoute = async (context) => {
     return context.redirect("/dashboard");
   }
 
-  return context.redirect(joinRedirect(await joinByInvite(supabase, token), token));
+  return context.redirect(joinRedirect(await joinByInvite(supabase, token, context.locals.user.id), token));
 };

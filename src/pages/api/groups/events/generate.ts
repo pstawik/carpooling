@@ -1,5 +1,6 @@
 import type { APIRoute } from "astro";
 import { createClient } from "@/lib/supabase";
+import { logError } from "@/lib/error-log";
 import { logUnexpectedRefusal } from "@/lib/refusal-log";
 import { generateEvents } from "@/lib/services/events";
 import { eventSeriesFieldError, generateEventsSchema } from "@/lib/validation/events";
@@ -47,8 +48,11 @@ export const POST: APIRoute = async (context) => {
     if (outcome.failure === "no_future_start") {
       return context.redirect(`/groups/${groupId}?error=invalid_event_series#terminy`);
     }
-    // eslint-disable-next-line no-console -- surfaces in Cloudflare Worker logs
-    console.error("generateEvents failed:", outcome.failure, outcome.error?.code, outcome.error?.message);
+    logError("error", "write_failed", "generateEvents", outcome.error, {
+      userId: context.locals.user.id,
+      groupId,
+      failure: outcome.failure,
+    });
     // An insert has no other expected failure (duplicates are skipped), so show the top banner.
     return context.redirect(`/groups/${groupId}?error=unknown`);
   }

@@ -1,4 +1,5 @@
 import type { APIRoute } from "astro";
+import { logError } from "@/lib/error-log";
 import { createClient } from "@/lib/supabase";
 import { adminGroupsErrorUrl, createGroupIssueCode, groupRpcFailure } from "@/lib/services/group-errors";
 import { createGroupSchema } from "@/lib/validation/groups";
@@ -38,8 +39,8 @@ export const POST: APIRoute = async (context) => {
     const failure = groupRpcFailure(error);
     if (failure.kind === "forbidden") return context.rewrite("/404");
     if (failure.code === "unknown") {
-      // eslint-disable-next-line no-console -- surfaces in Cloudflare Worker logs
-      console.error("create_group failed:", error.code, error.message);
+      // Only the caller: the form carries admin e-mails, which never go to the log.
+      logError("error", "write_failed", "create_group", error, { userId: context.locals.user.id });
     }
     return context.redirect(adminGroupsErrorUrl(failure.code, failure.email));
   }

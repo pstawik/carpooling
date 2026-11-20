@@ -398,30 +398,30 @@ filtrować po `event` i `op`. Retencja Workers Logs to 7 dni, więc stare wpisy 
 
 #### Automated
 
-- [x] 1.1 Test helpera przechodzi: `npx vitest run src/lib/error-log.test.ts`
-- [x] 1.2 Test odmów przechodzi bez zmian w pliku testu: `npx vitest run src/lib/refusal-log.test.ts`
-- [x] 1.3 Wszystkie testy jednostkowe przechodzą: `npm test`
-- [x] 1.4 Lint przechodzi: `npm run lint`
-- [x] 1.5 Typy przechodzą: `npx astro check`
+- [x] 1.1 Test helpera przechodzi: `npx vitest run src/lib/error-log.test.ts` — 691e8e0
+- [x] 1.2 Test odmów przechodzi bez zmian w pliku testu: `npx vitest run src/lib/refusal-log.test.ts` — 691e8e0
+- [x] 1.3 Wszystkie testy jednostkowe przechodzą: `npm test` — 691e8e0
+- [x] 1.4 Lint przechodzi: `npm run lint` — 691e8e0
+- [x] 1.5 Typy przechodzą: `npx astro check` — 691e8e0
 
 #### Manual
 
-- [x] 1.6 W `npm run dev` POST deklaracji z cudzym `groupId` wypisuje jeden obiekt z `event: "unexpected_refusal"`, bez prefiksu tekstowego
+- [x] 1.6 W `npm run dev` POST deklaracji z cudzym `groupId` wypisuje jeden obiekt z `event: "unexpected_refusal"`, bez prefiksu tekstowego — 691e8e0
 
 ### Phase 2: Trasy zapisu
 
 #### Automated
 
-- [ ] 2.1 Wszystkie testy jednostkowe przechodzą: `npm test`
-- [ ] 2.2 Lint przechodzi: `npm run lint`
-- [ ] 2.3 Typy przechodzą: `npx astro check`
-- [ ] 2.4 Build przechodzi: `npm run build`
-- [ ] 2.5 Smoke przechodzi bez zmian w skrypcie: `npm run smoke`
-- [ ] 2.6 W `src/pages/api` nie zostaje `console.`: `grep -rn "console\." src/pages/api` nic nie zwraca
+- [x] 2.1 Wszystkie testy jednostkowe przechodzą: `npm test`
+- [x] 2.2 Lint przechodzi: `npm run lint`
+- [x] 2.3 Typy przechodzą: `npx astro check`
+- [x] 2.4 Build przechodzi: `npm run build`
+- [x] 2.5 Smoke przechodzi bez zmian w skrypcie: `npm run smoke`
+- [x] 2.6 W `src/pages/api` nie zostaje `console.`: `grep -rn "console\." src/pages/api` nic nie zwraca
 
 #### Manual
 
-- [ ] 2.7 Przy zatrzymanej bazie zapis dziecka daje 302 z banerem, a terminal pokazuje obiekt `write_failed` z `op: "addChild"`, `userId` i `groupId`
+- [x] 2.7 Przy zatrzymanej bazie zapis dziecka daje 302 z banerem, a terminal pokazuje obiekt `write_failed` z `op: "addChild"`, `userId` i `groupId`
 
 ### Phase 3: Odczyty, strony i middleware
 

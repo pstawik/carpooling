@@ -1,5 +1,6 @@
 import type { APIRoute } from "astro";
 import { createClient } from "@/lib/supabase";
+import { logError } from "@/lib/error-log";
 import { logUnexpectedRefusal } from "@/lib/refusal-log";
 import { renameChild } from "@/lib/services/children";
 import { groupIdIfOnlyNameInvalid, updateChildSchema } from "@/lib/validation/children";
@@ -42,8 +43,11 @@ export const POST: APIRoute = async (context) => {
       return context.rewrite("/404");
     }
     if (outcome.failure === "unknown") {
-      // eslint-disable-next-line no-console -- surfaces in Cloudflare Worker logs
-      console.error("renameChild failed:", outcome.error?.code, outcome.error?.message);
+      logError("error", "write_failed", "renameChild", outcome.error, {
+        userId: context.locals.user.id,
+        groupId,
+        childId,
+      });
     }
     // `unknown` shows in the top banner, so don't jump past it to #dzieci.
     const anchor = outcome.failure === "unknown" ? "" : "#dzieci";

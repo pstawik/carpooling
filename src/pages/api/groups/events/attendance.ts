@@ -1,5 +1,6 @@
 import type { APIRoute } from "astro";
 import { createClient } from "@/lib/supabase";
+import { logError } from "@/lib/error-log";
 import { logUnexpectedRefusal } from "@/lib/refusal-log";
 import { setChildAttendance } from "@/lib/services/attendance";
 import { getGroupEvent, hasStarted, type GroupEventItem } from "@/lib/services/events";
@@ -47,8 +48,7 @@ export const POST: APIRoute = async (context) => {
       try {
         event = await getGroupEvent(supabase, groupId, eventId);
       } catch (error) {
-        // eslint-disable-next-line no-console -- surfaces in Cloudflare Worker logs
-        console.error("getGroupEvent failed:", error);
+        logError("error", "read_failed", "getGroupEvent", error, refusalIds);
         return context.redirect(`${planUrl}?error=unknown`);
       }
       if (event && hasStarted(event, new Date())) {
@@ -59,8 +59,7 @@ export const POST: APIRoute = async (context) => {
       logUnexpectedRefusal(event ? "error" : "warn", "setChildAttendance", outcome.error, refusalIds);
       return context.rewrite("/404");
     }
-    // eslint-disable-next-line no-console -- surfaces in Cloudflare Worker logs
-    console.error("setChildAttendance failed:", outcome.error?.code, outcome.error?.message);
+    logError("error", "write_failed", "setChildAttendance", outcome.error, refusalIds);
     // `unknown` shows at the top of the plan, so don't jump past it to #twoje-dzieci.
     return context.redirect(`${planUrl}?error=unknown`);
   }

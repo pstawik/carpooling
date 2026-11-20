@@ -1,4 +1,5 @@
 import type { APIRoute } from "astro";
+import { logError } from "@/lib/error-log";
 import { createClient } from "@/lib/supabase";
 import { addGroupAdminIssueCode, adminGroupsErrorUrl, groupRpcFailure } from "@/lib/services/group-errors";
 import { addGroupAdminSchema } from "@/lib/validation/groups";
@@ -38,8 +39,11 @@ export const POST: APIRoute = async (context) => {
     const failure = groupRpcFailure(error);
     if (failure.kind === "forbidden") return context.rewrite("/404");
     if (failure.code === "unknown") {
-      // eslint-disable-next-line no-console -- surfaces in Cloudflare Worker logs
-      console.error("add_group_admin failed:", error.code, error.message);
+      // The e-mail being added never goes to the log.
+      logError("error", "write_failed", "add_group_admin", error, {
+        userId: context.locals.user.id,
+        groupId: result.data.group_id,
+      });
     }
     return context.redirect(adminGroupsErrorUrl(failure.code, failure.email));
   }
