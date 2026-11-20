@@ -1,5 +1,6 @@
 import type { APIRoute } from "astro";
 import { createClient } from "@/lib/supabase";
+import { logUnexpectedRefusal } from "@/lib/refusal-log";
 import { generateEvents } from "@/lib/services/events";
 import { eventSeriesFieldError, generateEventsSchema } from "@/lib/validation/events";
 
@@ -37,7 +38,10 @@ export const POST: APIRoute = async (context) => {
   const outcome = await generateEvents(supabase, { groupId, dates, time, now: new Date() });
   if (!outcome.ok) {
     // Also covers an admin whose earliest start passed between the filter and the insert.
-    if (outcome.failure === "forbidden") return context.rewrite("/404");
+    if (outcome.failure === "forbidden") {
+      logUnexpectedRefusal("warn", "generateEvents", outcome.error, { userId: context.locals.user.id, groupId });
+      return context.rewrite("/404");
+    }
     // Every date has passed (or falls in a DST gap): nothing to generate, the same form mistake
     // any user gets, so RLS is never the one asked to say no.
     if (outcome.failure === "no_future_start") {

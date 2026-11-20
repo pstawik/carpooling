@@ -1,5 +1,6 @@
 import type { APIRoute } from "astro";
 import { createClient } from "@/lib/supabase";
+import { logUnexpectedRefusal } from "@/lib/refusal-log";
 import { setEventDriver, withdrawEventDriver } from "@/lib/services/drivers";
 import { getGroupEvent, hasStarted, type GroupEventItem } from "@/lib/services/events";
 import { driverFormSchema, driverSeatsSchema } from "@/lib/validation/drivers";
@@ -47,6 +48,8 @@ export const POST: APIRoute = async (context) => {
 
   // Set to true when RLS refused the write; the event then decides between a message and a 404.
   let refused = false;
+  // The refusal from set_event_driver, kept for the log when the refusal ends in a 404.
+  let refusalError: unknown = null;
   if (action === "set") {
     const outcome = await setEventDriver(supabase, { eventId, seats });
     if (!outcome.ok) {
@@ -60,6 +63,7 @@ export const POST: APIRoute = async (context) => {
         return context.redirect(`${planUrl}?error=unknown`);
       }
       refused = true;
+      refusalError = outcome.error;
     }
   } else {
     const outcome = await withdrawEventDriver(supabase, { eventId, userId: user.id });
@@ -81,12 +85,20 @@ export const POST: APIRoute = async (context) => {
       console.error("getGroupEvent failed:", error instanceof Error ? error.message : error);
       return context.redirect(`${planUrl}?error=unknown`);
     }
-    if (!event) return context.rewrite("/404");
+    const refusalIds = { userId: user.id, groupId, eventId };
+    const op = action === "set" ? "setEventDriver" : "withdrawEventDriver";
+    if (!event) {
+      logUnexpectedRefusal("warn", op, refusalError, refusalIds);
+      return context.rewrite("/404");
+    }
     if (hasStarted(event, new Date())) {
       return context.redirect(`${planUrl}?error=driver_locked#twoj-przejazd`);
     }
-    // A set refused on an upcoming event should not happen for a member; treat it as foreign.
-    if (action === "set") return context.rewrite("/404");
+    // A set refused on an upcoming event should not happen for a member: answer 404 but log an error.
+    if (action === "set") {
+      logUnexpectedRefusal("error", op, refusalError, refusalIds);
+      return context.rewrite("/404");
+    }
     // Withdraw on an upcoming event with nothing to delete: a double click or a stale page.
   }
 

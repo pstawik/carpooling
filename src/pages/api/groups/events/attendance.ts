@@ -1,5 +1,6 @@
 import type { APIRoute } from "astro";
 import { createClient } from "@/lib/supabase";
+import { logUnexpectedRefusal } from "@/lib/refusal-log";
 import { setChildAttendance } from "@/lib/services/attendance";
 import { getGroupEvent, hasStarted, type GroupEventItem } from "@/lib/services/events";
 import { setAttendanceSchema } from "@/lib/validation/attendance";
@@ -27,6 +28,7 @@ export const POST: APIRoute = async (context) => {
   }
   const { group_id: groupId, event_id: eventId, child_id: childId, going } = result.data;
   const planUrl = `/groups/${groupId}/terminy/${eventId}`;
+  const refusalIds = { userId: context.locals.user.id, groupId, eventId, childId };
 
   const supabase = createClient(context.request.headers, context.cookies);
   if (!supabase) {
@@ -35,7 +37,10 @@ export const POST: APIRoute = async (context) => {
 
   const outcome = await setChildAttendance(supabase, { eventId, childId, going });
   if (!outcome.ok) {
-    if (outcome.failure === "not_found") return context.rewrite("/404");
+    if (outcome.failure === "not_found") {
+      logUnexpectedRefusal("warn", "setChildAttendance", outcome.error, refusalIds);
+      return context.rewrite("/404");
+    }
     if (outcome.failure === "forbidden") {
       // 42501 covers both "event already started" and "not your child / not your group".
       let event: GroupEventItem | null;
@@ -49,6 +54,9 @@ export const POST: APIRoute = async (context) => {
       if (event && hasStarted(event, new Date())) {
         return context.redirect(`${planUrl}?error=attendance_locked#twoje-dzieci`);
       }
+      // No visible event is a foreign group or a forged id (warn). An upcoming event refused for a
+      // parent should not happen: a broken policy or revoked EXECUTE on set_child_attendance (error).
+      logUnexpectedRefusal(event ? "error" : "warn", "setChildAttendance", outcome.error, refusalIds);
       return context.rewrite("/404");
     }
     // eslint-disable-next-line no-console -- surfaces in Cloudflare Worker logs

@@ -1,5 +1,6 @@
 import type { APIRoute } from "astro";
 import { createClient } from "@/lib/supabase";
+import { logUnexpectedRefusal } from "@/lib/refusal-log";
 import { addEvent } from "@/lib/services/events";
 import { addEventSchema, eventFieldError } from "@/lib/validation/events";
 
@@ -38,7 +39,10 @@ export const POST: APIRoute = async (context) => {
   const outcome = await addEvent(supabase, { groupId, startsAt, note });
   if (!outcome.ok) {
     // Also covers an admin whose start passed between validation and insert.
-    if (outcome.failure === "forbidden") return context.rewrite("/404");
+    if (outcome.failure === "forbidden") {
+      logUnexpectedRefusal("warn", "addEvent", outcome.error, { userId: context.locals.user.id, groupId });
+      return context.rewrite("/404");
+    }
     if (outcome.failure === "unknown") {
       // eslint-disable-next-line no-console -- surfaces in Cloudflare Worker logs
       console.error("addEvent failed:", outcome.error?.code, outcome.error?.message);

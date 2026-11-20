@@ -1,5 +1,6 @@
 import type { APIRoute } from "astro";
 import { createClient } from "@/lib/supabase";
+import { logUnexpectedRefusal } from "@/lib/refusal-log";
 import { groupRpcFailure } from "@/lib/services/group-errors";
 import { regenerateInviteSchema } from "@/lib/validation/invites";
 
@@ -32,7 +33,10 @@ export const POST: APIRoute = async (context) => {
   const { error } = await supabase.rpc("regenerate_group_invite", { p_group_id: groupId });
 
   if (error) {
-    if (groupRpcFailure(error).kind === "forbidden") return context.rewrite("/404");
+    if (groupRpcFailure(error).kind === "forbidden") {
+      logUnexpectedRefusal("warn", "regenerateGroupInvite", error, { userId: context.locals.user.id, groupId });
+      return context.rewrite("/404");
+    }
     // eslint-disable-next-line no-console -- surfaces in Cloudflare Worker logs
     console.error("regenerate_group_invite failed:", error.code, error.message);
     return context.redirect(`/groups/${groupId}?error=unknown`);
