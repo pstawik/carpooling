@@ -18,6 +18,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { logError } from "@/lib/error-log";
 import { createClient } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
 import { getGroupWithAdmins } from "@/lib/services/groups";
@@ -78,8 +79,11 @@ try {
   // Only children declared as going count; "bez deklaracji" does not add to the demand.
   balance = buildSeatBalance(drivers, plan.going.length);
 } catch (loadError) {
-  // eslint-disable-next-line no-console -- surfaces in Cloudflare Worker logs
-  console.error(loadError);
+  logError("error", "section_degraded", "eventPlan", loadError, {
+    userId: user.id,
+    groupId: group.id,
+    eventId: event.id,
+  });
   plan = null;
 }
 const myDriver = drivers.find((driver) => driver.userId === user.id) ?? null;

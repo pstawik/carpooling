@@ -45,7 +45,7 @@ export const POST: APIRoute = async (context) => {
   if (data.session) {
     // Same client: its session is already set, so the join runs as the new user.
     if (invite) {
-      return context.redirect(joinRedirect(await joinByInvite(supabase, invite), invite));
+      return context.redirect(joinRedirect(await joinByInvite(supabase, invite, data.session.user.id), invite));
     }
     return context.redirect("/dashboard");
   }

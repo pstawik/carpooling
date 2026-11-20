@@ -1,3 +1,5 @@
+import { emitLog, errorLogFields, type ErrorLogFields } from "@/lib/error-log";
+
 export interface RefusalIds {
   userId: string;
   groupId?: string;
@@ -5,17 +7,8 @@ export interface RefusalIds {
   childId?: string;
 }
 
-export interface RefusalLogFields extends Partial<RefusalIds> {
+export interface RefusalLogFields extends ErrorLogFields {
   event: "unexpected_refusal";
-  op: string;
-  code: string | undefined;
-  message: string | undefined;
-}
-
-function readString(error: unknown, key: "code" | "message"): string | undefined {
-  if (typeof error !== "object" || error === null) return undefined;
-  const value = (error as Record<string, unknown>)[key];
-  return typeof value === "string" ? value : undefined;
 }
 
 /**
@@ -23,17 +16,7 @@ function readString(error: unknown, key: "code" | "message"): string | undefined
  * error (never `details` or `hint`, which can carry key values), plus the UUIDs given in `ids`.
  */
 export function refusalLogFields(op: string, error: unknown, ids: RefusalIds): RefusalLogFields {
-  const fields: RefusalLogFields = {
-    event: "unexpected_refusal",
-    op,
-    code: readString(error, "code"),
-    message: readString(error, "message"),
-    userId: ids.userId,
-  };
-  if (ids.groupId !== undefined) fields.groupId = ids.groupId;
-  if (ids.eventId !== undefined) fields.eventId = ids.eventId;
-  if (ids.childId !== undefined) fields.childId = ids.childId;
-  return fields;
+  return { ...errorLogFields("unexpected_refusal", op, error, ids), event: "unexpected_refusal" };
 }
 
 /**
@@ -42,6 +25,5 @@ export function refusalLogFields(op: string, error: unknown, ids: RefusalIds): R
  * signed-in member; `warn` is for refusals a stranger can cause with a forged id.
  */
 export function logUnexpectedRefusal(level: "warn" | "error", op: string, error: unknown, ids: RefusalIds): void {
-  // eslint-disable-next-line no-console -- surfaces in Cloudflare Worker logs
-  console[level]("unexpected refusal:", refusalLogFields(op, error, ids));
+  emitLog(level, refusalLogFields(op, error, ids));
 }

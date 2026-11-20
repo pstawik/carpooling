@@ -5,6 +5,7 @@ import Topbar from "@/components/Topbar.astro";
 import { cardClass, linkButtonClass, listItemClass } from "@/components/groups/group-page-classes";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card } from "@/components/ui/card";
+import { logError } from "@/lib/error-log";
 import { createClient } from "@/lib/supabase";
 import { getGroupWithAdmins } from "@/lib/services/groups";
 import { countFinishedEvents, getGroupStats, type GroupStats } from "@/lib/services/stats";
@@ -36,8 +37,7 @@ try {
   finishedCount = count;
   stats = groupStats;
 } catch (loadError) {
-  // eslint-disable-next-line no-console -- surfaces in Cloudflare Worker logs
-  console.error(loadError);
+  logError("error", "section_degraded", "groupStats", loadError, { userId: user.id, groupId: group.id });
   stats = null;
 }
 ---

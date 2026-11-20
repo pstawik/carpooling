@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { logError } from "@/lib/error-log";
 import { groupRpcFailure } from "@/lib/services/group-errors";
 import { serviceError } from "@/lib/service-error";
 
@@ -23,8 +24,11 @@ export async function getInviteGroupName(supabase: SupabaseClient, token: string
   return (response.data as string | null) ?? null;
 }
 
-/** Joins the signed-in caller to the token's group; membership already held keeps its role. */
-export async function joinByInvite(supabase: SupabaseClient, token: string): Promise<JoinResult> {
+/**
+ * Joins the signed-in caller to the token's group; membership already held keeps its role. `userId`
+ * is the caller's id, used only in the failure log; the token itself is never logged.
+ */
+export async function joinByInvite(supabase: SupabaseClient, token: string, userId: string): Promise<JoinResult> {
   // The client has no generated DB types, so `data` is untyped; cast once to the RPC's row shape.
   const response = await supabase.rpc("join_group_by_invite", { p_token: token });
   const { error } = response;
@@ -32,15 +36,12 @@ export async function joinByInvite(supabase: SupabaseClient, token: string): Pro
   if (error) {
     const failure = groupRpcFailure(error);
     if (failure.kind === "error" && failure.code === "invalid_invite") return { kind: "invalid" };
-    // Never log the token itself (see plan: tokens in logs).
-    // eslint-disable-next-line no-console -- surfaces in Cloudflare Worker logs
-    console.error("join_group_by_invite failed:", error.code, error.message);
+    logError("error", "write_failed", "join_group_by_invite", error, { userId });
     return { kind: "error" };
   }
   const row = rows?.[0];
   if (!row) {
-    // eslint-disable-next-line no-console -- surfaces in Cloudflare Worker logs
-    console.error("join_group_by_invite returned no row");
+    logError("error", "write_failed", "join_group_by_invite", null, { userId, failure: "no_row" });
     return { kind: "error" };
   }
   return { kind: row.already_member ? "already_member" : "joined", groupId: row.group_id };

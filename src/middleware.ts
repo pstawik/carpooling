@@ -1,5 +1,6 @@
 import { defineMiddleware } from "astro:middleware";
-import { authErrorLogFields, classifyAuthError } from "@/lib/auth-error";
+import { authFailedLogFields, classifyAuthError } from "@/lib/auth-error";
+import { emitLog, logError } from "@/lib/error-log";
 import { createClient } from "@/lib/supabase";
 import type { Profile } from "@/types";
 
@@ -37,11 +38,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
     const authErrorClass = classifyAuthError(authError);
     if (authErrorClass === "session_rejected") {
-      // eslint-disable-next-line no-console -- surfaces in Cloudflare Worker logs
-      console.warn("auth session rejected:", authErrorLogFields(authError, context.url.pathname));
+      emitLog("warn", authFailedLogFields("session_rejected", authError, context.url.pathname));
     } else if (authErrorClass === "outage") {
-      // eslint-disable-next-line no-console -- surfaces in Cloudflare Worker logs
-      console.error("auth getUser failed:", authErrorLogFields(authError, context.url.pathname));
+      emitLog("error", authFailedLogFields("outage", authError, context.url.pathname));
       // An Auth outage must not look like a sign-out: API calls and protected pages get a 503.
       // Public pages carry on with user = null.
       if (context.url.pathname.startsWith("/api/")) {
@@ -62,8 +61,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
         .eq("id", user.id)
         .maybeSingle<Profile>();
       if (error) {
-        // eslint-disable-next-line no-console -- surfaces in Cloudflare Worker logs
-        console.error("profile lookup failed:", error.code, error.message);
+        logError("error", "section_degraded", "profile", error, { userId: user.id });
       }
       context.locals.profile = error ? null : (data ?? null);
     }
@@ -72,8 +70,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     if (user && needsAppAdminFlag(context.url.pathname)) {
       const { data, error } = await supabase.rpc("is_app_admin").overrideTypes<boolean, { merge: false }>();
       if (error) {
-        // eslint-disable-next-line no-console -- surfaces in Cloudflare Worker logs
-        console.error("is_app_admin lookup failed:", error.code, error.message);
+        logError("error", "read_failed", "is_app_admin", error, { userId: user.id });
       }
       context.locals.isAppAdmin = !error && data === true;
     }

@@ -5,7 +5,7 @@ import {
   AuthUnknownError,
 } from "@supabase/supabase-js";
 import { describe, expect, it } from "vitest";
-import { authErrorLogFields, classifyAuthError } from "@/lib/auth-error";
+import { authErrorLogFields, authFailedLogFields, classifyAuthError } from "@/lib/auth-error";
 
 describe("classifyAuthError", () => {
   it("null and undefined -> none", () => {
@@ -63,6 +63,40 @@ describe("authErrorLogFields", () => {
       code: undefined,
       message: undefined,
       path: "/api/x",
+    });
+  });
+});
+
+describe("authFailedLogFields", () => {
+  it("adds event, op and kind to the whitelisted fields and nothing else", () => {
+    const error = Object.assign(new AuthRetryableFetchError("fetch failed", 503), {
+      email: "parent@example.com",
+    });
+
+    expect(authFailedLogFields("outage", error, "/groups/1")).toStrictEqual({
+      event: "auth_failed",
+      op: "getUser",
+      kind: "outage",
+      name: "AuthRetryableFetchError",
+      status: 503,
+      code: undefined,
+      message: "fetch failed",
+      path: "/groups/1",
+    });
+  });
+
+  it("keeps the session_rejected kind", () => {
+    expect(
+      authFailedLogFields("session_rejected", new AuthApiError("invalid JWT", 401, "bad_jwt"), "/dashboard"),
+    ).toStrictEqual({
+      event: "auth_failed",
+      op: "getUser",
+      kind: "session_rejected",
+      name: "AuthApiError",
+      status: 401,
+      code: "bad_jwt",
+      message: "invalid JWT",
+      path: "/dashboard",
     });
   });
 });

@@ -2,6 +2,7 @@
 import Layout from "@/layouts/Layout.astro";
 import Topbar from "@/components/Topbar.astro";
 import { Button } from "@/components/ui/button";
+import { logError } from "@/lib/error-log";
 import { createClient } from "@/lib/supabase";
 import { groupErrorMessage, groupNoticeMessage, groupRpcFailure } from "@/lib/services/group-errors";
 import type { AdminGroupRow } from "@/types";
@@ -28,8 +29,7 @@ if (!supabase) {
     if (groupRpcFailure(rpcError).kind === "forbidden") {
       return Astro.rewrite("/404");
     }
-    // eslint-disable-next-line no-console -- surfaces in Cloudflare Worker logs
-    console.error("admin_list_groups failed:", rpcError.code, rpcError.message);
+    logError("error", "section_degraded", "adminGroups", rpcError, { userId: Astro.locals.user?.id });
     error ??= groupErrorMessage("unknown", null);
   } else {
     groups = Array.isArray(rows) ? (rows as AdminGroupRow[]) : [];

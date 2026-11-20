@@ -31,7 +31,7 @@ export const POST: APIRoute = async (context) => {
     return context.redirect(signinError("not_configured", invite));
   }
 
-  const { error } = await supabase.auth.signInWithPassword(result.data);
+  const { data, error } = await supabase.auth.signInWithPassword(result.data);
 
   if (error) {
     return context.redirect(signinError(authErrorCode(error), invite));
@@ -39,7 +39,7 @@ export const POST: APIRoute = async (context) => {
 
   if (invite) {
     // Same client: its session is already set, so the join runs as the signed-in user.
-    return context.redirect(joinRedirect(await joinByInvite(supabase, invite), invite));
+    return context.redirect(joinRedirect(await joinByInvite(supabase, invite, data.user.id), invite));
   }
 
   return context.redirect("/dashboard");

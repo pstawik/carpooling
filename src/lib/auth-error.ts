@@ -44,3 +44,18 @@ export function authErrorLogFields(error: unknown, pathname: string): AuthErrorL
     path: pathname,
   };
 }
+
+export interface AuthFailedLogFields extends AuthErrorLogFields {
+  event: "auth_failed";
+  op: "getUser";
+  kind: "session_rejected" | "outage";
+}
+
+/** One `auth_failed` log object: the event, op and kind plus the whitelisted `authErrorLogFields`. */
+export function authFailedLogFields(
+  kind: "session_rejected" | "outage",
+  error: unknown,
+  pathname: string,
+): AuthFailedLogFields {
+  return { event: "auth_failed", op: "getUser", kind, ...authErrorLogFields(error, pathname) };
+}

@@ -1,6 +1,7 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 import { Button } from "@/components/ui/button";
+import { logError } from "@/lib/error-log";
 import { createClient } from "@/lib/supabase";
 import { getInviteGroupName } from "@/lib/services/invites";
 import { inviteTokenSchema } from "@/lib/validation/invites";
@@ -17,9 +18,8 @@ if (token && supabase) {
   try {
     groupName = await getInviteGroupName(supabase, token);
   } catch (error) {
-    // The thrown message carries only the RPC code and message, never the token.
-    // eslint-disable-next-line no-console -- surfaces in Cloudflare Worker logs
-    console.error("invite page lookup failed:", error);
+    // The thrown message carries only the RPC code and message; the token never goes into the log.
+    logError("error", "read_failed", "getInviteGroupName", error, { userId: user?.id });
     lookupFailed = true;
   }
 }
