@@ -30,6 +30,7 @@ const CLEANED_VIEWS = [
   "src/components/auth/SignUpForm.tsx",
   "src/components/auth/SubmitButton.tsx",
   "src/pages/dev/ui-auth.astro",
+  "src/pages/503.astro",
 ];
 
 // The /10x-ui hardcoded-value scan, widened: side borders, ring-offset, placeholder/caret/accent/decoration,
