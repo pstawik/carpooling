@@ -3,6 +3,7 @@ import { z } from "zod";
 import { warsawLocalToUtc } from "@/lib/time";
 import { START_MARGIN_MS } from "@/lib/validation/events";
 import type { GroupEvent } from "@/types";
+import { serviceError } from "@/lib/service-error";
 
 /** An event of the group as shown on the group page. */
 export interface GroupEventItem {
@@ -45,7 +46,7 @@ export async function listGroupEvents(supabase: SupabaseClient, groupId: string)
     .eq("group_id", groupId)
     .order("starts_at", { ascending: true });
   if (error) {
-    throw new Error(`listGroupEvents failed: ${error.message}`);
+    throw serviceError("listGroupEvents", error);
   }
   const rows = (data as unknown as EventRow[] | null) ?? [];
   return rows.map((row) => ({ id: row.id, startsAt: row.starts_at, note: row.note }));
@@ -70,7 +71,7 @@ export async function getGroupEvent(
     .eq("group_id", groupId)
     .maybeSingle();
   if (error) {
-    throw new Error(`getGroupEvent failed: ${error.message}`);
+    throw serviceError("getGroupEvent", error);
   }
   const row: EventRow | null = data;
   return row ? { id: row.id, startsAt: row.starts_at, note: row.note } : null;

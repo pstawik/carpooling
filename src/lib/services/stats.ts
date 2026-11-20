@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { serviceError } from "@/lib/service-error";
 
 /** Drives of one member over the group's finished events (FR-017). */
 export interface DriverStat {
@@ -53,7 +54,7 @@ export async function countFinishedEvents(supabase: SupabaseClient, groupId: str
     .eq("group_id", groupId)
     .lte("starts_at", now.toISOString());
   if (error) {
-    throw new Error(`countFinishedEvents failed: ${error.message}`);
+    throw serviceError("countFinishedEvents", error);
   }
   return count ?? 0;
 }
@@ -70,10 +71,10 @@ export async function getGroupStats(supabase: SupabaseClient, groupId: string): 
     supabase.rpc("group_child_stats", { p_group_id: groupId }),
   ]);
   if (driversResult.error) {
-    throw new Error(`group_driver_stats failed: ${driversResult.error.message}`);
+    throw serviceError("group_driver_stats", driversResult.error);
   }
   if (childrenResult.error) {
-    throw new Error(`group_child_stats failed: ${childrenResult.error.message}`);
+    throw serviceError("group_child_stats", childrenResult.error);
   }
 
   const driverRows = (driversResult.data as unknown as DriverStatRow[] | null) ?? [];

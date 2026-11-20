@@ -1,6 +1,7 @@
 import type { PostgrestError, SupabaseClient } from "@supabase/supabase-js";
 import type { GroupChild } from "@/lib/services/children";
 import type { ChildAttendance } from "@/types";
+import { serviceError } from "@/lib/service-error";
 
 export type AttendanceWriteFailure = "forbidden" | "not_found" | "unknown";
 
@@ -35,7 +36,7 @@ type AttendanceRow = Pick<ChildAttendance, "child_id" | "going">;
 export async function listEventAttendance(supabase: SupabaseClient, eventId: string): Promise<Map<string, boolean>> {
   const { data, error } = await supabase.from("child_attendance").select("child_id, going").eq("event_id", eventId);
   if (error) {
-    throw new Error(`listEventAttendance failed: ${error.message}`);
+    throw serviceError("listEventAttendance", error);
   }
   const rows = (data as unknown as AttendanceRow[] | null) ?? [];
   return new Map(rows.map((row) => [row.child_id, row.going]));

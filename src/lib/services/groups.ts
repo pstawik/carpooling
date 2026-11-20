@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { logUnexpectedRefusal } from "@/lib/refusal-log";
 import type { GroupRole } from "@/types";
+import { serviceError } from "@/lib/service-error";
 
 /** A group the current user belongs to, with their own role in it. */
 export interface MyGroup {
@@ -41,7 +42,7 @@ const groupIdSchema = z.uuid();
 export async function listMyGroups(supabase: SupabaseClient, userId: string): Promise<MyGroup[]> {
   const { data, error } = await supabase.from("group_members").select("role, groups(id, name)").eq("user_id", userId);
   if (error) {
-    throw new Error(`listMyGroups failed: ${error.message}`);
+    throw serviceError("listMyGroups", error);
   }
   const rows = (data as unknown as MembershipRow[] | null) ?? [];
   return rows
@@ -84,7 +85,7 @@ export async function getGroupWithAdmins(
     .eq("id", groupId)
     .maybeSingle();
   if (error) {
-    throw new Error(`getGroupWithAdmins failed: ${error.message}`);
+    throw serviceError("getGroupWithAdmins", error);
   }
   const group = data as unknown as GroupRow | null;
   const me = group?.group_members.find((member) => member.user_id === userId);

@@ -1,5 +1,6 @@
 import type { PostgrestError, SupabaseClient } from "@supabase/supabase-js";
 import type { Child } from "@/types";
+import { serviceError } from "@/lib/service-error";
 
 /** A child of the group as shown on the group page. */
 export interface GroupChild {
@@ -39,7 +40,7 @@ export async function listGroupChildren(supabase: SupabaseClient, groupId: strin
     .select("id, name, parent_id, profiles(nick)")
     .eq("group_id", groupId);
   if (error) {
-    throw new Error(`listGroupChildren failed: ${error.message}`);
+    throw serviceError("listGroupChildren", error);
   }
   const rows = (data as unknown as ChildRow[] | null) ?? [];
   return rows

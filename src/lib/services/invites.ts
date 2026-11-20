@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { groupRpcFailure } from "@/lib/services/group-errors";
+import { serviceError } from "@/lib/service-error";
 
 export type JoinResult =
   { kind: "joined" | "already_member"; groupId: string } | { kind: "invalid" } | { kind: "error" };
@@ -16,6 +17,7 @@ interface JoinRow {
 export async function getInviteGroupName(supabase: SupabaseClient, token: string): Promise<string | null> {
   const response = await supabase.rpc("invite_group_name", { p_token: token });
   if (response.error) {
+    // No `cause`: `details` of this RPC error could contain the invite token.
     throw new Error(`invite_group_name failed: ${response.error.code} ${response.error.message}`);
   }
   return (response.data as string | null) ?? null;
@@ -69,7 +71,7 @@ export async function getGroupInviteToken(supabase: SupabaseClient, groupId: str
     .eq("group_id", groupId)
     .maybeSingle<{ token: string }>();
   if (error) {
-    throw new Error(`getGroupInviteToken failed: ${error.message}`);
+    throw serviceError("getGroupInviteToken", error);
   }
   return data?.token ?? null;
 }
