@@ -1,5 +1,6 @@
 import type { PostgrestError, SupabaseClient } from "@supabase/supabase-js";
 import type { EventDriver } from "@/types";
+import { serviceError } from "@/lib/service-error";
 
 /** A member declared as a driver for an event, as shown on the event plan. */
 export interface EventDriverEntry {
@@ -37,7 +38,7 @@ export async function listEventDrivers(supabase: SupabaseClient, eventId: string
     .select("user_id, seats, profiles(nick, phone)")
     .eq("event_id", eventId);
   if (error) {
-    throw new Error(`listEventDrivers failed: ${error.message}`);
+    throw serviceError("listEventDrivers", error);
   }
   const rows = (data as unknown as DriverRow[] | null) ?? [];
   return rows

@@ -82,7 +82,7 @@ export const POST: APIRoute = async (context) => {
       event = await getGroupEvent(supabase, groupId, eventId);
     } catch (error) {
       // eslint-disable-next-line no-console -- surfaces in Cloudflare Worker logs
-      console.error("getGroupEvent failed:", error instanceof Error ? error.message : error);
+      console.error("getGroupEvent failed:", error);
       return context.redirect(`${planUrl}?error=unknown`);
     }
     const refusalIds = { userId: user.id, groupId, eventId };

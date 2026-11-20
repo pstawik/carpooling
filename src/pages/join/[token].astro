@@ -19,7 +19,7 @@ if (token && supabase) {
   } catch (error) {
     // The thrown message carries only the RPC code and message, never the token.
     // eslint-disable-next-line no-console -- surfaces in Cloudflare Worker logs
-    console.error("invite page lookup failed:", error instanceof Error ? error.message : error);
+    console.error("invite page lookup failed:", error);
     lookupFailed = true;
   }
 }

@@ -29,7 +29,7 @@ if (!supabase) {
       return Astro.rewrite("/404");
     }
     // eslint-disable-next-line no-console -- surfaces in Cloudflare Worker logs
-    console.error("admin_list_groups failed:", rpcError.message);
+    console.error("admin_list_groups failed:", rpcError.code, rpcError.message);
     error ??= groupErrorMessage("unknown", null);
   } else {
     groups = Array.isArray(rows) ? (rows as AdminGroupRow[]) : [];
