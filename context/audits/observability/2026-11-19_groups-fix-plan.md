@@ -16,7 +16,7 @@ Plan wprowadzania poprawek z audytu `2026-11-19_groups.md`. Każdy krok to osobn
 | 2 | `log-unexpected-refusals` | G-1, G-2 | S | zakończona (#82) |
 | 3 | `service-error-cause` | G-4, G-5, P-3 | S (mechaniczna) | zakończona (#85) |
 | 4 | `structured-error-logs` | G-6, G-3, G-7 | M | zakończona (#88) |
-| 5 | `observability-followups` | P-2, G-8 | XS | do zrobienia |
+| 5 | `observability-followups` | P-2, G-8 | XS | zakończona (#93) |
 
 ## Krok 1: błąd Auth w middleware (P-1, krytyczne)
 
