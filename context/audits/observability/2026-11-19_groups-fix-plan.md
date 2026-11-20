@@ -12,8 +12,8 @@ Plan wprowadzania poprawek z audytu `2026-11-19_groups.md`. Każdy krok to osobn
 
 | Krok | Zmiana (change-id) | Zamyka | Rozmiar | Status |
 |---|---|---|---|---|
-| 1 | `middleware-auth-error-logging` | P-1 | XS (1 plik) | rozpoczęta |
-| 2 | `log-unexpected-refusals` | G-1, G-2 | S | do zrobienia |
+| 1 | `middleware-auth-error-logging` | P-1 | XS (1 plik) | zakończona (PR #80, #81) |
+| 2 | `log-unexpected-refusals` | G-1, G-2 | S | zakończona (#82) |
 | 3 | `service-error-cause` | G-4, G-5, P-3 | S (mechaniczna) | do zrobienia |
 | 4 | `structured-error-logs` | G-6, G-3, G-7 | M | do zrobienia |
 | 5 | `observability-followups` | P-2, G-8 | XS | do zrobienia |

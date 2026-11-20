@@ -1,5 +1,6 @@
 import type { APIRoute } from "astro";
 import { createClient } from "@/lib/supabase";
+import { logUnexpectedRefusal } from "@/lib/refusal-log";
 import { deleteChild } from "@/lib/services/children";
 import { deleteChildSchema } from "@/lib/validation/children";
 
@@ -33,7 +34,10 @@ export const POST: APIRoute = async (context) => {
 
   const outcome = await deleteChild(supabase, { groupId, childId, userId: context.locals.user.id });
   if (!outcome.ok) {
-    if (outcome.failure === "forbidden") return context.rewrite("/404");
+    if (outcome.failure === "forbidden") {
+      logUnexpectedRefusal("warn", "deleteChild", outcome.error, { userId: context.locals.user.id, groupId, childId });
+      return context.rewrite("/404");
+    }
     if (outcome.failure === "unknown") {
       // eslint-disable-next-line no-console -- surfaces in Cloudflare Worker logs
       console.error("deleteChild failed:", outcome.error?.code, outcome.error?.message);

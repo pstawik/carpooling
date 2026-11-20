@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
+import { logUnexpectedRefusal } from "@/lib/refusal-log";
 import type { GroupRole } from "@/types";
 
 /** A group the current user belongs to, with their own role in it. */
@@ -50,9 +51,24 @@ export async function listMyGroups(supabase: SupabaseClient, userId: string): Pr
 }
 
 /**
+ * Whether a visible group without the caller's own membership row is worth an `error` log. Only a
+ * confirmed app admin (RPC succeeded and returned `true`) is expected there; `false`, `null` and an
+ * RPC error all point at broken RLS.
+ */
+export function missingMembershipLogLevel(appAdminCheck: {
+  data: unknown;
+  error: { code?: string; message?: string } | null;
+}): "error" | null {
+  return appAdminCheck.error === null && appAdminCheck.data === true ? null : "error";
+}
+
+/**
  * The group and its admins, or `null` when the id is malformed, the group is not visible, or the
  * user has no own membership in it. Members-only on purpose: a non-member app admin also gets
  * `null` (RLS lets them read the group but not the admins' profiles) and uses /admin/groups instead.
+ * A visible group without the caller's membership is logged at `error` unless the caller is an
+ * app admin (checked via `is_app_admin`, only on this rare branch): for anyone else it means RLS
+ * hides the member's own row, which would otherwise look like a plain 404.
  */
 export async function getGroupWithAdmins(
   supabase: SupabaseClient,
@@ -72,7 +88,16 @@ export async function getGroupWithAdmins(
   }
   const group = data as unknown as GroupRow | null;
   const me = group?.group_members.find((member) => member.user_id === userId);
-  if (!group || !me) {
+  if (!group) {
+    return null;
+  }
+  if (!me) {
+    const { data: isAdmin, error: adminError } = await supabase
+      .rpc("is_app_admin")
+      .overrideTypes<boolean, { merge: false }>();
+    if (missingMembershipLogLevel({ data: isAdmin, error: adminError }) !== null) {
+      logUnexpectedRefusal("error", "getGroupWithAdmins", adminError, { groupId, userId });
+    }
     return null;
   }
   const admins = group.group_members

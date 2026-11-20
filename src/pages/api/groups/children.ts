@@ -1,5 +1,6 @@
 import type { APIRoute } from "astro";
 import { createClient } from "@/lib/supabase";
+import { logUnexpectedRefusal } from "@/lib/refusal-log";
 import { addChild } from "@/lib/services/children";
 import { addChildSchema, groupIdIfOnlyNameInvalid } from "@/lib/validation/children";
 
@@ -38,7 +39,10 @@ export const POST: APIRoute = async (context) => {
   // parent_id always comes from the session, never from the form.
   const outcome = await addChild(supabase, { groupId, parentId: user.id, name });
   if (!outcome.ok) {
-    if (outcome.failure === "forbidden") return context.rewrite("/404");
+    if (outcome.failure === "forbidden") {
+      logUnexpectedRefusal("warn", "addChild", outcome.error, { userId: user.id, groupId });
+      return context.rewrite("/404");
+    }
     if (outcome.failure === "unknown") {
       // eslint-disable-next-line no-console -- surfaces in Cloudflare Worker logs
       console.error("addChild failed:", outcome.error?.code, outcome.error?.message);
