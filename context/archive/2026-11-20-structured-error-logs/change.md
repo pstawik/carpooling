@@ -1,10 +1,10 @@
 ---
 change_id: structured-error-logs
 title: Structured error logs
-status: implemented
+status: archived
 created: 2026-11-20
 updated: 2026-11-20
-archived_at: null
+archived_at: 2026-11-20T08:38:21Z
 ---
 
 ## Notes
