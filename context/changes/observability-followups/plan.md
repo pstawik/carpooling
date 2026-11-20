@@ -286,30 +286,30 @@ Brak migracji DB. Po deployu warto dodać zapytanie lub alert w Workers Logs na
 
 #### Automated
 
-- [x] 1.1 Testy jednostkowe przechodzą: `npm test`
-- [x] 1.2 Lint (z `check-ui-literals`) przechodzi: `npm run lint`
-- [x] 1.3 Typy przechodzą: `npx astro check`
-- [x] 1.4 Build przechodzi: `npm run build`
+- [x] 1.1 Testy jednostkowe przechodzą: `npm test` — 1308440
+- [x] 1.2 Lint (z `check-ui-literals`) przechodzi: `npm run lint` — 1308440
+- [x] 1.3 Typy przechodzą: `npx astro check` — 1308440
+- [x] 1.4 Build przechodzi: `npm run build` — 1308440
 
 #### Manual
 
-- [x] 1.5 Bez `SUPABASE_KEY`: dokładnie jeden wpis `config_missing` z `missing: ["SUPABASE_KEY"]`, baner i redirect bez zmian
-- [x] 1.6 Z pełnym `.dev.vars` brak wpisu `config_missing`
+- [x] 1.5 Bez `SUPABASE_KEY`: dokładnie jeden wpis `config_missing` z `missing: ["SUPABASE_KEY"]`, baner i redirect bez zmian — 1308440
+- [x] 1.6 Z pełnym `.dev.vars` brak wpisu `config_missing` — 1308440
 
 ### Phase 2: Komunikat po nieudanym joinie (G-8) i 503 na `/join` bez configu
 
 #### Automated
 
-- [ ] 2.1 Testy jednostkowe przechodzą, w tym zaktualizowany test `error` w `invites.test.ts`: `npm test`
-- [ ] 2.2 Lint (z `check-ui-literals`) przechodzi: `npm run lint`
-- [ ] 2.3 Typy przechodzą: `npx astro check`
-- [ ] 2.4 Build przechodzi: `npm run build`
-- [ ] 2.5 Smoke auth-flow przechodzi na zbudowanym serwerze: `npm run smoke`
+- [x] 2.1 Testy jednostkowe przechodzą, w tym zaktualizowany test `error` w `invites.test.ts`: `npm test`
+- [x] 2.2 Lint (z `check-ui-literals`) przechodzi: `npm run lint`
+- [x] 2.3 Typy przechodzą: `npx astro check`
+- [x] 2.4 Build przechodzi: `npm run build`
+- [x] 2.5 Smoke auth-flow przechodzi na zbudowanym serwerze: `npm run smoke`
 
 #### Manual
 
-- [ ] 2.6 `?error=unknown` pokazuje Alert nad „Dołącz do grupy”, ponowienie działa, status 200
-- [ ] 2.7 `?error=cokolwiek` i brak query nie pokazują komunikatu
-- [ ] 2.8 Nieaktualny token z `?error=unknown` daje 404 bez Alertu
-- [ ] 2.9 360 px: Alert się zawija, brak poziomego scrolla, przycisk ≥ 44 px
-- [ ] 2.10 Bez `SUPABASE_KEY`: poprawny format tokenu daje 503, zły format 404
+- [x] 2.6 `?error=unknown` pokazuje Alert nad „Dołącz do grupy”, ponowienie działa, status 200
+- [x] 2.7 `?error=cokolwiek` i brak query nie pokazują komunikatu
+- [x] 2.8 Nieaktualny token z `?error=unknown` daje 404 bez Alertu
+- [x] 2.9 360 px: Alert się zawija, brak poziomego scrolla, przycisk ≥ 44 px
+- [x] 2.10 Bez `SUPABASE_KEY`: poprawny format tokenu daje 503, zły format 404

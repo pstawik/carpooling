@@ -1,20 +1,28 @@
 ---
+import { CircleAlert } from "lucide-react";
 import Layout from "@/layouts/Layout.astro";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { logError } from "@/lib/error-log";
 import { createClient } from "@/lib/supabase";
+import { groupErrorMessage } from "@/lib/services/group-errors";
 import { getInviteGroupName } from "@/lib/services/invites";
 import { inviteTokenSchema } from "@/lib/validation/invites";
 
 // Public route: opening a link never changes data; joining is the POST form below.
-// A malformed, unknown or regenerated token all render the same "nieaktualny" card with 404.
+// A malformed, unknown or regenerated token all render the same "nieaktualny" card with 404; a lookup
+// that can't run (failed RPC, no Supabase config) renders "Coś poszło nie tak" with 503.
 const { user } = Astro.locals;
 const parsed = inviteTokenSchema.safeParse(Astro.params.token);
 const token = parsed.success ? parsed.data : null;
 const supabase = createClient(Astro.request.headers, Astro.cookies);
 let groupName: string | null = null;
 let lookupFailed = false;
-if (token && supabase) {
+if (token && !supabase) {
+  // Without Supabase the token can't be checked: answer 503, not a misleading 404. createClient
+  // already logged `config_missing` once per isolate, so no second log here.
+  lookupFailed = true;
+} else if (token && supabase) {
   try {
     groupName = await getInviteGroupName(supabase, token);
   } catch (error) {
@@ -23,6 +31,8 @@ if (token && supabase) {
     lookupFailed = true;
   }
 }
+// Only the code from a failed join (joinRedirect) is recognised; any other value shows nothing.
+const joinError = Astro.url.searchParams.get("error") === "unknown" ? groupErrorMessage("unknown", null) : null;
 
 if (lookupFailed) {
   Astro.response.status = 503;
@@ -64,6 +74,12 @@ const secondaryClass =
       ) : (
         <>
           <h1 class:list={headingClass}>Zaproszenie do grupy „{groupName}”</h1>
+          {user && joinError && (
+            <Alert variant="destructive" role="alert" className="mt-6 text-left">
+              <CircleAlert />
+              <AlertDescription className="break-words">{joinError}</AlertDescription>
+            </Alert>
+          )}
           {user ? (
             <form method="POST" action="/api/groups/join" class="mt-6">
               <input type="hidden" name="token" value={token} />

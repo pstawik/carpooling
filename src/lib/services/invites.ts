@@ -53,11 +53,13 @@ export function joinRedirect(result: JoinResult, token: string): string {
     case "joined":
     case "already_member":
       return `/groups/${result.groupId}?message=${result.kind}`;
-    // An unexpected failure goes back to the join page too: there the signed-in user can retry with
-    // "Dołącz do grupy" instead of landing on the dashboard with no hint that the join didn't happen.
+    // A stale token: the join page itself answers 404 "Link nieaktualny".
     case "invalid":
-    case "error":
       return `/join/${token}`;
+    // An unexpected failure goes back to the join page too, never to the dashboard: there the page shows
+    // the "unknown" error above "Dołącz do grupy" so the signed-in user knows to retry.
+    case "error":
+      return `/join/${token}?error=unknown`;
   }
 }
 

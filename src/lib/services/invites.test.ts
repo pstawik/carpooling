@@ -8,6 +8,8 @@ const TOKEN = "AbCdEfGhIjKlMnOpQrStUvWxYz012-_9";
 
 // Oracle: join-group-by-invite-link F2 — both `invalid` and `error` go back to /join/<token>, never
 // to a page that looks like success (context/archive/2026-11-12-join-group-by-invite-link/reviews/impl-review.md:78).
+// Observability audit G-8 (context/audits/observability/2026-11-19_groups.md:116): `error` also carries
+// `?error=unknown` so the join page tells the user the attempt failed.
 describe("joinRedirect", () => {
   it("joined -> the group page with message=joined", () => {
     expect(joinRedirect({ kind: "joined", groupId: GROUP_ID }, TOKEN)).toBe(`/groups/${GROUP_ID}?message=joined`);
@@ -23,8 +25,8 @@ describe("joinRedirect", () => {
     expect(joinRedirect({ kind: "invalid" }, TOKEN)).toBe(`/join/${TOKEN}`);
   });
 
-  it("error -> back to /join/<token>, no message (F2: not /dashboard)", () => {
-    expect(joinRedirect({ kind: "error" }, TOKEN)).toBe(`/join/${TOKEN}`);
+  it("error -> back to /join/<token>?error=unknown (F2: not /dashboard)", () => {
+    expect(joinRedirect({ kind: "error" }, TOKEN)).toBe(`/join/${TOKEN}?error=unknown`);
   });
 });
 
