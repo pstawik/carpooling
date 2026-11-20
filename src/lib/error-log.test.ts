@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { errorLogFields } from "@/lib/error-log";
+import { configMissingLogFields, errorLogFields } from "@/lib/error-log";
 
 const USER = "11111111-1111-4111-8111-111111111111";
 const GROUP = "22222222-2222-4222-8222-222222222222";
@@ -89,5 +89,38 @@ describe("errorLogFields", () => {
       childId: undefined,
     });
     expect(Object.keys(fields)).toStrictEqual(["event", "op", "userId"]);
+  });
+});
+
+describe("configMissingLogFields", () => {
+  const URL = "https://project.supabase.co";
+  const KEY = "sb_secret_value";
+
+  it("both secrets missing -> both names, in a fixed order", () => {
+    expect(configMissingLogFields({})).toStrictEqual({
+      event: "config_missing",
+      op: "createClient",
+      missing: ["SUPABASE_URL", "SUPABASE_KEY"],
+    });
+  });
+
+  it("only the key missing -> its name, and the URL value never appears", () => {
+    const fields = configMissingLogFields({ SUPABASE_URL: URL });
+    expect(fields).toStrictEqual({ event: "config_missing", op: "createClient", missing: ["SUPABASE_KEY"] });
+    expect(JSON.stringify(fields)).not.toContain(URL);
+  });
+
+  it("only the URL missing -> its name, and the key value never appears", () => {
+    const fields = configMissingLogFields({ SUPABASE_KEY: KEY });
+    expect(fields?.missing).toStrictEqual(["SUPABASE_URL"]);
+    expect(JSON.stringify(fields)).not.toContain(KEY);
+  });
+
+  it("an empty string counts as missing", () => {
+    expect(configMissingLogFields({ SUPABASE_URL: "", SUPABASE_KEY: KEY })?.missing).toStrictEqual(["SUPABASE_URL"]);
+  });
+
+  it("both set -> null", () => {
+    expect(configMissingLogFields({ SUPABASE_URL: URL, SUPABASE_KEY: KEY })).toBeNull();
   });
 });

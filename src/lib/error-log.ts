@@ -1,4 +1,5 @@
-export type ErrorLogEvent = "write_failed" | "section_degraded" | "read_failed" | "unexpected_refusal" | "auth_failed";
+export type ErrorLogEvent =
+  "write_failed" | "section_degraded" | "read_failed" | "unexpected_refusal" | "auth_failed" | "config_missing";
 
 export interface ErrorLogContext {
   userId?: string;
@@ -67,6 +68,26 @@ export function errorLogFields(
 export function emitLog(level: "warn" | "error", fields: object): void {
   // eslint-disable-next-line no-console -- surfaces in Cloudflare Worker logs
   console[level](fields);
+}
+
+const SUPABASE_ENV_NAMES = ["SUPABASE_URL", "SUPABASE_KEY"] as const;
+
+export interface ConfigMissingLogFields {
+  event: "config_missing";
+  op: "createClient";
+  missing: (typeof SUPABASE_ENV_NAMES)[number][];
+}
+
+/**
+ * One `config_missing` log object naming the unset (undefined or empty) Supabase secrets, or `null`
+ * when both are set. Only the variable names go into the result, never their values.
+ */
+export function configMissingLogFields(env: {
+  SUPABASE_URL?: string;
+  SUPABASE_KEY?: string;
+}): ConfigMissingLogFields | null {
+  const missing = SUPABASE_ENV_NAMES.filter((name) => !env[name]);
+  return missing.length === 0 ? null : { event: "config_missing", op: "createClient", missing };
 }
 
 /** Builds the whitelisted fields for `error` and emits them as one object. */
