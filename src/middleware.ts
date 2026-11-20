@@ -63,7 +63,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
         .maybeSingle<Profile>();
       if (error) {
         // eslint-disable-next-line no-console -- surfaces in Cloudflare Worker logs
-        console.error("profile lookup failed:", error.message);
+        console.error("profile lookup failed:", error.code, error.message);
       }
       context.locals.profile = error ? null : (data ?? null);
     }
@@ -73,7 +73,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
       const { data, error } = await supabase.rpc("is_app_admin").overrideTypes<boolean, { merge: false }>();
       if (error) {
         // eslint-disable-next-line no-console -- surfaces in Cloudflare Worker logs
-        console.error("is_app_admin lookup failed:", error.message);
+        console.error("is_app_admin lookup failed:", error.code, error.message);
       }
       context.locals.isAppAdmin = !error && data === true;
     }

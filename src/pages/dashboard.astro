@@ -20,7 +20,7 @@ if (supabase && user) {
     groups = await listMyGroups(supabase, user.id);
   } catch (err) {
     // eslint-disable-next-line no-console -- surfaces in Cloudflare Worker logs
-    console.error(err instanceof Error ? err.message : err);
+    console.error("listMyGroups failed:", err);
     groupsFailed = true;
   }
 }

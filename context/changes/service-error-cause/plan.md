@@ -168,28 +168,28 @@ Brak migracji. Zmiana treści komunikatów może wymagać aktualizacji ewentualn
 
 #### Automated
 
-- [x] 1.1 Test helpera przechodzi: `npx vitest run src/lib/service-error.test.ts`
-- [x] 1.2 Wszystkie testy jednostkowe przechodzą: `npm test`
-- [x] 1.3 Lint (z `check-ui-literals`) przechodzi: `npm run lint`
-- [x] 1.4 Typy przechodzą: `npx astro check`
-- [x] 1.5 W `src/lib/services/` nie ma już `error.message` w `throw`: `grep -rn 'error.message}' src/lib/services` zwraca tylko `invites.ts:19`
+- [x] 1.1 Test helpera przechodzi: `npx vitest run src/lib/service-error.test.ts` — ecafe07
+- [x] 1.2 Wszystkie testy jednostkowe przechodzą: `npm test` — ecafe07
+- [x] 1.3 Lint (z `check-ui-literals`) przechodzi: `npm run lint` — ecafe07
+- [x] 1.4 Typy przechodzą: `npx astro check` — ecafe07
+- [x] 1.5 W `src/lib/services/` nie ma już `error.message` w `throw`: `grep -rn 'error.message}' src/lib/services` zwraca tylko `invites.ts:19` — ecafe07
 
 #### Manual
 
-- [x] 1.6 Przy zatrzymanej bazie log strony grupy zawiera `listGroupChildren failed: <code> …`; zanotowane, czy `cause` był widoczny
+- [x] 1.6 Przy zatrzymanej bazie log strony grupy zawiera `listGroupChildren failed: <code> …`; zanotowane, czy `cause` był widoczny — ecafe07 (cause widoczny w logu dev przy console.error(err); na produkcji niesprawdzone)
 
 ### Phase 2: Logi w catch i middleware
 
 #### Automated
 
-- [ ] 2.1 Wszystkie testy jednostkowe przechodzą: `npm test`
-- [ ] 2.2 Lint przechodzi: `npm run lint`
-- [ ] 2.3 Typy przechodzą: `npx astro check`
-- [ ] 2.4 Build przechodzi: `npm run build`
-- [ ] 2.5 Smoke test przechodzi: `npm run smoke`
-- [ ] 2.6 W `src/` nie zostaje log z samym `message`: `grep -rn 'instanceof Error ? .*\.message' src` nic nie zwraca
+- [x] 2.1 Wszystkie testy jednostkowe przechodzą: `npm test`
+- [x] 2.2 Lint przechodzi: `npm run lint`
+- [x] 2.3 Typy przechodzą: `npx astro check`
+- [x] 2.4 Build przechodzi: `npm run build`
+- [x] 2.5 Smoke test przechodzi: `npm run smoke`
+- [x] 2.6 W `src/` nie zostaje log z samym `message`: `grep -rn 'instanceof Error ? .*\.message' src` nic nie zwraca
 
 #### Manual
 
-- [ ] 2.7 Przy zatrzymanej bazie `/dashboard` loguje `listMyGroups failed:` z obiektem błędu
-- [ ] 2.8 Przy zatrzymanej bazie log zawiera `profile lookup failed: <code> <message>`
+- [x] 2.7 Przy zatrzymanej bazie `/dashboard` loguje `listMyGroups failed:` z obiektem błędu
+- [x] 2.8 Przy zatrzymanej bazie log zawiera `profile lookup failed: <code> <message>`
