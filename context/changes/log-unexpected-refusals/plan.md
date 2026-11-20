@@ -286,14 +286,14 @@ członkostwa” (app admin poza swoją grupą albo zepsute RLS).
 
 #### Automated
 
-- [x] 2.1 Testy jednostkowe przechodzą, w tym nowy `src/lib/services/groups.test.ts`: `npm test`
-- [x] 2.2 Lint przechodzi: `npm run lint`
-- [x] 2.3 Typy przechodzą: `npx astro check`
-- [x] 2.4 Build przechodzi: `npm run build`
-- [x] 2.5 Smoke przechodzi bez zmian: `npm run smoke`
+- [x] 2.1 Testy jednostkowe przechodzą, w tym nowy `src/lib/services/groups.test.ts`: `npm test` — e3d5868
+- [x] 2.2 Lint przechodzi: `npm run lint` — e3d5868
+- [x] 2.3 Typy przechodzą: `npx astro check` — e3d5868
+- [x] 2.4 Build przechodzi: `npm run build` — e3d5868
+- [x] 2.5 Smoke przechodzi bez zmian: `npm run smoke` — e3d5868
 
 #### Manual
 
-- [x] 2.6 Ukryty wiersz członkostwa daje 404 i wpis `error` od `getGroupWithAdmins`
-- [x] 2.7 Nie-członek app admin dostaje 404 bez wpisu odmowy
-- [x] 2.8 Członek na własnej grupie widzi stronę bez wpisu
+- [x] 2.6 Ukryty wiersz członkostwa daje 404 i wpis `error` od `getGroupWithAdmins` — e3d5868
+- [x] 2.7 Nie-członek app admin dostaje 404 bez wpisu odmowy — e3d5868
+- [x] 2.8 Członek na własnej grupie widzi stronę bez wpisu — e3d5868
