@@ -300,16 +300,16 @@ Brak migracji DB. Po deployu warto dodać zapytanie lub alert w Workers Logs na
 
 #### Automated
 
-- [x] 2.1 Testy jednostkowe przechodzą, w tym zaktualizowany test `error` w `invites.test.ts`: `npm test`
-- [x] 2.2 Lint (z `check-ui-literals`) przechodzi: `npm run lint`
-- [x] 2.3 Typy przechodzą: `npx astro check`
-- [x] 2.4 Build przechodzi: `npm run build`
-- [x] 2.5 Smoke auth-flow przechodzi na zbudowanym serwerze: `npm run smoke`
+- [x] 2.1 Testy jednostkowe przechodzą, w tym zaktualizowany test `error` w `invites.test.ts`: `npm test` — 361f105
+- [x] 2.2 Lint (z `check-ui-literals`) przechodzi: `npm run lint` — 361f105
+- [x] 2.3 Typy przechodzą: `npx astro check` — 361f105
+- [x] 2.4 Build przechodzi: `npm run build` — 361f105
+- [x] 2.5 Smoke auth-flow przechodzi na zbudowanym serwerze: `npm run smoke` — 361f105
 
 #### Manual
 
-- [x] 2.6 `?error=unknown` pokazuje Alert nad „Dołącz do grupy”, ponowienie działa, status 200
-- [x] 2.7 `?error=cokolwiek` i brak query nie pokazują komunikatu
-- [x] 2.8 Nieaktualny token z `?error=unknown` daje 404 bez Alertu
-- [x] 2.9 360 px: Alert się zawija, brak poziomego scrolla, przycisk ≥ 44 px
-- [x] 2.10 Bez `SUPABASE_KEY`: poprawny format tokenu daje 503, zły format 404
+- [x] 2.6 `?error=unknown` pokazuje Alert nad „Dołącz do grupy”, ponowienie działa, status 200 — 361f105
+- [x] 2.7 `?error=cokolwiek` i brak query nie pokazują komunikatu — 361f105
+- [x] 2.8 Nieaktualny token z `?error=unknown` daje 404 bez Alertu — 361f105
+- [x] 2.9 360 px: Alert się zawija, brak poziomego scrolla, przycisk ≥ 44 px — 361f105
+- [x] 2.10 Bez `SUPABASE_KEY`: poprawny format tokenu daje 503, zły format 404 — 361f105
