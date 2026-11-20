@@ -6,6 +6,7 @@ import { cardClass, groupLinkClass, primaryLinkButtonClass } from "@/components/
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import { logError } from "@/lib/error-log";
 import { createClient } from "@/lib/supabase";
 import { listMyGroups, type MyGroup } from "@/lib/services/groups";
 import { cn } from "@/lib/utils";
@@ -19,8 +20,7 @@ if (supabase && user) {
   try {
     groups = await listMyGroups(supabase, user.id);
   } catch (err) {
-    // eslint-disable-next-line no-console -- surfaces in Cloudflare Worker logs
-    console.error("listMyGroups failed:", err);
+    logError("error", "section_degraded", "myGroups", err, { userId: user.id });
     groupsFailed = true;
   }
 }

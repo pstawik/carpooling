@@ -412,29 +412,29 @@ filtrować po `event` i `op`. Retencja Workers Logs to 7 dni, więc stare wpisy 
 
 #### Automated
 
-- [x] 2.1 Wszystkie testy jednostkowe przechodzą: `npm test`
-- [x] 2.2 Lint przechodzi: `npm run lint`
-- [x] 2.3 Typy przechodzą: `npx astro check`
-- [x] 2.4 Build przechodzi: `npm run build`
-- [x] 2.5 Smoke przechodzi bez zmian w skrypcie: `npm run smoke`
-- [x] 2.6 W `src/pages/api` nie zostaje `console.`: `grep -rn "console\." src/pages/api` nic nie zwraca
+- [x] 2.1 Wszystkie testy jednostkowe przechodzą: `npm test` — 0eed999
+- [x] 2.2 Lint przechodzi: `npm run lint` — 0eed999
+- [x] 2.3 Typy przechodzą: `npx astro check` — 0eed999
+- [x] 2.4 Build przechodzi: `npm run build` — 0eed999
+- [x] 2.5 Smoke przechodzi bez zmian w skrypcie: `npm run smoke` — 0eed999
+- [x] 2.6 W `src/pages/api` nie zostaje `console.`: `grep -rn "console\." src/pages/api` nic nie zwraca — 0eed999
 
 #### Manual
 
-- [x] 2.7 Przy zatrzymanej bazie zapis dziecka daje 302 z banerem, a terminal pokazuje obiekt `write_failed` z `op: "addChild"`, `userId` i `groupId`
+- [x] 2.7 Przy zatrzymanej bazie zapis dziecka daje 302 z banerem, a terminal pokazuje obiekt `write_failed` z `op: "addChild"`, `userId` i `groupId` — 0eed999
 
 ### Phase 3: Odczyty, strony i middleware
 
 #### Automated
 
-- [ ] 3.1 Wszystkie testy jednostkowe przechodzą: `npm test`
-- [ ] 3.2 Lint przechodzi: `npm run lint`
-- [ ] 3.3 Typy przechodzą: `npx astro check`
-- [ ] 3.4 Build przechodzi: `npm run build`
-- [ ] 3.5 Smoke przechodzi: `npm run smoke`
-- [ ] 3.6 Jedynym `console.` w `src/` poza testami jest `src/lib/error-log.ts`
+- [x] 3.1 Wszystkie testy jednostkowe przechodzą: `npm test`
+- [x] 3.2 Lint przechodzi: `npm run lint`
+- [x] 3.3 Typy przechodzą: `npx astro check`
+- [x] 3.4 Build przechodzi: `npm run build`
+- [x] 3.5 Smoke przechodzi: `npm run smoke`
+- [x] 3.6 Jedynym `console.` w `src/` poza testami jest `src/lib/error-log.ts`
 
 #### Manual
 
-- [ ] 3.7 Przy zatrzymanej bazie strona grupy pokazuje „Nie udało się wczytać…”, a terminal obiekt `section_degraded` z `code` z `cause`, bez `details`/`hint`
+- [x] 3.7 Przy zatrzymanej bazie strona grupy pokazuje „Nie udało się wczytać…”, a terminal obiekt `section_degraded` z `code` z `cause`, bez `details`/`hint`
 - [ ] 3.8 Po deployu filtr `event = unexpected_refusal` w Query Builderze zwraca wpis z osobnymi polami; zanotowane pole poziomu i widoczność w Issues

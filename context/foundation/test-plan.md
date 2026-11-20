@@ -235,8 +235,8 @@ odpowiednia faza zostanie wdrożona; wcześniej brzmi „TBD — see §3 Phase N
   (RLS/RPC 42501, spreparowane id) → **404** przez `rewrite("/404")`; błąd
   pola wpisanego przez użytkownika → **302 z kodem z białej listy**
   (`group-errors.ts`, `auth-errors.ts`); nieznany błąd bazy →
-  `console.error` + **302 `?error=unknown`**; nigdy 500 ani komunikat
-  sukcesu.
+  `logError("error", "write_failed", …)` + **302 `?error=unknown`**; nigdy
+  500 ani komunikat sukcesu.
 - **Wyrocznia**: ograniczenie `check` z migracji (długości, zakres miejsc),
   decyzja z archiwum (granice lat, atak na serię dat), kontrakt „404 = brak
   prawa” — wpisane w teście dosłownie, ze źródłem w komentarzu. Nigdy lista

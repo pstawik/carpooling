@@ -19,6 +19,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { logError } from "@/lib/error-log";
 import { createClient } from "@/lib/supabase";
 import { getGroupWithAdmins } from "@/lib/services/groups";
 import { getGroupInviteToken } from "@/lib/services/invites";
@@ -73,8 +74,7 @@ let events: GroupEventItem[] | null;
 try {
   events = await listGroupEvents(supabase, group.id);
 } catch (loadError) {
-  // eslint-disable-next-line no-console -- surfaces in Cloudflare Worker logs
-  console.error(loadError);
+  logError("error", "section_degraded", "groupEvents", loadError, { userId: user.id, groupId: group.id });
   events = null;
 }
 const now = new Date();
@@ -87,8 +87,7 @@ let children: GroupChild[] | null;
 try {
   children = await listGroupChildren(supabase, group.id);
 } catch (loadError) {
-  // eslint-disable-next-line no-console -- surfaces in Cloudflare Worker logs
-  console.error(loadError);
+  logError("error", "section_degraded", "groupChildren", loadError, { userId: user.id, groupId: group.id });
   children = null;
 }
 const myChildren = children?.filter((child) => child.parentId === user.id) ?? [];
