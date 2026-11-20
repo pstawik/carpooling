@@ -1,7 +1,7 @@
 ---
 change_id: log-unexpected-refusals
 title: Log unexpected refusals in groups API and pages
-status: implemented
+status: impl_reviewed
 created: 2026-11-20
 updated: 2026-11-20
 archived_at: null
