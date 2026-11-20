@@ -427,14 +427,15 @@ filtrować po `event` i `op`. Retencja Workers Logs to 7 dni, więc stare wpisy 
 
 #### Automated
 
-- [x] 3.1 Wszystkie testy jednostkowe przechodzą: `npm test`
-- [x] 3.2 Lint przechodzi: `npm run lint`
-- [x] 3.3 Typy przechodzą: `npx astro check`
-- [x] 3.4 Build przechodzi: `npm run build`
-- [x] 3.5 Smoke przechodzi: `npm run smoke`
-- [x] 3.6 Jedynym `console.` w `src/` poza testami jest `src/lib/error-log.ts`
+- [x] 3.1 Wszystkie testy jednostkowe przechodzą: `npm test` — 33dac0b
+- [x] 3.2 Lint przechodzi: `npm run lint` — 33dac0b
+- [x] 3.3 Typy przechodzą: `npx astro check` — 33dac0b
+- [x] 3.4 Build przechodzi: `npm run build` — 33dac0b
+- [x] 3.5 Smoke przechodzi: `npm run smoke` — 33dac0b
+- [x] 3.6 Jedynym `console.` w `src/` poza testami jest `src/lib/error-log.ts` — 33dac0b
 
 #### Manual
 
-- [x] 3.7 Przy zatrzymanej bazie strona grupy pokazuje „Nie udało się wczytać…”, a terminal obiekt `section_degraded` z `code` z `cause`, bez `details`/`hint`
-- [ ] 3.8 Po deployu filtr `event = unexpected_refusal` w Query Builderze zwraca wpis z osobnymi polami; zanotowane pole poziomu i widoczność w Issues
+- [x] 3.7 Przy zatrzymanej bazie strona grupy pokazuje „Nie udało się wczytać…”, a terminal obiekt `section_degraded` z `code` z `cause`, bez `details`/`hint` — 33dac0b
+- [x] 3.8 Po deployu filtr `event = unexpected_refusal` w Query Builderze zwraca wpis z osobnymi polami; zanotowane pole poziomu i widoczność w Issues — 4f05b91
+  - Wynik (2026-11-20, produkcja po merge #88): filtr zwraca wpis z osobnymi polami `op`, `code`, `userId`; poziom `warn`. Nazwy pola poziomu ani widoczności w Issues nie zanotowano.
