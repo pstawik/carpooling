@@ -1,10 +1,10 @@
 ---
 change_id: middleware-auth-error-logging
 title: Log Supabase Auth errors in middleware instead of treating them as signed out
-status: impl_reviewed
+status: archived
 created: 2026-11-19
-updated: 2026-11-19
-archived_at: null
+updated: 2026-11-20
+archived_at: 2026-11-20T05:50:58Z
 ---
 
 ## Notes
