@@ -151,6 +151,8 @@ npx supabase migration list   # confirm Local and Remote match
 
 Workers Builds deploys `main` immediately, so a migration must already be on the hosted project when its PR merges.
 
+`npm run db:check` verifies that with `supabase db push --linked --dry-run` (read-only, uses your local `npx supabase login`; exit 1 lists the pending migrations). The husky `pre-push` hook runs it on every `git push`: pending migrations block the push, while a failed check (offline, not logged in, project not linked) only warns. Hooks are installed by `npm install` (`prepare: husky`). To push a branch for review before its migration is applied, use `git push --no-verify`.
+
 ### Roles
 
 - **App admin** — can see every group and create groups (`/admin/groups`). Granted by the owner via SQL only; there is no UI for it. Membership is a row in `public.app_admins`.
